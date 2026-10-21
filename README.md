@@ -65,7 +65,9 @@ dotnet ef database update --project src/EgitimPlatformu.Web
 ```
 EgitimPlatformu.slnx          Solution
 src/EgitimPlatformu.Web/      Razor Pages uygulaması
-  Data/                       DbContext
+  Models/                     Varlık sınıfları (Kategori, Egitim, Gorev)
+  Data/                       DbContext ve örnek veri
+  Migrations/                 EF Core migration dosyaları
   Pages/                      Sayfalar
 docker-compose.yml            PostgreSQL
 ```
