@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: egitim-db
+    environment:
+      POSTGRES_DB: egitim
+      POSTGRES_USER: egitim
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env dosyasinda POSTGRES_PASSWORD tanimli olmali}
+    ports:
+      - "5433:5432"
+    volumes:
+      - egitim-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  egitim-db-data:
