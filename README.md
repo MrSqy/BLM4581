@@ -69,3 +69,20 @@ src/EgitimPlatformu.Web/      Razor Pages uygulaması
   Pages/                      Sayfalar
 docker-compose.yml            PostgreSQL
 ```
+
+## Çalışma düzeni
+
+- `main` korumalıdır; doğrudan push yapılamaz, değişiklikler yalnızca pull request ile girer.
+- Her üyenin kendi dalı vardır: `baran`, `nisa`, `ramazan`. Herkes kendi dalında, kendi GitHub hesabıyla commit atar.
+- Bir işi bitirince kendi dalından `main`'e pull request açın. Birleştirme yöntemi "Create a merge commit"tir;
+  böylece her commit kendi yazarı ve tarihiyle `main`'de görünür.
+- Başkasının işinin üzerine çalışmadan önce `main`'i kendi dalınıza alın:
+
+  ```bash
+  git switch <adiniz>
+  git pull
+  git fetch origin
+  git merge origin/main
+  ```
+
+- Her hafta `raporlar/<adiniz>/hafta-NN.md` dosyasına kısa bir rapor yazın (şablon: [raporlar/README.md](raporlar/README.md)).
