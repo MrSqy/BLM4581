@@ -1,10 +1,199 @@
-﻿@page
+﻿
+@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<!-- Karşılama alanı -->
+<div class="container">
+    <section class="hero-section my-4">
+
+        <div class="row align-items-center g-3">
+
+            <!-- Sol taraf: Tanıtım -->
+            <div class="col-lg-6">
+                <span class="text-primary fw-bold small text-uppercase">
+                    Etkileşimli Programlama Eğitimleri
+                </span>
+
+                <h1 class="display-5 hero-title mt-3 mb-4">
+                    Yazılım Dünyasında
+                    <span class="text-primary">Fark Yarat.</span>
+                </h1>
+
+                <p class="lead text-body-secondary mb-4">
+                    Python, algoritmalar, makine öğrenmesi ve C#
+                    eğitimlerini keşfet. Kodunu doğrudan tarayıcıda
+                    yaz, çalıştır ve sonuçlarını anında gör.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#populer-egitimler"
+                       class="btn btn-primary btn-lg px-4">
+                        Eğitimleri Keşfet
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sağ taraf: İllüstrasyon -->
+            <div class="col-lg-6 text-center">
+                <img src="~/images/hero-illustration.png"
+                     alt="Kodlama ve öğrenme temalı illüstrasyon"
+                     class="img-fluid hero-illustration"
+                     asp-append-version="true" />
+            </div>
+
+        </div>
+
+    </section>
 </div>
+
+
+<!-- Popüler Eğitimler -->
+<section id="populer-egitimler" class="popular-section py-5">
+    <div class="container">
+
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-end gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-2">Popüler Eğitimlerimiz</h2>
+            <p class="text-body-secondary mb-0">
+                Öğrenme yolculuğuna bu eğitimlerle başla.
+            </p>
+        </div>
+
+        <a asp-page="/Index"
+           class="fw-semibold text-primary text-decoration-none">
+            Tüm Eğitimler &rarr;
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Python -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card course-card h-100 bg-body">
+                <div class="card-body p-3 d-flex flex-column">
+                    <img src="~/images/python-course.png"
+                        alt="Python programlama eğitimi"
+                        class="course-image rounded-3 mb-3"
+                        asp-append-version="true" />
+
+                    <span class="badge text-bg-light border
+                                 align-self-start mb-3">
+                        Başlangıç
+                    </span>
+
+                    <h5 class="card-title fw-bold">
+                        Sıfırdan Python Programlama
+                    </h5>
+
+                    <p class="card-text text-body-secondary small">
+                        Programlama temellerini öğren ve örneklerle pratik yap.
+                    </p>
+
+                    <a asp-page="/Index"
+                       class="btn btn-primary mt-auto stretched-link">
+                        Eğitimi İncele
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- C# -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card course-card h-100 bg-body">
+                <div class="card-body p-3 d-flex flex-column">
+                    <img src="~/images/csharp-course.png"
+                        alt="C# ve .NET programlama eğitimi"
+                        class="course-image rounded-3 mb-3"
+                        asp-append-version="true" />
+
+                    <span class="badge text-bg-light border
+                                 align-self-start mb-3">
+                        Başlangıç
+                    </span>
+
+                    <h5 class="card-title fw-bold">
+                        C# ile Programlamaya Giriş
+                    </h5>
+
+                    <p class="card-text text-body-secondary small">
+                        C# dilini keşfet ve temel programlama becerileri kazan.
+                    </p>
+
+                    <a asp-page="/Index"
+                       class="btn btn-primary mt-auto stretched-link">
+                        Eğitimi İncele
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algoritmalar -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card course-card h-100 bg-body">
+                <div class="card-body p-3 d-flex flex-column">
+                    <img src="~/images/algorithms-course.png"
+                        alt="Algoritmalar ve veri yapıları eğitimi"
+                        class="course-image rounded-3 mb-3"
+                        asp-append-version="true" />
+
+                    <span class="badge text-bg-light border
+                                 align-self-start mb-3">
+                        Tüm Seviyeler
+                    </span>
+
+                    <h5 class="card-title fw-bold">
+                        Algoritmalar ve Veri Yapıları
+                    </h5>
+
+                    <p class="card-text text-body-secondary small">
+                        Problem çözme yeteneğini geliştir ve algoritmaları öğren.
+                    </p>
+
+                    <a asp-page="/Index"
+                       class="btn btn-primary mt-auto stretched-link">
+                        Eğitimi İncele
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Makine Öğrenmesi -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card course-card h-100 bg-body">
+                <div class="card-body p-3 d-flex flex-column">
+                    <img src="~/images/machine-learning-course.png"
+                        alt="Makine öğrenmesi eğitimi"
+                        class="course-image rounded-3 mb-3"
+                        asp-append-version="true" />
+
+                    <span class="badge text-bg-light border
+                                 align-self-start mb-3">
+                        Orta Seviye
+                    </span>
+
+                    <h5 class="card-title fw-bold">
+                        Makine Öğrenmesine Giriş
+                    </h5>
+
+                    <p class="card-text text-body-secondary small">
+                        Veri analizi ve temel makine öğrenmesi yöntemlerini keşfet.
+                    </p>
+
+                    <a asp-page="/Index"
+                       class="btn btn-primary mt-auto stretched-link">
+                        Eğitimi İncele
+                    </a>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>
+
+
+
