@@ -1,31 +1,287 @@
+
+/* =====================================
+   GENEL AYARLAR
+===================================== */
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
+:root {
+    --primary-color: #0891B2;
+    --primary-hover: #0E7490;
 
-html {
-  position: relative;
-  min-height: 100%;
+    --heading-color: #111b3a;
+    --text-color: #334155;
+    --muted-color: #64748b;
+
+    --surface-color: #f1f7ff;
+    --border-color: #e2e8f0;
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: #ffffff;
+    color: var(--text-color);   
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* =====================================
+   BOOTSTRAP RENK ÖZELLEŞTİRMELERİ
+===================================== */
+
+.btn-primary {
+    --bs-btn-bg: var(--primary-color);
+    --bs-btn-border-color: var(--primary-color);
+    --bs-btn-hover-bg: var(--primary-hover);
+    --bs-btn-hover-border-color: var(--primary-hover);
+    --bs-btn-active-bg: var(--primary-hover);
+    --bs-btn-active-border-color: var(--primary-hover);
+    --bs-btn-color: #ffffff;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.btn-outline-primary {
+    --bs-btn-color: var(--primary-color);
+    --bs-btn-border-color: var(--primary-color);
+    --bs-btn-hover-bg: var(--primary-color);
+    --bs-btn-hover-border-color: var(--primary-color);
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* =====================================
+   BAŞLIKLAR
+===================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--heading-color);
+}
+
+/* =====================================
+   NAVBAR
+===================================== */
+/* Navbar alt gölgesi */
+.navbar {
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.07);
+}
+
+.navbar-brand {
+    color: var(--heading-color);
+    letter-spacing: -0.5px;
+}
+
+.navbar-brand:hover {
+    color: var(--primary-color);
+}
+
+/* Navbar bağlantıları */
+.navbar .nav-hover {
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar .nav-hover:hover,
+.navbar .nav-hover:focus-visible {
+    color: var(--primary-color);
+    background-color: #f3f4f6;
+}
+
+/* =====================================
+   HERO
+===================================== */
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            ellipse at 85% 20%,
+            rgba(8, 145, 178, 0.12),
+            transparent 45%
+        ),
+        radial-gradient(
+            ellipse at 5% 90%,
+            rgba(59, 130, 246, 0.09),
+            transparent 45%
+        ),
+        linear-gradient(
+            120deg,
+            #eef7ff 0%,
+            #f8fbff 65%,
+            #ffffff 100%
+        );
+
+    border: 1px solid #e5edf5;
+    border-radius: 24px;
+    padding: 72px 48px;
+}
+
+.hero-title {
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+}
+
+.hero-description {
+    color: var(--muted-color);
+    line-height: 1.7;
+}
+.hero-illustration {
+    width: 115%;
+    max-width: none;
+    height: auto;
+    display: block;
+    margin-left: -7%;
+}
+
+
+
+/* =====================================
+   EĞİTİM KARTLARI
+===================================== */
+
+.course-card {
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(17, 27, 58, 0.10);
+}
+.course-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+}
+/* Popüler Eğitimler bölümü */
+.popular-section {
+    background-color: #f3f8fc;
+    border: 1px solid #eaf1f7;
+}
+
+/* =====================================
+   FORM AYARLARI
+===================================== */
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 101, 79, 0.25);
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+
+/* ===================================
+   FOOTER
+=================================== */
+
+.site-footer {
+    background-color: #101a30;
+    color: #e2e8f0;
+    border-top: 3px solid var(--primary-color);
+}
+
+.footer-brand {
+    color: #ffffff;
+}
+
+.footer-brand:hover {
+    color: #67d5e8;
+}
+
+.footer-heading {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.footer-description {
+    color: #aebbd0;
+    line-height: 1.6;
+    max-width: 350px;
+}
+
+.footer-links li {
+    margin-bottom: 7px;
+}
+
+.footer-links a {
+    color: #aebbd0;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #67d5e8;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media (max-width: 767px) {
+    .hero-section {
+        padding: 40px 24px;
+        border-radius: 16px;
+    }
+
+    .hero-title {
+        letter-spacing: -0.5px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .course-card {
+        transition: none;
+    }
+
+    .course-card:hover {
+        transform: none;
+    }
+}
+@media (max-width: 991px) {
+    .hero-illustration {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
 }
