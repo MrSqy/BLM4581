@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+: "${FAKE_DOCKER_STATE:?FAKE_DOCKER_STATE ayarlanmali}"
+senaryo="${FAKE_DOCKER_SCENARIO:-basarili}"
+komut="${1:-}"
+alt_komut="${2:-}"
+
+case "$komut" in
+  image)
+    [[ $alt_komut == "inspect" ]] || exit 125
+    exit 0
+    ;;
+  container)
+    case "$alt_komut" in
+      ls)
+        if [[ -f "$FAKE_DOCKER_STATE/name" ]]; then
+          command cat "$FAKE_DOCKER_STATE/name"
+        fi
+        ;;
+      rm)
+        if [[ $senaryo == "temizlik_hatasi" ]]; then
+          exit 1
+        fi
+        command rm -f "$FAKE_DOCKER_STATE/name"
+        ;;
+      inspect)
+        sayac=0
+        [[ ! -f "$FAKE_DOCKER_STATE/start-count" ]] || sayac="$(command cat "$FAKE_DOCKER_STATE/start-count")"
+        if [[ $senaryo == "ikinci_baslatma_altyapi_hatasi" && $sayac -eq 2 ]]; then
+          echo "created 0"
+        else
+          echo "exited 0"
+        fi
+        ;;
+      *) exit 125 ;;
+    esac
+    ;;
+  create)
+    while [[ $# -gt 0 ]]; do
+      if [[ $1 == "--name" ]]; then
+        echo "$2" >"$FAKE_DOCKER_STATE/name"
+        break
+      fi
+      shift
+    done
+    echo "sahte-konteyner-kimligi"
+    ;;
+  start)
+    sayac=0
+    [[ ! -f "$FAKE_DOCKER_STATE/start-count" ]] || sayac="$(command cat "$FAKE_DOCKER_STATE/start-count")"
+    sayac=$((sayac + 1))
+    echo "$sayac" >"$FAKE_DOCKER_STATE/start-count"
+    if [[ $senaryo == "ikinci_baslatma_altyapi_hatasi" && $sayac -eq 2 ]]; then
+      exit 125
+    fi
+    ;;
+  *)
+    echo "Beklenmeyen sahte Docker komutu: $*" >&2
+    exit 125
+    ;;
+esac
