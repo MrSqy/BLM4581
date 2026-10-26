@@ -1,9 +1,11 @@
 using EgitimPlatformu.Web.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace EgitimPlatformu.Web.Data;
 
-public class UygulamaDbContext : DbContext
+public class UygulamaDbContext : IdentityDbContext<IdentityUser>
 {
     public UygulamaDbContext(DbContextOptions<UygulamaDbContext> options) : base(options)
     {
@@ -15,6 +17,8 @@ public class UygulamaDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Kategori 1 — N Egitim
         modelBuilder.Entity<Egitim>()
             .HasOne(e => e.Kategori)
