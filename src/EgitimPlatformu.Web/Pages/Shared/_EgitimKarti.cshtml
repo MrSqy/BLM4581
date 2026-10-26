@@ -1,0 +1,14 @@
+@model EgitimPlatformu.Web.ViewModels.EgitimKartModel
+<article class="course-card @Model.KapakSinifi h-100">
+    <div class="course-cover" aria-hidden="true">
+        <span class="cover-label">@Model.KategoriAdi</span>
+        <span class="cover-symbol lesson-symbol">@(string.IsNullOrEmpty(Model.KategoriKisaltma) ? "</>" : Model.KategoriKisaltma)</span>
+        <span class="cover-bottom">@Model.Kod<span>ÖĞREN &amp; UYGULA</span></span>
+    </div>
+    <div class="course-body">
+        <div class="course-meta"><span class="level-badge">@Model.KategoriAdi</span><span>@Model.Kod</span></div>
+        <h3><a asp-page="/Egitimler/Detay" asp-route-id="@Model.Id" class="course-link">@Model.Baslik</a></h3>
+        @if (!string.IsNullOrWhiteSpace(Model.KategoriAciklamasi)) { <p>@Model.KategoriAciklamasi</p> }
+        <div class="course-footer"><span>@Model.GorevSayisi görev</span><span class="course-cta">Dersi incele <span aria-hidden="true">↗</span></span></div>
+    </div>
+</article>

@@ -1,0 +1,23 @@
+@page
+@model EgitimPlatformu.Web.Pages.Hesap.CikisModel
+@{ ViewData["Title"] = "Oturumu kapat"; }
+<section class="account-panel logout-panel" aria-labelledby="logout-title">
+    <p class="eyebrow">GÜVENLİ ÇIKIŞ</p>
+    <h1 id="logout-title">Oturumu kapat</h1>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p class="account-subtitle">Bu cihazdaki oturumunu kapatmak istiyor musun?</p>
+        @if (!Model.HesapKullanilabilir) { <div class="alert alert-warning" role="status">Çıkış altyapısı henüz hazır değil. Bu işlem oturumunu kapatamaz.</div> }
+        <div asp-validation-summary="ModelOnly" class="text-danger validation-summary" role="alert"></div>
+        <form method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <button class="btn btn-primary" type="submit" disabled="@(!Model.HesapKullanilabilir)">Oturumu kapat</button>
+            <a asp-page="/Egitimler/Index" class="btn btn-outline-primary">Vazgeç</a>
+        </form>
+    }
+    else
+    {
+        <p class="account-subtitle">Şu anda açık bir oturum bulunmuyor.</p>
+        <a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimlere dön</a>
+    }
+</section>
