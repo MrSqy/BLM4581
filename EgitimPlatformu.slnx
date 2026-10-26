@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/EgitimPlatformu.Web/EgitimPlatformu.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EgitimPlatformu.Web.Tests/EgitimPlatformu.Web.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,37 @@
+@page "/Egitimler"
+@model EgitimPlatformu.Web.Pages.Egitimler.IndexModel
+@{ ViewData["Title"] = "Eğitimler"; }
+<header class="page-heading">
+    <p class="eyebrow">KENDİ YOLUNU OLUŞTUR</p>
+    <h1>Eğitimleri keşfet.</h1>
+    <p>Bir konu seç, dersleri keşfet ve görevlerle öğrendiklerini pekiştir.</p>
+</header>
+<form method="get" class="catalog-form row g-3 align-items-end" role="search" aria-label="Katalog filtreleri">
+    <div class="col-md-4"><label asp-for="KategoriId" class="form-label">Kategori</label>
+        <select asp-for="KategoriId" class="form-select"><option value="">Tüm kategoriler</option>
+            @foreach (var kategori in Model.Kategoriler) { <option value="@kategori.Id">@kategori.Ad</option> }
+        </select><span asp-validation-for="KategoriId" class="text-danger field-error"></span>
+    </div>
+    <div class="col-md-5"><label asp-for="Q" class="form-label">Ders adı veya kodu</label><input asp-for="Q" class="form-control" type="search" placeholder="Örneğin: Koleksiyonlar veya PY-03" maxlength="100" /><span asp-validation-for="Q" class="text-danger field-error"></span></div>
+    <div class="col-md-3 d-flex gap-2"><button class="btn btn-primary" type="submit">Filtrele</button><a asp-page="/Egitimler/Index" class="btn btn-outline-primary">Temizle</a></div>
+</form>
+@if (Model.Hata is not null)
+{
+    <div class="empty-courses" role="alert"><h2>@Model.Hata</h2><a asp-page="/Egitimler/Index" class="btn btn-primary mt-3">Kataloğa dön</a></div>
+}
+else
+{
+    <div class="catalog-result-heading">
+        <h2>@(Model.SeciliKategori?.Ad ?? "Tüm eğitimler")</h2>
+        <p role="status">@Model.Egitimler.Count ders listeleniyor</p>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.SeciliKategori?.Aciklama)) { <p class="category-description">@Model.SeciliKategori.Aciklama</p> }
+    @if (Model.Egitimler.Count == 0)
+    {
+        <div class="empty-courses"><h3>Bu filtrelerle eşleşen bir ders yok.</h3><p>Bu kategoriye henüz içerik eklenmemiş olabilir. Diğer eğitimlere göz atabilirsin.</p><a asp-page="/Egitimler/Index" class="btn btn-outline-primary">Tüm eğitimleri göster</a></div>
+    }
+    else
+    {
+        <div class="row g-4">@foreach (var egitim in Model.Egitimler) { <div class="col-md-6 col-xl-4"><partial name="_EgitimKarti" model="egitim" /></div> }</div>
+    }
+}

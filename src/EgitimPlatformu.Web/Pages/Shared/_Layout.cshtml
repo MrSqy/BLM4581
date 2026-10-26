@@ -1,144 +1,68 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EgitimPlatformu.Web</title>
-    <script type="importmap"></script>
+    <meta name="description" content="Python, C#, algoritmalar ve makine öğrenmesini keşfet. Adım adım açıklamalar ve uygulamalı alıştırmalarla programlama becerilerini geliştir." />
+    <title>@ViewData["Title"] — Eğitim Platformu</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EgitimPlatformu.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    
-<header>
-    <nav class="navbar navbar-expand-lg bg-body border-bottom py-3">
-        <div class="container-fluid px-3 px-xl-5">
-
-            <!-- Logo -->
-            <a class="navbar-brand fw-bold fs-4 me-4"
-               asp-page="/Index">
-                Eğitim Platformu
-            </a>
-
-            <!-- Mobil menü -->
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#anaMenu"
-                    aria-controls="anaMenu"
-                    aria-expanded="false"
-                    aria-label="Menüyü aç veya kapat">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse gap-3" id="anaMenu">
-
-                <!-- Sayfa bağlantıları -->
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link nav-hover" asp-page="/Index">
-                            Eğitimler
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-hover" asp-page="/Index">
-                            Kategoriler
-                        </a>
-                    </li>
-                </ul>
-
-                <!-- Arama alanı -->
-                <form class="d-flex flex-grow-1"
-                      role="search"
-                      method="get"
-                      action="/">
-                    <input class="form-control rounded-pill px-4"
-                           type="search"
-                           name="q"
-                           placeholder="Ne öğrenmek istersiniz?"
-                           aria-label="Eğitim ara">
-                </form>
-
-                <!-- Kullanıcı işlemleri -->
-                <div class="d-flex gap-2 flex-shrink-0">
-                    <a class="btn btn-outline-primary"
-                       asp-page="/Index">
-                        Oturum Aç
-                    </a>
-                    <a class="btn btn-primary"
-                       asp-page="/Index">
-                        Kaydol
-                    </a>
+    <a class="skip-link" href="#ana-icerik">Ana içeriğe geç</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-xl" aria-label="Ana menü">
+            <div class="container">
+                <a class="navbar-brand brand" asp-page="/Index"><span class="brand-mark" aria-hidden="true">e<span>.</span></span><span>Eğitim<span class="brand-subtitle">PLATFORMU</span></span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#anaMenu" aria-controls="anaMenu" aria-expanded="false" aria-label="Menüyü aç veya kapat"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="anaMenu">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" asp-page="/Egitimler/Index">Eğitimler</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Egitimler/Index" asp-fragment="KategoriId">Kategoriler</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Index" asp-fragment="nasil-calisir">Nasıl çalışır?</a></li>
+                    </ul>
+                    <form class="site-search" role="search" method="get" asp-page="/Egitimler/Index">
+                        <label for="course-search" class="visually-hidden">Eğitim ara</label>
+                        <input id="course-search" type="search" name="q" placeholder="Bir konu ara…" autocomplete="off" />
+                        <button type="submit" aria-label="Eğitim ara"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></button>
+                    </form>
+                    <div class="nav-account">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="nav-user" title="@User.Identity.Name">@(User.Identity.Name ?? "Hesabım")</span>
+                            <form method="post" asp-page="/Hesap/Cikis"><button class="btn btn-outline-primary" type="submit">Çıkış yap</button></form>
+                        }
+                        else
+                        {
+                            <a class="login-link" asp-page="/Hesap/Giris">Oturum aç</a>
+                            <a class="btn btn-dark" asp-page="/Hesap/Kaydol">Kaydol <span aria-hidden="true">↗</span></a>
+                        }
+                    </div>
                 </div>
-
             </div>
-        </div>
-    </nav>
-</header>
-
-    <main role="main">
+        </nav>
+    </header>
+    <main id="ana-icerik" tabindex="-1" class="@(ViewData["IsHome"] is true ? "home-content" : "container secondary-page")">
+        @if (TempData["Bildirim"] is string bildirim)
+        {
+            <div class="container pt-3"><div class="alert alert-success mb-0" role="status">@bildirim</div></div>
+        }
         @RenderBody()
     </main>
-
-    
-    
-<footer class="site-footer">
-    <div class="container py-4">
-        <div class="row g-3 align-items-start">
-
-            <!-- Sol: Platform -->
-            <div class="col-md-5">
-                <a asp-page="/Index"
-                   class="footer-brand text-decoration-none fw-bold fs-5">
-                    Eğitim Platformu
-                </a>
-                <p class="footer-description small mt-2 mb-0">
-                    Öğren, kodla ve geliştir.
-                    İnteraktif eğitimlerle programlama becerilerini ilerlet.
-                </p>
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row gy-4 footer-main">
+                <div class="col-lg-6"><a class="brand footer-brand" asp-page="/Index"><span class="brand-mark" aria-hidden="true">e<span>.</span></span><span>Eğitim<span class="brand-subtitle">PLATFORMU</span></span></a><p class="footer-description">Merakını beceriye dönüştür.<br />Öğrenmeye ve üretmeye buradan başla.</p></div>
+                <div class="col-6 col-lg-3"><h2 class="footer-heading">Keşfet</h2><ul class="footer-links"><li><a asp-page="/Egitimler/Index">Eğitimler</a></li><li><a asp-page="/Egitimler/Index" asp-fragment="KategoriId">Kategoriler</a></li><li><a asp-page="/Index" asp-fragment="nasil-calisir">Nasıl çalışır?</a></li></ul></div>
+                <div class="col-6 col-lg-3"><h2 class="footer-heading">Birlikte öğrenelim</h2><p class="footer-invitation">Bir sonraki becerin,<br />ilk adımını bekliyor.</p><a class="footer-cta" asp-page="/Egitimler/Index">Kendine bir başlangıç seç <span aria-hidden="true">↗</span></a></div>
             </div>
-
-            <!-- Orta: Eğitimler -->
-            <div class="col-6 col-md-3">
-                <h6 class="footer-heading">Eğitimler</h6>
-                <ul class="list-unstyled footer-links mb-0">
-                    <li>
-                        <a asp-page="/Index"
-                           asp-fragment="populer-egitimler">
-                            Popüler Eğitimler
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-page="/Index">Ana Sayfa</a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Sağ: Platform bilgisi -->
-            <div class="col-6 col-md-4">
-                <h6 class="footer-heading">Platform</h6>
-                <p class="footer-description small mb-0">
-                    Kod yaz, çalıştır ve sonuçlarını anında gör.
-                    Öğrenirken pratik yap.
-                </p>
-            </div>
-
+            <div class="footer-bottom"><span>&copy; @DateTime.Now.Year Eğitim Platformu</span><span>Merak et. Dene. Geliştir.</span></div>
         </div>
-    </div>
-
-    <div class="footer-bottom">
-        <div class="container py-2">
-            <span class="small">
-                &copy; @DateTime.Now.Year Eğitim Platformu
-            </span>
-        </div>
-    </div>
-</footer>
-
+    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

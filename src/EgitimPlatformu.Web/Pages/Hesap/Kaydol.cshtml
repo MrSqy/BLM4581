@@ -1,0 +1,40 @@
+@page
+@model EgitimPlatformu.Web.Pages.Hesap.KaydolModel
+@{ ViewData["Title"] = "Kaydol"; }
+<div class="account-shell row g-5 align-items-start">
+    <div class="col-lg-5 account-intro">
+        <p class="eyebrow">ÖĞRENMEYE YER AÇ</p>
+        <h1>Bir sonraki adımın,<br />yeni bir beceri.</h1>
+        <p>Eğitimleri keşfet, alıştırmalarla öğrendiklerini pekiştir. Kendi öğrenme yolunu oluştur.</p>
+        <a asp-page="/Egitimler/Index" class="text-link">Önce eğitimlere göz at <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="col-lg-6 offset-lg-1">
+        <section class="account-panel" aria-labelledby="form-title">
+            <h2 id="form-title">Hesap oluştur</h2>
+            <p class="account-subtitle">Zaten hesabın var mı? <a asp-page="/Hesap/Giris" asp-route-returnUrl="@Model.ReturnUrl">Oturum aç</a></p>
+            @if (!Model.HesapKullanilabilir) { <partial name="_AltyapiUyarisi" /> }
+            <form method="post" novalidate>
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="text-danger validation-summary" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Input.Eposta" class="form-label"></label>
+                    <input asp-for="Input.Eposta" class="form-control" type="email" autocomplete="email" required aria-describedby="email-error" />
+                    <span asp-validation-for="Input.Eposta" class="text-danger field-error" id="email-error"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Sifre" class="form-label"></label>
+                    <input asp-for="Input.Sifre" class="form-control" autocomplete="new-password" required aria-describedby="password-help password-error" />
+                    <p class="form-text" id="password-help">En az 8, en fazla 128 karakter kullan.</p>
+                    <span asp-validation-for="Input.Sifre" class="text-danger field-error" id="password-error"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Input.SifreTekrar" class="form-label"></label>
+                    <input asp-for="Input.SifreTekrar" class="form-control" autocomplete="new-password" required aria-describedby="confirm-error" />
+                    <span asp-validation-for="Input.SifreTekrar" class="text-danger field-error" id="confirm-error"></span>
+                </div>
+                <button class="btn btn-primary w-100" type="submit" disabled="@(!Model.HesapKullanilabilir)">Kaydol <span aria-hidden="true">↗</span></button>
+            </form>
+        </section>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

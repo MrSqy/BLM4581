@@ -1,0 +1,35 @@
+@page
+@model EgitimPlatformu.Web.Pages.Hesap.GirisModel
+@{ ViewData["Title"] = "Oturum aç"; }
+<div class="account-shell row g-5 align-items-start">
+    <div class="col-lg-5 account-intro">
+        <p class="eyebrow">YENİDEN MERHABA</p>
+        <h1>Merak ettiğin yerden<br />devam et.</h1>
+        <p>Yeni bir kavram, yeni bir alıştırma, yeni bir bakış açısı. Öğrenmeye bir adım daha yaklaş.</p>
+        <a asp-page="/Egitimler/Index" class="text-link">Eğitimleri keşfet <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="col-lg-6 offset-lg-1">
+        <section class="account-panel" aria-labelledby="form-title">
+            <h2 id="form-title">Oturum aç</h2>
+            <p class="account-subtitle">Henüz hesabın yok mu? <a asp-page="/Hesap/Kaydol" asp-route-returnUrl="@Model.ReturnUrl">Kaydol</a></p>
+            @if (!Model.HesapKullanilabilir) { <partial name="_AltyapiUyarisi" /> }
+            <form method="post" novalidate>
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="text-danger validation-summary" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Input.Eposta" class="form-label"></label>
+                    <input asp-for="Input.Eposta" class="form-control" type="email" autocomplete="username" required aria-describedby="email-error" />
+                    <span asp-validation-for="Input.Eposta" class="text-danger field-error" id="email-error"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Sifre" class="form-label"></label>
+                    <input asp-for="Input.Sifre" class="form-control" autocomplete="current-password" required aria-describedby="password-error" />
+                    <span asp-validation-for="Input.Sifre" class="text-danger field-error" id="password-error"></span>
+                </div>
+                <div class="form-check mb-4"><input asp-for="Input.BeniHatirla" class="form-check-input" /><label asp-for="Input.BeniHatirla" class="form-check-label"></label></div>
+                <button class="btn btn-primary w-100" type="submit" disabled="@(!Model.HesapKullanilabilir)">Oturum aç <span aria-hidden="true">↗</span></button>
+            </form>
+        </section>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

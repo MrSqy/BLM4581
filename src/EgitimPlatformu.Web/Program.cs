@@ -1,10 +1,15 @@
 using EgitimPlatformu.Web.Data;
 using Microsoft.EntityFrameworkCore;
+using EgitimPlatformu.Web.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<MarkdownServisi>();
+// 2.1 tamamlandığında Identity adaptörü bu kaydın yerine geçer.
+builder.Services.TryAddScoped<IHesapServisi, BekleyenHesapServisi>();
 
 // Bağlantı dizesi depoda değil, user-secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("Varsayilan")
@@ -34,3 +39,6 @@ app.MapRazorPages()
    .WithStaticAssets();
 
 app.Run();
+
+// WebApplicationFactory ile gerçek PostgreSQL'e dokunmadan entegrasyon testi.
+public partial class Program { }
