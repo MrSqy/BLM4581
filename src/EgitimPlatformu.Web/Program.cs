@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
+builder.Services.AddScoped<IcerikAktarimServisi>();
 builder.Services.AddScoped<MarkdownServisi>();
 builder.Services.AddScoped<IHesapServisi, IdentityHesapServisi>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -67,6 +70,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
