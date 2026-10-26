@@ -51,6 +51,22 @@ Ekip: Ramazan, Nisa, Baran
    dotnet run --project src/EgitimPlatformu.Web --launch-profile http
    ```
 
+## Üyelik ve içerik aktarımı (2. hafta)
+
+İlk kurulumda migration adımından sonra, normal kayıt kabul etmeden önce
+Yönetici/Öğrenci rollerini ve başlangıç yönetici hesabını hazırlayın:
+[Linux/Zsh hazırlık adımları ve hesap kuralları](docs/UYELIK.md).
+
+Kayıt, giriş ve çıkış Nisa'nın mevcut `/Hesap` sayfaları üzerinden gerçek Identity
+oturumuyla çalışır. Yöneticiye özel JSON aktarım ucu ve terminal aracı için
+[içerik aktarımı sözleşmesine](docs/ICERIK_AKTARIMI.md) bakın.
+
+Testler (gerçek PostgreSQL'e dokunmadan SQLite kullanır):
+
+```bash
+dotnet test EgitimPlatformu.slnx
+```
+
 ## Yeni migration ekleme
 
 Model sınıflarında değişiklik yaptıktan sonra:

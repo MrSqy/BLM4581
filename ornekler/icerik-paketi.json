@@ -1,0 +1,24 @@
+{
+  "surum": 1,
+  "kategoriler": [
+    {
+      "kisaltma": "ORNEK",
+      "ad": "Aktarım denemesi",
+      "aciklama": "İçerik aracının üreteceği JSON için küçük örnek.",
+      "sira": 99,
+      "egitimler": [
+        {
+          "kod": "ORNEK-01",
+          "baslik": "İlk fonksiyon",
+          "sira": 1,
+          "icerikMarkdown": "# İlk fonksiyon\n\nİki sayıyı toplayan fonksiyonu tamamla.",
+          "baslangicKodu": "def topla(a, b):\n    raise NotImplementedError\n",
+          "testKodu": "def test_gorev_1(cozum):\n    assert cozum.topla(2, 3) == 5\n",
+          "gorevler": [
+            { "no": 1, "baslik": "Toplama", "aciklama": "`topla(2, 3)` sonucu **5** olmalı." }
+          ]
+        }
+      ]
+    }
+  ]
+}
