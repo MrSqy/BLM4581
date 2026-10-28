@@ -12,6 +12,13 @@ builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 builder.Services.AddScoped<IcerikAktarimServisi>();
 builder.Services.AddScoped<MarkdownServisi>();
 builder.Services.AddScoped<IHesapServisi, IdentityHesapServisi>();
+builder.Services.AddSingleton<IHariciIslemCalistirici, HariciIslemCalistirici>();
+builder.Services.AddSingleton<ISandboxIslemCalistirici>(services =>
+{
+    return new BashSandboxIslemCalistirici(AppContext.BaseDirectory,
+        services.GetRequiredService<IHariciIslemCalistirici>());
+});
+builder.Services.AddSingleton<IKodCalistirmaServisi, PythonKodCalistirmaServisi>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
