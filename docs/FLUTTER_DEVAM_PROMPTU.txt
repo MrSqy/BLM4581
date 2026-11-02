@@ -1,0 +1,16 @@
+Backend birleştirmesi tamamlandı. Şimdi yalnız Flutter deposunda arayüz, API istemcisi ve mobil kullanıcı akışlarına devam et.
+
+Önce şu backend sözleşmesini salt okunur incele:
+/home/baranbeey/Masaüstü/masaüstü/01_Eğitim/Üniversite_Dersleri/4. sınıf/enver hoca/projeler/BLM4581/docs/API_HAFTA_03.md
+
+Backend dosyalarını değiştirme; backend ihtiyacı bulursan somut istek/yanıt örneğiyle raporla. Tek JWT doğrulama altyapısı var. Mobil API tabanı /api/mobil/ ve mevcut token, bitis, kullanici yanıtı korundu. Token ömrü 15 dakika; refresh token yok. Authorization: Bearer ile gönder. 401 veya süre bitiminde yerel oturumu temizle. 403/429/503 durumunda oturumu silme. Çıkış hesabın bütün eski JWT'lerini iptal eder; cihazdaki güvenli depoyu da temizle.
+
+Misafir her kategorinin ilk dersini okuyabilir, çalıştırabilir, test edebilir; diğer derslerde yalnız özet/müfredat görebilir. İlk dersi istemcide tahmin etme: misafireAcik ve erisilebilir alanlarını kullan. Giriş yapan öğrenci tüm derslere erişir fakat yönetici CRUD yetkisi yoktur. Ders/test kodu istemciden alınmaz; yalnız öğrenci kodunu gönder.
+
+Hatalarda hem {mesaj} hem ProblemDetails title/errors biçimini, boş 401/403/429 yanıtını destekle. Genel runner durumları tamamlandi, basarisiz, hata, zaman_asimi, test_yok; görev durumları basarili, basarisiz, atlanmis, test_yok. 503 servis kullanılamıyor, 429 istek sınırı mesajı göster. Başarısız sonuçları başarılı gibi sunma.
+
+API_ADRESI platforma göre ayarlanmalı: fiziksel telefonda 127.0.0.1 telefonun kendisidir; geliştirme bilgisayarının erişilebilir adresini kullan. Sadece yerel geliştirmede HTTP, yayın ortamında HTTPS kullan. Gizli anahtar/şifreyi Flutter'a veya depoya yazma. JWT anahtarı yalnız backend ortamındadır.
+
+Mevcut mobil tasarımı tamamla; lint bildirimlerini düzelt, eski demo testlerini gerçek istemci sözleşmesine uyarla. Misafir sınırı, giriş/kayıt/çıkış, süre dolması/401, 403/429/503, görev sonuçları ve güvenli token saklama akışlarını test et. Mevcut kullanıcı değişikliklerini koru. Büyük blok sonunda yerel checkpoint commit at; push, gh, PR veya ağ kurulumu yapma. Dış adımları BEKLEYEN DIŞ İŞLER altında tam komutla yaz.
+
+Backend .NET testleri ve yerel Python fixture testleri çalıştırıldı; gerçek Docker ve telefon kabulü yapılmadı. Backend tarafında sandbox imajı bulunmadığı için canlı kod çalıştırma henüz doğrulanmadı. Bu durumu mock testlerle geçmiş gibi gösterme. Test/analyze/build sonuçlarını ve cihazda doğrulanmayanları ayrı raporla.

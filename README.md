@@ -154,3 +154,7 @@ scripts/run-python-sandbox.sh  Süre ve konteyner yaşam döngüsünü yöneten 
   ```
 
 - Her hafta `raporlar/<adiniz>/hafta-NN.md` dosyasına kısa bir rapor yazın (şablon: [raporlar/README.md](raporlar/README.md)).
+
+## Hafta 3 API ve mobil entegrasyon
+
+JWT başlatma, erişim kuralları, Swagger ve mobil uçların sözleşmesi: [API_HAFTA_03](docs/API_HAFTA_03.md).

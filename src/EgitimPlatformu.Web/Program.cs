@@ -47,12 +47,16 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+builder.Services.MobilApiEkle();
+
 // Bağlantı dizesi depoda değil, user-secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("Varsayilan")
     ?? throw new InvalidOperationException(
         "ConnectionStrings:Varsayilan bulunamadı. README'deki user-secrets adımını uygulayın.");
 builder.Services.AddDbContext<UygulamaDbContext>(options =>
     options.UseNpgsql(baglantiDizesi));
+
+ApiKurulumu.Ekle(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
@@ -70,12 +74,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 app.MapStaticAssets();

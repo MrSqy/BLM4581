@@ -6,6 +6,7 @@ namespace EgitimPlatformu.Web.Services;
 public sealed class IdentityHesapServisi(
     UserManager<IdentityUser> kullanicilar,
     SignInManager<IdentityUser> oturum,
+    RoleManager<IdentityRole> roller,
     UygulamaDbContext db) : IHesapServisi
 {
     public bool Kullanilabilir => true;
@@ -29,6 +30,14 @@ public sealed class IdentityHesapServisi(
             }).Where(m => m is not null).ToArray();
             return new(false, mesajlar.Length > 0 ? string.Join(" ", mesajlar)
                 : "Kayıt tamamlanamadı. E-posta adresinizi ve şifre kurallarını kontrol edin.");
+        }
+        // İlk yerel kullanımda başlangıç hazırlığı yapılmamış olabilir.
+        // Kayıt yalnız öğrenci rolünü oluşturur; yönetici yetkisi vermez.
+        if (!await roller.RoleExistsAsync(Roller.Ogrenci))
+        {
+            var rolSonucu = await roller.CreateAsync(new IdentityRole(Roller.Ogrenci));
+            if (!rolSonucu.Succeeded)
+                return new(false, "Kayıt tamamlanamadı. Lütfen daha sonra yeniden deneyin.");
         }
         sonuc = await kullanicilar.AddToRoleAsync(kullanici, Roller.Ogrenci);
         if (!sonuc.Succeeded)
