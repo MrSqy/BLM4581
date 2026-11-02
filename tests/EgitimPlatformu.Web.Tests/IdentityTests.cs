@@ -42,7 +42,7 @@ public sealed class IdentityApplication : WebApplicationFactory<Program>
             services.AddDbContext<UygulamaDbContext>(o => o.UseSqlite(connection));
         });
     }
-    public async Task<HttpClient> IstemciAsync()
+    public async Task<HttpClient> IstemciAsync(bool rolleriHazirla = true)
     {
         var client = CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -51,7 +51,7 @@ public sealed class IdentityApplication : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<UygulamaDbContext>().Database.EnsureCreatedAsync();
         var roller = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        foreach (var rol in new[] { Roller.Ogrenci, Roller.Yonetici })
+        foreach (var rol in rolleriHazirla ? new[] { Roller.Ogrenci, Roller.Yonetici } : Array.Empty<string>())
             if (!await roller.RoleExistsAsync(rol)) Assert.True((await roller.CreateAsync(new IdentityRole(rol))).Succeeded);
         return client;
     }
@@ -79,6 +79,23 @@ public sealed class IdentityApplication : WebApplicationFactory<Program>
 
 public sealed class IdentityTests
 {
+    [Fact]
+    public async Task BosRolTablosundaWebKaydiOgrenciOlustururVeGirisYapar()
+    {
+        using var app = new IdentityApplication();
+        using var client = await app.IstemciAsync(rolleriHazirla: false);
+        Assert.Equal(HttpStatusCode.Redirect, (await IdentityApplication.KayitAsync(client)).StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, (await IdentityApplication.GirisAsync(client)).StatusCode);
+        using var scope = app.Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var user = await users.FindByEmailAsync("ogrenci@example.test");
+        Assert.NotNull(user);
+        Assert.True(await users.IsInRoleAsync(user, Roller.Ogrenci));
+        Assert.False(await roles.RoleExistsAsync(Roller.Yonetici));
+        Assert.Equal(1, await users.Users.CountAsync());
+    }
+
     [Fact]
     public async Task GercekKayitRolParolaOzetVeOturumDongusu()
     {
