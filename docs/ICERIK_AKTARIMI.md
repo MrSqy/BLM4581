@@ -8,7 +8,9 @@ eksik/yanlış antiforgery token 400 döndürür.
 ## Veri biçimi
 
 Tam örnek: [icerik-paketi.json](../ornekler/icerik-paketi.json).
-Alanlar camelCase'dir. `surum` zorunlu olarak 1'dir. Kimlikler gönderilmez.
+Alanlar camelCase'dir. Örnekteki tüm alanların JSON içinde bulunması zorunludur;
+boş metin veya boş liste göndermekle alanı hiç göndermemek farklıdır. Eksik alan
+400 ile reddedilir ve mevcut veriler korunur. `surum` zorunlu olarak 1'dir. Kimlikler gönderilmez.
 
 - `kategoriler`: 1–50 öğe. `kisaltma` büyük ASCII harfle başlar; büyük harf,
   rakam ve tire içerebilir, en fazla 10 karakter. `ad` zorunlu, en fazla 100;

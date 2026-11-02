@@ -24,7 +24,7 @@
                 <div class="mb-3">
                     <label asp-for="Input.Sifre" class="form-label"></label>
                     <input asp-for="Input.Sifre" class="form-control" autocomplete="new-password" required aria-describedby="password-help password-error" />
-                    <p class="form-text" id="password-help">En az 8, en fazla 128 karakter kullan.</p>
+                    <p class="form-text" id="password-help">8–128 karakter; en az bir büyük harf, küçük harf, rakam ve özel karakter kullan.</p>
                     <span asp-validation-for="Input.Sifre" class="text-danger field-error" id="password-error"></span>
                 </div>
                 <div class="mb-4">

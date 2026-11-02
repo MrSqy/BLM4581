@@ -135,6 +135,46 @@ public sealed class IcerikAktarimTests
         Assert.Equal(3, await scope.ServiceProvider.GetRequiredService<UygulamaDbContext>().Egitimler.CountAsync());
     }
 
+    [Theory]
+    [InlineData("icerikMarkdown")]
+    [InlineData("baslangicKodu")]
+    [InlineData("testKodu")]
+    [InlineData("sira")]
+    [InlineData("gorevler")]
+    public async Task EksikAlanMevcutIcerigiSilmez(string alan)
+    {
+        using var app = new IdentityApplication();
+        using var client = await YoneticiAsync(app);
+        var paket = Paket();
+        paket.Kategoriler[0].Egitimler[0].Kod = "PY-01";
+        var json = System.Text.Json.JsonSerializer.SerializeToNode(paket,
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        json["kategoriler"]![0]!["egitimler"]![0]!.AsObject().Remove(alan);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/api/icerik/aktar",
+            new StringContent(json.ToJsonString(), Encoding.UTF8, "application/json"))).StatusCode);
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
+        var ders = await db.Egitimler.SingleAsync(e => e.Kod == "PY-01");
+        Assert.NotEmpty(ders.IcerikMarkdown);
+        Assert.NotEmpty(ders.BaslangicKodu);
+        Assert.NotEmpty(ders.TestKodu);
+        Assert.False(await db.Kategoriler.AnyAsync(k => k.Kisaltma == "DEN"));
+    }
+
+    [Fact]
+    public async Task AcikcaBosGonderilenIcerikKabulEdilir()
+    {
+        using var app = new IdentityApplication();
+        using var client = await YoneticiAsync(app);
+        var paket = Paket();
+        paket.Kategoriler[0].Egitimler[0].Kod = "PY-01";
+        paket.Kategoriler[0].Egitimler[0].IcerikMarkdown = "";
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/icerik/aktar", paket)).StatusCode);
+        using var scope = app.Services.CreateScope();
+        var ders = await scope.ServiceProvider.GetRequiredService<UygulamaDbContext>().Egitimler.SingleAsync(e => e.Kod == "PY-01");
+        Assert.Equal("", ders.IcerikMarkdown);
+    }
+
     [Fact]
     public async Task VeritabaniHatasiOncekiDegisiklikleriDeGeriAlir()
     {

@@ -104,6 +104,10 @@ public sealed class IdentityTests
             ["Input.Eposta"] = "baska@example.test", ["Input.Sifre"] = "abcdefgh", ["Input.SifreTekrar"] = "abcdefgh"
         });
         Assert.Equal(HttpStatusCode.OK, weak.StatusCode);
+        var hataMetni = WebUtility.HtmlDecode(await weak.Content.ReadAsStringAsync());
+        Assert.Contains("en az bir büyük harf", hataMetni);
+        Assert.Contains("en az bir rakam", hataMetni);
+        Assert.Contains("en az bir özel karakter", hataMetni);
         for (var i = 0; i < 5; i++) await IdentityApplication.GirisAsync(client, password: "Yanlis123!");
         Assert.Equal(HttpStatusCode.OK, (await IdentityApplication.GirisAsync(client)).StatusCode);
         using var scope = app.Services.CreateScope();
