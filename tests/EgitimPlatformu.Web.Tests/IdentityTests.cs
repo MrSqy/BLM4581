@@ -18,14 +18,24 @@ namespace EgitimPlatformu.Web.Tests;
 public sealed class IdentityApplication : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection connection = new("Data Source=:memory:");
-    public IdentityApplication() => connection.Open();
+    private readonly bool swagger;
+    public string JwtAnahtari { get; } = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+    private readonly IMobilKodServisi? runner;
+    public IdentityApplication(bool swagger = false, IMobilKodServisi? runner = null)
+    {
+        this.swagger = swagger;
+        this.runner = runner;
+        connection.Open();
+    }
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Testing");
+        builder.UseEnvironment(swagger ? "Development" : "Testing");
+        builder.UseSetting("Jwt:Anahtar", JwtAnahtari);
         builder.UseStaticWebAssets();
         builder.UseSetting("ConnectionStrings:Varsayilan", "Host=unused;Database=unused");
         builder.ConfigureServices(services =>
         {
+            if (runner is not null) { services.RemoveAll<IMobilKodServisi>(); services.AddSingleton(runner); }
             services.RemoveAll<UygulamaDbContext>();
             services.RemoveAll<DbContextOptions<UygulamaDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<UygulamaDbContext>>();
