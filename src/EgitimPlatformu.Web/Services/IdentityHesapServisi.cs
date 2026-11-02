@@ -17,7 +17,19 @@ public sealed class IdentityHesapServisi(
         var kullanici = new IdentityUser { UserName = eposta, Email = eposta };
         var sonuc = await kullanicilar.CreateAsync(kullanici, sifre);
         if (!sonuc.Succeeded)
-            return new(false, "Kayıt tamamlanamadı. E-posta adresinizi ve şifre kurallarını kontrol edin.");
+        {
+            var mesajlar = sonuc.Errors.Select(e => e.Code switch
+            {
+                "PasswordTooShort" => "Şifreniz en az 8 karakter olmalı.",
+                "PasswordRequiresUpper" => "Şifreniz en az bir büyük harf içermeli.",
+                "PasswordRequiresLower" => "Şifreniz en az bir küçük harf içermeli.",
+                "PasswordRequiresDigit" => "Şifreniz en az bir rakam içermeli.",
+                "PasswordRequiresNonAlphanumeric" => "Şifreniz en az bir özel karakter içermeli.",
+                _ => null
+            }).Where(m => m is not null).ToArray();
+            return new(false, mesajlar.Length > 0 ? string.Join(" ", mesajlar)
+                : "Kayıt tamamlanamadı. E-posta adresinizi ve şifre kurallarını kontrol edin.");
+        }
         sonuc = await kullanicilar.AddToRoleAsync(kullanici, Roller.Ogrenci);
         if (!sonuc.Succeeded)
             return new(false, "Kayıt tamamlanamadı. Lütfen daha sonra yeniden deneyin.");
