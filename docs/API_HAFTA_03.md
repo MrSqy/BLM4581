@@ -61,3 +61,7 @@ Hata gövdesi mobil iş kurallarında `{mesaj}`, otomatik doğrulamada ProblemDe
 Bu teslim sırasında `egitim-python-sandbox:hafta-01` imajı yoktu. Gerçek Docker, telefon ve Flutter uçtan uca kabulü henüz yapılmadı. İmaj hazırlığı: `docker build -t egitim-python-sandbox:hafta-01 sandbox/python`; ardından `bash scripts/test-python-sandbox.sh` ve mobil çalıştır/test akışları doğrulanmalıdır.
 
 OpenAPI 2.3.0 bağımlılığı, yerel önbellekteki 2.12.0 sürümüne yükseltildi. Güvenlik duyurusu: https://github.com/advisories/GHSA-v5pm-xwqc-g5wc . Paket çözümlemesi yalnız yerel önbellekle yapıldı; yeni ağ tabanlı güvenlik taraması yapılmadı.
+
+## Yerel kabul sonucu
+
+103 .NET testi ve 5 güvenilir Python fixture testi geçti. Yerel Kestrel/PostgreSQL okuma ve anonim erişim kontrolleri yapıldı. Kullanıcı Swagger üzerinden giriş/token, korunan ders erişimi, çıkış sonrası token iptali ve ilk dersin anonim erişimini doğruladı. Ayrı yöneticiyle deneme dersi POST 201, PUT 204, GET 200, DELETE 204, son GET 404 olarak doğrulandı. Boş rol tablosuyla ilk web kaydı ve koşullu erişimli uçların Swagger Bearer tanımı regresyon kapsamına alındı. Docker/telefon sınırları yukarıdaki gibi devam ediyor.
