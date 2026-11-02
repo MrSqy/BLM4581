@@ -21,7 +21,7 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
     public async Task<IActionResult> Kategoriler() => Ok(await db.Kategoriler.AsNoTracking().OrderBy(k => k.Sira)
         .Select(k => new { k.Id, k.Ad, k.Kisaltma, k.Aciklama, k.Sira }).ToListAsync());
 
-    [HttpGet("egitimler")]
+    [HttpGet("egitimler"), IstegeBagliBearer]
     public async Task<IActionResult> Egitimler(int? kategoriId)
     {
         var member = await OturumVar();
@@ -35,7 +35,7 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
             misafireAcik = ilkler.Contains(e.Id), erisilebilir = member || ilkler.Contains(e.Id) }));
     }
 
-    [HttpGet("egitimler/{id:int}")]
+    [HttpGet("egitimler/{id:int}"), IstegeBagliBearer]
     public async Task<IActionResult> Egitim(int id)
     {
         var ders = await db.Egitimler.AsNoTracking().Include(e => e.Gorevler).SingleOrDefaultAsync(e => e.Id == id);
@@ -47,10 +47,10 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
             gorevler = ders.Gorevler.OrderBy(g => g.No).Select(g => new { g.Id, g.EgitimId, g.No, g.Baslik, g.Aciklama }) });
     }
 
-    [HttpPost("egitimler/{id:int}/calistir")]
+    [HttpPost("egitimler/{id:int}/calistir"), IstegeBagliBearer]
     public Task<IActionResult> Calistir(int id, MobilKodIstegi input, CancellationToken ct) => Kod(id, input, false, ct);
 
-    [HttpPost("egitimler/{id:int}/test")]
+    [HttpPost("egitimler/{id:int}/test"), IstegeBagliBearer]
     public Task<IActionResult> Test(int id, MobilKodIstegi input, CancellationToken ct) => Kod(id, input, true, ct);
 
     private async Task<IActionResult> Kod(int id, MobilKodIstegi input, bool test, CancellationToken ct)

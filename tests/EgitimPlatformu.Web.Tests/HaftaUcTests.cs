@@ -143,6 +143,17 @@ public class HaftaUcTests
         using var doc = JsonDocument.Parse(swagger);
         Assert.True(doc.RootElement.GetProperty("paths").GetProperty("/api/egitimler").GetProperty("post").TryGetProperty("security", out _));
         Assert.False(doc.RootElement.GetProperty("paths").GetProperty("/api/egitimler").GetProperty("get").TryGetProperty("security", out _));
+        foreach (var (path, verb) in new[] {
+            ("/api/egitimler/{id}", "get"), ("/api/mobil/egitimler", "get"),
+            ("/api/mobil/egitimler/{id}", "get"),
+            ("/api/mobil/egitimler/{id}/calistir", "post"), ("/api/mobil/egitimler/{id}/test", "post") })
+        {
+            var operation = doc.RootElement.GetProperty("paths").GetProperty(path).GetProperty(verb);
+            var security = operation.GetProperty("security").EnumerateArray().ToArray();
+            Assert.Contains(security, requirement => requirement.TryGetProperty("Bearer", out _));
+            Assert.Contains(security, requirement => !requirement.EnumerateObject().Any());
+            Assert.True(operation.GetProperty("responses").TryGetProperty("401", out _));
+        }
         Assert.Contains("swagger-ui", await client.GetStringAsync("/swagger/index.html"));
     }
     [Fact]

@@ -61,6 +61,10 @@ public static class ApiKurulumu
     }
 }
 
+// Anonim erişim de sunan, ancak token geldiğinde onu kullanan uçların API belgesi.
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class IstegeBagliBearerAttribute : Attribute { }
+
 public sealed class JwtSwaggerFiltresi : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
@@ -69,10 +73,12 @@ public sealed class JwtSwaggerFiltresi : IOperationFilter
         if (method.GetCustomAttributes(true).OfType<AllowAnonymousAttribute>().Any()) return;
         var auth = method.GetCustomAttributes(true).OfType<AuthorizeAttribute>()
             .Concat(method.DeclaringType!.GetCustomAttributes(true).OfType<AuthorizeAttribute>());
-        if (!auth.Any()) return;
+        var optional = method.IsDefined(typeof(IstegeBagliBearerAttribute), true);
+        if (!auth.Any() && !optional) return;
         operation.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = [] }];
+        if (optional) operation.Security.Add(new OpenApiSecurityRequirement());
         operation.Responses ??= [];
         operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Geçerli JWT gerekli." });
-        operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Yönetici rolü gerekli." });
+        if (!optional) operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Yönetici rolü gerekli." });
     }
 }

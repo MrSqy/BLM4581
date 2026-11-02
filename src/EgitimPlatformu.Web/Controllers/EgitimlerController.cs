@@ -27,7 +27,7 @@ public sealed class EgitimlerController(UygulamaDbContext db, DersErisimi erisim
             .Select(e => new EgitimOzet(e.Id, e.KategoriId, e.Kod, e.Baslik, e.Sira)).ToListAsync(ct);
         return new EgitimSayfasi(toplam, sorgu.Sayfa, sorgu.SayfaBoyutu, dersler);
     }
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}"), IstegeBagliBearer]
     [ProducesResponseType<EgitimDetay>(200), ProducesResponseType(404)]
     public async Task<ActionResult<EgitimDetay>> Detay(int id, CancellationToken ct)
     {
