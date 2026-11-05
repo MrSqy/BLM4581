@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EgitimPlatformu.Web.Contracts;
 using EgitimPlatformu.Web.Data;
 using EgitimPlatformu.Web.Models;
 using EgitimPlatformu.Web.Services;
@@ -26,7 +27,7 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
     {
         var member = await OturumVar();
         var dersler = await db.Egitimler.AsNoTracking().OrderBy(e => e.Sira).ThenBy(e => e.Id)
-            .Select(e => new { e.Id, e.KategoriId, e.Kod, e.Baslik, e.Sira, gorevSayisi = e.Gorevler.Count }).ToListAsync();
+            .Select(e => new { e.Id, e.KategoriId, e.Kod, e.Baslik, e.Sira, gorevSayisi = e.Gorevler.Count(g => g.Aktif) }).ToListAsync();
         var ilkler = dersler.GroupBy(e => e.KategoriId).Select(g => g.First().Id).ToHashSet();
         // Liste hiçbir dersin tam içeriğini, başlangıç/test kodunu taşımaz.
         return Ok(dersler.Where(e => kategoriId == null || e.KategoriId == kategoriId).Select(e => new {
@@ -44,7 +45,7 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
         if (!first && !await OturumVar()) return Unauthorized(new { mesaj = "Bu derse devam etmek için giriş yapın." });
         return Ok(new { ders.Id, ders.KategoriId, ders.Kod, ders.Baslik, ders.Sira, ders.IcerikMarkdown,
             ders.BaslangicKodu, misafireAcik = first, erisilebilir = true,
-            gorevler = ders.Gorevler.OrderBy(g => g.No).Select(g => new { g.Id, g.EgitimId, g.No, g.Baslik, g.Aciklama }) });
+            gorevler = ders.Gorevler.Where(g => g.Aktif).OrderBy(g => g.No).Select(GorevBilgisi.Olustur) });
     }
 
     [HttpPost("egitimler/{id:int}/calistir"), IstegeBagliBearer]
@@ -58,6 +59,8 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
         var ders = await db.Egitimler.AsNoTracking().Include(e => e.Gorevler).SingleOrDefaultAsync(e => e.Id == id, ct);
         if (ders == null) return NotFound(new { mesaj = "Ders bulunamadı." });
         if (!await erisim.Izinli(HttpContext, ders, ct)) return Unauthorized(new { mesaj = "Bu derste kod çalıştırmak için giriş yapın." });
+        if (ders.Gorevler.Any(g => g.Aktif && g.Tur != "eski-pytest"))
+            return Conflict(new { mesaj = "Bu ders görev bazlıdır. /egitimler/{id}/gorevler/{no}/calistir veya /test kullanın." });
         if (string.IsNullOrWhiteSpace(input.Kod)) return BadRequest(new { mesaj = "Çalıştırılacak kodu yazın." });
         try
         {

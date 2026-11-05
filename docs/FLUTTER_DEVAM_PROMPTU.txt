@@ -1,16 +1,26 @@
-Backend birleştirmesi tamamlandı. Şimdi yalnız Flutter deposunda arayüz, API istemcisi ve mobil kullanıcı akışlarına devam et.
+Yalnız Flutter deposunda çalış; BLM4581 backend dosyalarını değiştirme. Backend görev bazlı güncel Python kaynağına geçirildi. Önce şu sözleşmeyi salt okunur oku:
+/home/baranbeey/Masaüstü/masaüstü/01_Eğitim/Üniversite_Dersleri/4. sınıf/enver hoca/projeler/BLM4581/docs/GOREV_AKTARIMI_V2.md
 
-Önce şu backend sözleşmesini salt okunur incele:
-/home/baranbeey/Masaüstü/masaüstü/01_Eğitim/Üniversite_Dersleri/4. sınıf/enver hoca/projeler/BLM4581/docs/API_HAFTA_03.md
+Backend'in mevcut DB'sinde migration ve PY-01 v2 aktarımının kullanıcı tarafından uygulanması gerekir. Eski DB otomatik değiştirilmedi. Önce API yanıtında tur ve görev başlangıç alanlarının geldiğini doğrula; eski veriyle yeni akış çalışmış sayma. PY-01: 5 kod görevi (no 1–5), 2 açıklama (6–7); eski 8 pasif, mobil listede yok. Ders başına tek calisma.py/test dosyası kullanma.
 
-Backend dosyalarını değiştirme; backend ihtiyacı bulursan somut istek/yanıt örneğiyle raporla. Tek JWT doğrulama altyapısı var. Mobil API tabanı /api/mobil/ ve mevcut token, bitis, kullanici yanıtı korundu. Token ömrü 15 dakika; refresh token yok. Authorization: Bearer ile gönder. 401 veya süre bitiminde yerel oturumu temizle. 403/429/503 durumunda oturumu silme. Çıkış hesabın bütün eski JWT'lerini iptal eder; cihazdaki güvenli depoyu da temizle.
+GET /api/mobil/egitimler/{id} görev örneği:
+{"id":1,"egitimId":1,"no":1,"baslik":"Selam","aciklama":"...","tur":"kod","baslangicDosyasi":"gorevler/selam.py","baslangicKodu":"# TODO\n","kontrol":{"tur":"standart-cikti","beklenenCikti":"Merhaba, dünya!\n","girdi":"","beklenenCikisKodu":0,"kullanilmamali":[]}}
+Açıklama görevi: tur=aciklama, baslangicDosyasi=null, baslangicKodu="", kontrol=null. Bu görevde editör/çalıştır/test veya otomatik başarılı etiketi gösterme; metin ve kabul ölçütlerini göster. Kontrol yoksa uydurma test üretme.
 
-Misafir her kategorinin ilk dersini okuyabilir, çalıştırabilir, test edebilir; diğer derslerde yalnız özet/müfredat görebilir. İlk dersi istemcide tahmin etme: misafireAcik ve erisilebilir alanlarını kullan. Giriş yapan öğrenci tüm derslere erişir fakat yönetici CRUD yetkisi yoktur. Ders/test kodu istemciden alınmaz; yalnız öğrenci kodunu gönder.
+Ders düzeyindeki baslangicKodu yerine seçili görevin baslangicKodu ve baslangicDosyasi kullanılacak. Görev değiştirince öğrencinin diğer görevdeki kodunu kaybetme; taslakları ders ID + görev ID ile ayır. no yalnız URL görev numarasıdır; id ile karıştırma. API'deki gerçek ID'leri kullan.
 
-Hatalarda hem {mesaj} hem ProblemDetails title/errors biçimini, boş 401/403/429 yanıtını destekle. Genel runner durumları tamamlandi, basarisiz, hata, zaman_asimi, test_yok; görev durumları basarili, basarisiz, atlanmis, test_yok. 503 servis kullanılamıyor, 429 istek sınırı mesajı göster. Başarısız sonuçları başarılı gibi sunma.
+POST /api/mobil/egitimler/{id}/gorevler/{no}/calistir
+POST /api/mobil/egitimler/{id}/gorevler/{no}/test
+İstek: {"kod":"print('Merhaba, dünya!')"}
+Girdi, dosya yolu, beklenen çıktı ve kuralları istemciden gönderme. Sunucu kaydedilmiş stdin ile çalıştırır; bu sürüm serbest kullanıcı stdin alanı içermez.
+Test yanıtı:
+{"no":1,"basarili":true,"durum":"basarili","cikti":"Merhaba, dünya!\n","hata":"","cikisKodu":0,"ciktiEslesiyor":true,"cikisKoduEslesiyor":true,"kuralIhlalleri":[]}
+Çalıştırmada ciktiEslesiyor/cikisKoduEslesiyor null, durum tamamlandi veya hata; test geçildi etiketi gösterme. Testte basarisiz, timeout'ta zaman_asimi, çıktı taşmasında cikti_siniri gelebilir. Eşleşme alanları null olabilir. Çıktının boşluklarını ve son satır sonunu koru; beklenen/gerçek farkını anlaşılır göster. Beklenen çıkış kodu 0 dışında olabilir.
 
-API_ADRESI platforma göre ayarlanmalı: fiziksel telefonda 127.0.0.1 telefonun kendisidir; geliştirme bilgisayarının erişilebilir adresini kullan. Sadece yerel geliştirmede HTTP, yayın ortamında HTTPS kullan. Gizli anahtar/şifreyi Flutter'a veya depoya yazma. JWT anahtarı yalnız backend ortamındadır.
+Eski ders düzeyi /egitimler/{id}/calistir ve /test güncel derste 409 döndürür. tur=eski-pytest içeren henüz aktarılmamış derslere görev endpoint'i kullanma; gerekirse açık eski akış veya aktarım gerekli mesajı göster. veri/ veya ek modül isteyen görevlerin tam dosya paketi bu v2 sözleşmesinde desteklenmiyor; bu dersleri çalışıyor gibi sunma.
 
-Mevcut mobil tasarımı tamamla; lint bildirimlerini düzelt, eski demo testlerini gerçek istemci sözleşmesine uyarla. Misafir sınırı, giriş/kayıt/çıkış, süre dolması/401, 403/429/503, görev sonuçları ve güvenli token saklama akışlarını test et. Mevcut kullanıcı değişikliklerini koru. Büyük blok sonunda yerel checkpoint commit at; push, gh, PR veya ağ kurulumu yapma. Dış adımları BEKLEYEN DIŞ İŞLER altında tam komutla yaz.
+JWT sözleşmesi korundu: POST /api/mobil/hesap/giris|kayit -> token,bitis,kullanici. Token 15 dakika, refresh yok; Authorization: Bearer. İlk ders her kategori için misafire açık, sonrası üyeye açık; misafireAcik/erisilebilir kullan. Sonraki dersin görev uçları da JWT ister. Çıkış bütün eski tokenları iptal eder. 401'de yerel oturumu temizle; 403/409/429/503 durumunda silme. Hatalarda {mesaj}, ProblemDetails title/errors ve boş gövdeyi destekle.
 
-Backend .NET testleri ve yerel Python fixture testleri çalıştırıldı; gerçek Docker ve telefon kabulü yapılmadı. Backend tarafında sandbox imajı bulunmadığı için canlı kod çalıştırma henüz doğrulanmadı. Bu durumu mock testlerle geçmiş gibi gösterme. Test/analyze/build sonuçlarını ve cihazda doğrulanmayanları ayrı raporla.
+Backend URL API_ADRESI ile ayarlı kalsın; emülatörde 10.0.2.2:5080, fiziksel telefonda bilgisayarın LAN adresi. JWT anahtarı sadece backend'de bulunur.
+
+Modelleri, API istemcisini, görev seçimini ve ekranı güncelle. analyze ve Flutter testlerini çalıştır: seçili görevin dosya/kodu, görevler arası taslak koruma, açıklamada otomasyon yokluğu, doğru/yanlış çıktı ve çıkış kodu, timeout/çıktı limiti, misafir/üye erişimi ve 401/409/429/503. Gerçek cihaz kabulünü taklit testlerden ayır. JSON üreticisi Nisa'nın kapsamında; değiştirme. Büyük blok sonunda yerel checkpoint commit at; push/gh/PR/ağ kurulumu yapma. Dış işleri tam komutlarla raporla.

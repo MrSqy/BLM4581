@@ -67,7 +67,7 @@ public class HaftaUcTests
         Assert.Equal(1, (await client.GetFromJsonAsync<EgitimSayfasi>("/api/egitimler?q=py-03"))!.Toplam);
         var detail = await client.GetStringAsync("/api/egitimler/1");
         Assert.DoesNotContain("testKodu", detail); Assert.DoesNotContain("@pytest", detail);
-        Assert.Equal(8, JsonSerializer.Deserialize<EgitimDetay>(detail, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.Gorevler.Count);
+        Assert.Equal(7, JsonSerializer.Deserialize<EgitimDetay>(detail, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.Gorevler.Count);
     }
     [Theory]
     [InlineData("?sayfa=0")][InlineData("?sayfaBoyutu=101")][InlineData("?kategoriId=-1")][InlineData("?sayfa=abc")]
@@ -146,7 +146,9 @@ public class HaftaUcTests
         foreach (var (path, verb) in new[] {
             ("/api/egitimler/{id}", "get"), ("/api/mobil/egitimler", "get"),
             ("/api/mobil/egitimler/{id}", "get"),
-            ("/api/mobil/egitimler/{id}/calistir", "post"), ("/api/mobil/egitimler/{id}/test", "post") })
+            ("/api/mobil/egitimler/{id}/calistir", "post"), ("/api/mobil/egitimler/{id}/test", "post"),
+            ("/api/mobil/egitimler/{id}/gorevler/{no}/calistir", "post"),
+            ("/api/mobil/egitimler/{id}/gorevler/{no}/test", "post") })
         {
             var operation = doc.RootElement.GetProperty("paths").GetProperty(path).GetProperty(verb);
             var security = operation.GetProperty("security").EnumerateArray().ToArray();

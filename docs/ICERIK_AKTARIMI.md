@@ -1,4 +1,6 @@
-# İçerik aktarımı — sözleşme v1
+# İçerik aktarımı — eski sözleşme v1
+
+Güncel görev bazlı kaynak için [v2 sözleşmesini](GOREV_AKTARIMI_V2.md) ve 7 görevli PY-01 örnek paketini kullanın. Aşağıdaki v1 kuralları yalnız eski-pytest dersleri içindir; v2 dersler v1 ile güncellenemez.
 
 `POST /api/icerik/aktar` JSON paketi kabul eder. Yönetici rolünde gerçek Identity
 çerez oturumu ve `X-CSRF-TOKEN` başlığı gerekir. Token aynı oturumla

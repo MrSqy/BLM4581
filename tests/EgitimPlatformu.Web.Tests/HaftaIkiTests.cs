@@ -53,10 +53,10 @@ public sealed class HaftaIkiTests : IClassFixture<TestApplication>, IDisposable
         var response = await client.GetAsync("/Egitimler/Detay/1");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync();
-        Assert.Equal(8, Regex.Matches(html, "class=\"task-item\"").Count);
+        Assert.Equal(7, Regex.Matches(html, "class=\"task-item\"").Count);
         Assert.Contains("<strong>Kabul", html);
-        Assert.Contains("dakika_saniye", html);
-        Assert.Contains("kod çalıştırılmaz", WebUtility.HtmlDecode(html));
+        Assert.Contains("sure_hesabi.py", html);
+        Assert.DoesNotContain("id=\"baslangic-kodu\"", html); // Güncel kaynakta ders düzeyinde tek şablon yok.
         Assert.DoesNotContain("@pytest", html); // TestKodu öğrenci sayfasında yayımlanmaz.
     }
 

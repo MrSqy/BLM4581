@@ -48,6 +48,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.MobilApiEkle();
+builder.Services.AddSingleton<IGorevKodServisi, GorevKodServisi>();
 
 // Bağlantı dizesi depoda değil, user-secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("Varsayilan")
@@ -63,6 +64,14 @@ var app = builder.Build();
 if (args.Contains("--identity-hazirla"))
 {
     await IdentityBaslangic.HazirlaAsync(app.Services, app.Configuration);
+    return;
+}
+
+var icerikKomutu = Array.FindIndex(args, a => a is "--icerik-planla" or "--icerik-aktar");
+if (icerikKomutu >= 0)
+{
+    if (icerikKomutu + 1 >= args.Length) throw new InvalidOperationException("Paket dosya yolunu belirtin.");
+    await IcerikYerelKomutu.Calistir(app.Services, args[icerikKomutu + 1], args[icerikKomutu] == "--icerik-planla");
     return;
 }
 
