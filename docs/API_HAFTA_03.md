@@ -65,3 +65,7 @@ OpenAPI 2.3.0 bağımlılığı, yerel önbellekteki 2.12.0 sürümüne yükselt
 ## Yerel kabul sonucu
 
 103 .NET testi ve 5 güvenilir Python fixture testi geçti. Yerel Kestrel/PostgreSQL okuma ve anonim erişim kontrolleri yapıldı. Kullanıcı Swagger üzerinden giriş/token, korunan ders erişimi, çıkış sonrası token iptali ve ilk dersin anonim erişimini doğruladı. Ayrı yöneticiyle deneme dersi POST 201, PUT 204, GET 200, DELETE 204, son GET 404 olarak doğrulandı. Boş rol tablosuyla ilk web kaydı ve koşullu erişimli uçların Swagger Bearer tanımı regresyon kapsamına alındı. Docker/telefon sınırları yukarıdaki gibi devam ediyor.
+
+## Güncel görev bazlı kaynak
+
+PY-01 güncel görev modeliyle çalışır; ders düzeyi runner yalnız eski-pytest dersleri içindir. Yeni endpoint/JSON ve açık veritabanı geçişi için [GOREV_AKTARIMI_V2](GOREV_AKTARIMI_V2.md) esas alınmalıdır.

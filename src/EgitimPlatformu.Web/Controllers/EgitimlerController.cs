@@ -86,6 +86,6 @@ public sealed class EgitimlerController(UygulamaDbContext db, DersErisimi erisim
         ders.BaslangicKodu = veri.BaslangicKodu; ders.TestKodu = veri.TestKodu;
     }
     private static EgitimDetay DetayDto(Egitim e) => new(e.Id, e.KategoriId, e.Kod, e.Baslik, e.Sira,
-        e.IcerikMarkdown, e.BaslangicKodu, e.Gorevler.OrderBy(g => g.No).ThenBy(g => g.Id)
-            .Select(g => new GorevDetay(g.Id, g.No, g.Baslik, g.Aciklama)).ToList());
+        e.IcerikMarkdown, e.BaslangicKodu, e.Gorevler.Where(g => g.Aktif).OrderBy(g => g.No).ThenBy(g => g.Id)
+            .Select(GorevBilgisi.Olustur).ToList());
 }

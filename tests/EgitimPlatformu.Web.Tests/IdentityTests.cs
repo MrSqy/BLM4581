@@ -21,10 +21,12 @@ public sealed class IdentityApplication : WebApplicationFactory<Program>
     private readonly bool swagger;
     public string JwtAnahtari { get; } = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
     private readonly IMobilKodServisi? runner;
-    public IdentityApplication(bool swagger = false, IMobilKodServisi? runner = null)
+    private readonly IGorevKodServisi? gorevRunner;
+    public IdentityApplication(bool swagger = false, IMobilKodServisi? runner = null, IGorevKodServisi? gorevRunner = null)
     {
         this.swagger = swagger;
         this.runner = runner;
+        this.gorevRunner = gorevRunner;
         connection.Open();
     }
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -36,6 +38,7 @@ public sealed class IdentityApplication : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             if (runner is not null) { services.RemoveAll<IMobilKodServisi>(); services.AddSingleton(runner); }
+            if (gorevRunner is not null) { services.RemoveAll<IGorevKodServisi>(); services.AddSingleton(gorevRunner); }
             services.RemoveAll<UygulamaDbContext>();
             services.RemoveAll<DbContextOptions<UygulamaDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<UygulamaDbContext>>();

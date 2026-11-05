@@ -24,7 +24,7 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
                 .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
             if (Egitim is null) return Bulunamadi();
             IcerikHtml = markdown.Html(Egitim.IcerikMarkdown);
-            Gorevler = Egitim.Gorevler.OrderBy(g => g.No).ThenBy(g => g.Id)
+            Gorevler = Egitim.Gorevler.Where(g => g.Aktif).OrderBy(g => g.No).ThenBy(g => g.Id)
                 .Select(g => new GorevIcerigi(g.Id, g.No, g.Baslik, markdown.Html(g.Aciklama))).ToList();
         }
         catch (Exception ex) when (ex is DbException || ex is InvalidOperationException { InnerException: DbException })

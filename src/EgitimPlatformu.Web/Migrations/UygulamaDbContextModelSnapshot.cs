@@ -71,13 +71,13 @@ namespace EgitimPlatformu.Web.Migrations
                         new
                         {
                             Id = 1,
-                            BaslangicKodu = "\"\"\"Her işlevi ALISTIRMALAR.md sözleşmesine göre tamamla.\"\"\"\ndef dakika_saniye(dakika): raise NotImplementedError\ndef toplam_saniye(saat, dakika): raise NotImplementedError\ndef sure_satiri(saat, dakika): raise NotImplementedError\ndef duzelt(saat, dakika): raise NotImplementedError\ndef guvenli_toplam(saat, dakika): raise NotImplementedError\ndef rapor(saat, dakika): raise NotImplementedError\n",
-                            Baslik = "Çalıştırma modeli",
-                            IcerikMarkdown = "# PY-01 — Bağımsız görevler\n\nSaat ve dakika sabitlerinden toplam saniye hesapla. `(1, 2)` için 3720, `(0, 0)` için 0 beklenmeli; hesap ile çıktıyı ayrı satırlarda tut.\n\nÇözümünü ayrı bir çalışma dosyasında oluştur. Normal durum, sınır/hata durumu ve gerekçeni teslim et. Kendi denemenden sonra [gerekçeli çözüm notlarıyla](cozumler/CEVAPLAR.md) karşılaştır.\n## Kademeli görevler\n\nÜstteki özgün görev korunmuştur. Aşağıdaki sekiz görev onu küçük adımlara ayırır ve genişletir. Önce kendi `calisma.py` dosyanı tamamla. `ornek.py` dersin çalışan örneği; `cozumler/referans.py` ayrı çözümdür. Testlerin geçtiğini görmek açıklama ve mini görev değerlendirmesinin yerini tutmaz.\n\nDers klasöründe:\n\n```bash\nPYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q test_alistirmalar.py\n```\n\nBaşlangıç şablonunda kod görevleri bilerek başarısız olur. Bir görevi çalışırken `-k gorev_3` gibi bir filtre ekleyebilirsin. Başka çalışma dosyası için `--calisma /tam/yol/cozumum.py` kullan. Kendi denemenden sonra referansı aynı testlerde çalıştırmak için `--referans` ekle.\n\n### Görev 1 — Temel — Kaynak ve yorumlayıcı\n\n`python3 --version` ve `python3 -c \"import sys; print(sys.executable)\"` çalıştır; iki çıktının ne söylediğini yaz.\n\n**Kabul ölçütü:** Sürüm ile yürütülebilir dosya yolu ayrı kaydedilir; sanal ortamın neyi ayırdığı bir cümleyle açıklanır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.\n\n### Görev 2 — Temel — Sonucu öngör\n\n`dakika=3; saniye=dakika*60; dakika=5` sonrasında iki değişkenin değerini çalıştırmadan yaz.\n\n**Kabul ölçütü:** dakika=5 ve saniye=180 denir; atamanın önceki hesaplamayı yeniden yürütmediği açıklanır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.\n\n### Görev 3 — Temel — Dakikayı dönüştür\n\n`dakika_saniye(dakika)` işlevini yaz. Girdi bu görevde negatif olmayan tamsayıdır.\n\n**Kabul ölçütü:** 0→0, 3→180, 7→420, 1440→86400; fonksiyon sonucu döndürür.\n\n**Kontrol:** `-k gorev_3`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n### Görev 4 — Orta — İki birimi birleştir\n\nÖzgün görevi `toplam_saniye(saat, dakika)` işlevine taşı. Negatif olmayan tamsayılar kullan; dakika 60 üzerinde de toplam süreye katılır.\n\n**Kabul ölçütü:** (1,2)→3720, (0,0)→0, (0,90)→5400 ve (2,0)→7200.\n\n**Kontrol:** `-k gorev_4`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n### Görev 5 — Orta — Hesap ve sunum\n\n`sure_satiri(saat,dakika)` tam olarak `Toplam: 3720 saniye` biçiminde metin döndürsün; hesabı önceki işleve devret.\n\n**Kabul ölçütü:** (1,2) için tam metin; (0,0) için `Toplam: 0 saniye`; stdout boş kalır.\n\n**Kontrol:** `-k gorev_5`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n### Görev 6 — Orta · hata ayıklama — Yanlış dönüşüm katsayısı\n\nHatalı `duzelt(saat,dakika): return (saat+dakika)*60` hesabını düzelt; (1,0) girdisinin hatayı neden yakaladığını yaz.\n\n**Kabul ölçütü:** duzelt(1,0)=3600, duzelt(1,2)=3720, duzelt(0,5)=300.\n\n**Kontrol:** `-k gorev_6`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n### Görev 7 — Zor — Güvenli süre girişi\n\n`guvenli_toplam(saat,dakika)` ekle. Yalnız bool olmayan, negatif olmayan iki int kabul et; uygunsuz değerlerde ValueError yükselt.\n\n**Kabul ölçütü:** Sıfır, büyük tamsayı ve normal süreler doğru; -1, 1.5, \"2\" ve True girdileri reddedilir.\n\n**Kontrol:** `-k gorev_7`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n### Görev 8 — Zor · açık uçlu mini görev — Küçük süre raporu\n\n`rapor(saat,dakika)` ile `{\"saniye\": 3720, \"metin\": \"Toplam: 3720 saniye\"}` biçimini üret. Geçersiz girdiler görev 7 gibi reddedilsin. Bunu bir terminal arayüzünde nasıl sunacağını kendin tasarla; arayüz tasarımını iki örnekle yaz.\n\n**Kabul ölçütü:** İki alan tutarlı; (0,0) doğru; negatif giriş ValueError; hesap/sunum ayrımını açıklayan iki cümle ve normal/hata arayüz örneği var.\n\n**Kontrol:** `-k gorev_8`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n[Gerekçeli çözümler](cozumler/CEVAPLAR.md). Mini görevde tasarımını, bir normal ve bir hata/sınır örneğini yaz; test raporuyla birlikte sakla.\n",
+                            BaslangicKodu = "",
+                            Baslik = "İlk Python programı",
+                            IcerikMarkdown = "# PY-01 — İlk Python programı: görevler\n\nYedi görev var. Beşinde kod yazarsın (1–5), ikisinde kısa bir açıklama hazırlarsın (6, 7). Başlamadan önce [anlatımı](README.md) ve [laboratuvarı](LAB.md) bitir.\n\n## Kod görevleri nasıl yapılır?\n\nKod görevlerinin dosyaları [gorevler/](gorevler/) klasöründe. Her dosya küçük bir programdır. Kodunu `# TODO` notunun yerine yaz. `ornek.py`'ye dokunma.\n\nBir görevi denemek için terminal `PY-01` klasöründeyken çalıştır (README 10. bölüm):\n\n```bash\npython3 gorevler/selam.py\n```\n\nBütün kod görevlerini birlikte kontrol ettirmek için:\n\n```bash\npython3 ../../kontrol/kontrol.py --ders PY-01\n```\n\nTest programı her görev dosyasını çalıştırır ve ekrana yazılanı aşağıdaki **Beklenen çıktı** ile harfi harfine karşılaştırır. Her görev için `GEÇTİ` ya da `KALDI` yazar. Kalan görevde beklenen çıktıyı ve programının çıktısını alt alta gösterir; Python hata verdiyse onun mesajını da gösterir. Tek bir görevi kontrol etmek için sonuna `--gorev selam` ekle.\n\nDosyalara henüz dokunmadıysan bütün görevler `KALDI` verir; başlangıç durumu budur.\n\nAçıklama görevlerini kendi notuna yaz, sonra [çözüm notlarıyla](cozumler/CEVAPLAR.md) karşılaştır. Test programı bunları sınamaz.\n\n## Görev 1 — Selam\n\n**Dosya:** `gorevler/selam.py`\n\nEkrana `Merhaba, dünya!` yaz.\n\n**Beklenen çıktı:**\n\n```text\nMerhaba, dünya!\n```\n\n## Görev 2 — Üçgen\n\n**Dosya:** `gorevler/ucgen.py`\n\nYıldızlardan (`*`) üç satırlık, ortalanmış bir üçgen çiz. Birinci satırda 2 boşluk ve 1 yıldız, ikincide 1 boşluk ve 3 yıldız, üçüncüde 5 yıldız var. Satırların sonunda boşluk olmasın.\n\n**Beklenen çıktı:**\n\n```text\n  *\n ***\n*****\n```\n\n## Görev 3 — Bilgi kartı\n\n**Dosya:** `gorevler/bilgi_karti.py`\n\nDosyada dört değişken hazır: `ders`, `ders_sayisi`, `ortalama`, `harf_notu`. Değerlerini değiştirmeden her birini bir f-string içinde, etiketiyle birlikte yazdır. Ortalama virgülden sonra iki basamakla yazılsın (README 8. bölüm).\n\n**Beklenen çıktı:**\n\n```text\nDers: Python\nDers sayısı: 20\nOrtalama: 3.50\nHarf notu: A\n```\n\n## Görev 4 — Bozuk programı düzelt\n\n**Dosya:** `gorevler/bozuk_program.py`\n\nBu programda iki hata var. Önce çalıştır ve Python'un mesajını oku (README 9. bölüm). İlk hatayı düzeltince program çalışır; ikinci hatayı çıktıya bakarak bul.\n\n**Beklenen çıktı:**\n\n```text\nProgram başladı\nMerhaba, Ada\n```\n\n## Görev 5 — Süre hesabı\n\n**Dosya:** `gorevler/sure_hesabi.py`\n\nDosyada `saat` ve `dakika` değişkenleri hazır. Bir saat 3600, bir dakika 60 saniyedir. Toplam süreyi saniye olarak hesaplayıp `toplam_saniye` adlı bir değişkene ata, sonra üç değeri etiketleriyle yazdır. Sonucu kendin hesaplayıp `8100` diye yazma; hesabı Python yapsın. `saat` ya da `dakika` değişince çıktı da kendiliğinden doğru kalmalı.\n\n**Beklenen çıktı:**\n\n```text\nSaat: 2\nDakika: 15\nToplam saniye: 8100\n```\n\n## Görev 6 — Çıktı tahmini\n\nAşağıdaki programı çalıştırmadan ekrana tam olarak ne yazacağını tahmin et:\n\n```python\ndakika = 3\nsaniye = dakika * 60\ndakika = 5\nprint(dakika, saniye)\n```\n\n**Kabul ölçütü:** Tek satırlık çıktı doğru ve `saniye`'nin neden değişmediği bir cümleyle açıklanmış. Sonra tahminini kendi `deneme/` klasöründe bir dosyada dene.\n\n## Görev 7 — Hata mesajını oku\n\nBir öğrenci programını çalıştırınca şu mesajı gördü:\n\n```text\nMerhaba, dünya!\nTraceback (most recent call last):\n  File \".../PY-01/deneme/fiyat.py\", line 4, in <module>\n    print(f\"Toplam: {toplm}\")\n                     ^^^^^\nNameError: name 'toplm' is not defined. Did you mean: 'toplam'?\n```\n\nŞu üç soruyu cevapla:\n\n1. Hata hangi satırda?\n2. Hatanın türü ne ve ne anlama geliyor?\n3. Program hatadan önce bir şey yazdı mı? Bu, Python'un programı nasıl çalıştırdığı hakkında ne söylüyor?\n\n**Kabul ölçütü:** Satır numarası (4), hata türü (`NameError`: tanımlanmamış ad) ve düzeltme (`toplm` yerine `toplam`) doğru. Üçüncü soruda, hatalı satıra gelene kadar önceki satırların çalıştığı söylenmiş.\n\n[Çözüm notları](cozumler/CEVAPLAR.md) · Kod görevlerinin çözümleri `cozumler/` klasöründe, görev dosyalarıyla aynı adlarla durur. Önce kendin dene; çözümleri test programıyla sınamak için komutun sonuna `--referans` ekle.\n",
                             KategoriId = 1,
                             Kod = "PY-01",
                             Sira = 1,
-                            TestKodu = "import pytest\n\n@pytest.mark.parametrize(\"dakika,beklenen\", [(0,0),(3,180),(7,420),(1440,86400)])\ndef test_gorev_3(cozum,dakika,beklenen):\n    assert cozum.dakika_saniye(dakika)==beklenen\n\n@pytest.mark.parametrize(\"s,d,beklenen\",[(1,2,3720),(0,0,0),(0,90,5400),(2,0,7200)])\ndef test_gorev_4(cozum,s,d,beklenen):\n    assert cozum.toplam_saniye(s,d)==beklenen\n\n@pytest.mark.parametrize(\"s,d,beklenen\",[(1,2,\"Toplam: 3720 saniye\"),(0,0,\"Toplam: 0 saniye\")])\ndef test_gorev_5(cozum,capsys,s,d,beklenen):\n    assert cozum.sure_satiri(s,d)==beklenen\n    assert capsys.readouterr().out==\"\"\n\n@pytest.mark.parametrize(\"s,d,beklenen\",[(1,0,3600),(1,2,3720),(0,5,300)])\ndef test_gorev_6(cozum,s,d,beklenen):\n    assert cozum.duzelt(s,d)==beklenen\n\n@pytest.mark.parametrize(\"s,d\",[(-1,0),(0,-1),(True,0),(0,False),(1.5,2),(\"2\",0)])\ndef test_gorev_7_hata(cozum,s,d):\n    with pytest.raises(ValueError): cozum.guvenli_toplam(s,d)\n\ndef test_gorev_7_sinir(cozum):\n    assert cozum.guvenli_toplam(0,0)==0\n    assert cozum.guvenli_toplam(1000000,2)==3600000120\n\ndef test_gorev_8(cozum):\n    assert cozum.rapor(1,2)=={\"saniye\":3720,\"metin\":\"Toplam: 3720 saniye\"}\n    assert cozum.rapor(0,0)=={\"saniye\":0,\"metin\":\"Toplam: 0 saniye\"}\n    with pytest.raises(ValueError): cozum.rapor(-1,2)\n"
+                            TestKodu = ""
                         },
                         new
                         {
@@ -115,6 +115,16 @@ namespace EgitimPlatformu.Web.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("Aktif")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("BaslangicDosyasi")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BaslangicKodu")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Baslik")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -123,8 +133,15 @@ namespace EgitimPlatformu.Web.Migrations
                     b.Property<int>("EgitimId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("KontrolJson")
+                        .HasColumnType("text");
+
                     b.Property<int>("No")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Tur")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -137,194 +154,276 @@ namespace EgitimPlatformu.Web.Migrations
                         new
                         {
                             Id = 1,
-                            Aciklama = "`python3 --version` ve `python3 -c \"import sys; print(sys.executable)\"` çalıştır; iki çıktının ne söylediğini yaz.\n\n**Kabul ölçütü:** Sürüm ile yürütülebilir dosya yolu ayrı kaydedilir; sanal ortamın neyi ayırdığı bir cümleyle açıklanır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.",
-                            Baslik = "Temel — Kaynak ve yorumlayıcı",
+                            Aciklama = "**Dosya:** `gorevler/selam.py`\n\nEkrana `Merhaba, dünya!` yaz.\n\n**Beklenen çıktı:**\n\n```text\nMerhaba, dünya!\n```",
+                            Aktif = true,
+                            BaslangicDosyasi = "gorevler/selam.py",
+                            BaslangicKodu = "# Görev 1 (ALISTIRMALAR.md): ekrana \"Merhaba, dünya!\" yaz.\n\n# TODO: print satırını buraya yaz.\n",
+                            Baslik = "Selam",
                             EgitimId = 1,
-                            No = 1
+                            KontrolJson = "{\"Tur\":\"standart-cikti\",\"BeklenenCikti\":\"Merhaba, d\\u00FCnya!\\n\",\"Girdi\":\"\",\"BeklenenCikisKodu\":0,\"Kullanilmamali\":[]}",
+                            No = 1,
+                            Tur = "kod"
                         },
                         new
                         {
                             Id = 2,
-                            Aciklama = "`dakika=3; saniye=dakika*60; dakika=5` sonrasında iki değişkenin değerini çalıştırmadan yaz.\n\n**Kabul ölçütü:** dakika=5 ve saniye=180 denir; atamanın önceki hesaplamayı yeniden yürütmediği açıklanır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.",
-                            Baslik = "Temel — Sonucu öngör",
+                            Aciklama = "**Dosya:** `gorevler/ucgen.py`\n\nYıldızlardan (`*`) üç satırlık, ortalanmış bir üçgen çiz. Birinci satırda 2 boşluk ve 1 yıldız, ikincide 1 boşluk ve 3 yıldız, üçüncüde 5 yıldız var. Satırların sonunda boşluk olmasın.\n\n**Beklenen çıktı:**\n\n```text\n  *\n ***\n*****\n```",
+                            Aktif = true,
+                            BaslangicDosyasi = "gorevler/ucgen.py",
+                            BaslangicKodu = "# Görev 2 (ALISTIRMALAR.md): yıldızlardan üç satırlık bir üçgen çiz.\n\n# TODO: her satır için bir print yaz.\n",
+                            Baslik = "Üçgen",
                             EgitimId = 1,
-                            No = 2
+                            KontrolJson = "{\"Tur\":\"standart-cikti\",\"BeklenenCikti\":\"  *\\n ***\\n*****\\n\",\"Girdi\":\"\",\"BeklenenCikisKodu\":0,\"Kullanilmamali\":[]}",
+                            No = 2,
+                            Tur = "kod"
                         },
                         new
                         {
                             Id = 3,
-                            Aciklama = "`dakika_saniye(dakika)` işlevini yaz. Girdi bu görevde negatif olmayan tamsayıdır.\n\n**Kabul ölçütü:** 0→0, 3→180, 7→420, 1440→86400; fonksiyon sonucu döndürür.\n\n**Kontrol:** `-k gorev_3`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
-                            Baslik = "Temel — Dakikayı dönüştür",
+                            Aciklama = "**Dosya:** `gorevler/bilgi_karti.py`\n\nDosyada dört değişken hazır: `ders`, `ders_sayisi`, `ortalama`, `harf_notu`. Değerlerini değiştirmeden her birini bir f-string içinde, etiketiyle birlikte yazdır. Ortalama virgülden sonra iki basamakla yazılsın (README 8. bölüm).\n\n**Beklenen çıktı:**\n\n```text\nDers: Python\nDers sayısı: 20\nOrtalama: 3.50\nHarf notu: A\n```",
+                            Aktif = true,
+                            BaslangicDosyasi = "gorevler/bilgi_karti.py",
+                            BaslangicKodu = "# Görev 3 (ALISTIRMALAR.md): dört değişkeni etiketleriyle yazdır.\nders = \"Python\"\nders_sayisi = 20\nortalama = 3.5\nharf_notu = \"A\"\n\n# TODO: Değişkenlerin değerlerini değiştirmeden dört satırı f-string ile yazdır.\n",
+                            Baslik = "Bilgi kartı",
                             EgitimId = 1,
-                            No = 3
+                            KontrolJson = "{\"Tur\":\"standart-cikti\",\"BeklenenCikti\":\"Ders: Python\\nDers say\\u0131s\\u0131: 20\\nOrtalama: 3.50\\nHarf notu: A\\n\",\"Girdi\":\"\",\"BeklenenCikisKodu\":0,\"Kullanilmamali\":[]}",
+                            No = 3,
+                            Tur = "kod"
                         },
                         new
                         {
                             Id = 4,
-                            Aciklama = "Özgün görevi `toplam_saniye(saat, dakika)` işlevine taşı. Negatif olmayan tamsayılar kullan; dakika 60 üzerinde de toplam süreye katılır.\n\n**Kabul ölçütü:** (1,2)→3720, (0,0)→0, (0,90)→5400 ve (2,0)→7200.\n\n**Kontrol:** `-k gorev_4`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
-                            Baslik = "Orta — İki birimi birleştir",
+                            Aciklama = "**Dosya:** `gorevler/bozuk_program.py`\n\nBu programda iki hata var. Önce çalıştır ve Python'un mesajını oku (README 9. bölüm). İlk hatayı düzeltince program çalışır; ikinci hatayı çıktıya bakarak bul.\n\n**Beklenen çıktı:**\n\n```text\nProgram başladı\nMerhaba, Ada\n```",
+                            Aktif = true,
+                            BaslangicDosyasi = "gorevler/bozuk_program.py",
+                            BaslangicKodu = "# Görev 4 (ALISTIRMALAR.md): Bu programda iki hata var. Program iki satır yazmalı.\nad = \"Ada\"\nprint(\"Program başladı)\nprint(\"Merhaba, {ad}\")\n",
+                            Baslik = "Bozuk programı düzelt",
                             EgitimId = 1,
-                            No = 4
+                            KontrolJson = "{\"Tur\":\"standart-cikti\",\"BeklenenCikti\":\"Program ba\\u015Flad\\u0131\\nMerhaba, Ada\\n\",\"Girdi\":\"\",\"BeklenenCikisKodu\":0,\"Kullanilmamali\":[]}",
+                            No = 4,
+                            Tur = "kod"
                         },
                         new
                         {
                             Id = 5,
-                            Aciklama = "`sure_satiri(saat,dakika)` tam olarak `Toplam: 3720 saniye` biçiminde metin döndürsün; hesabı önceki işleve devret.\n\n**Kabul ölçütü:** (1,2) için tam metin; (0,0) için `Toplam: 0 saniye`; stdout boş kalır.\n\n**Kontrol:** `-k gorev_5`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
-                            Baslik = "Orta — Hesap ve sunum",
+                            Aciklama = "**Dosya:** `gorevler/sure_hesabi.py`\n\nDosyada `saat` ve `dakika` değişkenleri hazır. Bir saat 3600, bir dakika 60 saniyedir. Toplam süreyi saniye olarak hesaplayıp `toplam_saniye` adlı bir değişkene ata, sonra üç değeri etiketleriyle yazdır. Sonucu kendin hesaplayıp `8100` diye yazma; hesabı Python yapsın. `saat` ya da `dakika` değişince çıktı da kendiliğinden doğru kalmalı.\n\n**Beklenen çıktı:**\n\n```text\nSaat: 2\nDakika: 15\nToplam saniye: 8100\n```",
+                            Aktif = true,
+                            BaslangicDosyasi = "gorevler/sure_hesabi.py",
+                            BaslangicKodu = "# Görev 5 (ALISTIRMALAR.md): saat ve dakikadan toplam saniyeyi hesapla.\nsaat = 2\ndakika = 15\n\n# TODO: toplam_saniye değişkenini saat ve dakikadan hesapla.\n# TODO: Üç satırı etiketleriyle yazdır.\n",
+                            Baslik = "Süre hesabı",
                             EgitimId = 1,
-                            No = 5
+                            KontrolJson = "{\"Tur\":\"standart-cikti\",\"BeklenenCikti\":\"Saat: 2\\nDakika: 15\\nToplam saniye: 8100\\n\",\"Girdi\":\"\",\"BeklenenCikisKodu\":0,\"Kullanilmamali\":[]}",
+                            No = 5,
+                            Tur = "kod"
                         },
                         new
                         {
                             Id = 6,
-                            Aciklama = "Hatalı `duzelt(saat,dakika): return (saat+dakika)*60` hesabını düzelt; (1,0) girdisinin hatayı neden yakaladığını yaz.\n\n**Kabul ölçütü:** duzelt(1,0)=3600, duzelt(1,2)=3720, duzelt(0,5)=300.\n\n**Kontrol:** `-k gorev_6`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
-                            Baslik = "Orta · hata ayıklama — Yanlış dönüşüm katsayısı",
+                            Aciklama = "Aşağıdaki programı çalıştırmadan ekrana tam olarak ne yazacağını tahmin et:\n\n```python\ndakika = 3\nsaniye = dakika * 60\ndakika = 5\nprint(dakika, saniye)\n```\n\n**Kabul ölçütü:** Tek satırlık çıktı doğru ve `saniye`'nin neden değişmediği bir cümleyle açıklanmış. Sonra tahminini kendi `deneme/` klasöründe bir dosyada dene.",
+                            Aktif = true,
+                            BaslangicKodu = "",
+                            Baslik = "Çıktı tahmini",
                             EgitimId = 1,
-                            No = 6
+                            No = 6,
+                            Tur = "aciklama"
                         },
                         new
                         {
                             Id = 7,
-                            Aciklama = "`guvenli_toplam(saat,dakika)` ekle. Yalnız bool olmayan, negatif olmayan iki int kabul et; uygunsuz değerlerde ValueError yükselt.\n\n**Kabul ölçütü:** Sıfır, büyük tamsayı ve normal süreler doğru; -1, 1.5, \"2\" ve True girdileri reddedilir.\n\n**Kontrol:** `-k gorev_7`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
-                            Baslik = "Zor — Güvenli süre girişi",
+                            Aciklama = "Bir öğrenci programını çalıştırınca şu mesajı gördü:\n\n```text\nMerhaba, dünya!\nTraceback (most recent call last):\n  File \".../PY-01/deneme/fiyat.py\", line 4, in <module>\n    print(f\"Toplam: {toplm}\")\n                     ^^^^^\nNameError: name 'toplm' is not defined. Did you mean: 'toplam'?\n```\n\nŞu üç soruyu cevapla:\n\n1. Hata hangi satırda?\n2. Hatanın türü ne ve ne anlama geliyor?\n3. Program hatadan önce bir şey yazdı mı? Bu, Python'un programı nasıl çalıştırdığı hakkında ne söylüyor?\n\n**Kabul ölçütü:** Satır numarası (4), hata türü (`NameError`: tanımlanmamış ad) ve düzeltme (`toplm` yerine `toplam`) doğru. Üçüncü soruda, hatalı satıra gelene kadar önceki satırların çalıştığı söylenmiş.\n\n[Çözüm notları](cozumler/CEVAPLAR.md) · Kod görevlerinin çözümleri `cozumler/` klasöründe, görev dosyalarıyla aynı adlarla durur. Önce kendin dene; çözümleri test programıyla sınamak için komutun sonuna `--referans` ekle.",
+                            Aktif = true,
+                            BaslangicKodu = "",
+                            Baslik = "Hata mesajını oku",
                             EgitimId = 1,
-                            No = 7
+                            No = 7,
+                            Tur = "aciklama"
                         },
                         new
                         {
                             Id = 8,
                             Aciklama = "`rapor(saat,dakika)` ile `{\"saniye\": 3720, \"metin\": \"Toplam: 3720 saniye\"}` biçimini üret. Geçersiz girdiler görev 7 gibi reddedilsin. Bunu bir terminal arayüzünde nasıl sunacağını kendin tasarla; arayüz tasarımını iki örnekle yaz.\n\n**Kabul ölçütü:** İki alan tutarlı; (0,0) doğru; negatif giriş ValueError; hesap/sunum ayrımını açıklayan iki cümle ve normal/hata arayüz örneği var.\n\n**Kontrol:** `-k gorev_8`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n[Gerekçeli çözümler](cozumler/CEVAPLAR.md). Mini görevde tasarımını, bir normal ve bir hata/sınır örneğini yaz; test raporuyla birlikte sakla.",
+                            Aktif = false,
+                            BaslangicKodu = "",
                             Baslik = "Zor · açık uçlu mini görev — Küçük süre raporu",
                             EgitimId = 1,
-                            No = 8
+                            No = 8,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 9,
                             Aciklama = "`\"3\"*2`, `int(\"3\")*2`, `bool(\"0\")` ifadelerinin türünü ve sonucunu tahmin et.\n\n**Kabul ölçütü:** Sırasıyla \"33\"/str, 6/int ve True/bool; boş olmayan metin açıklanır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Metin mi sayı mı?",
                             EgitimId = 2,
-                            No = 1
+                            No = 1,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 10,
                             Aciklama = "`not_oku(metin)` yaz: str girdiyi strip/int ile dönüştür; 0..100 dışını ValueError ile reddet.\n\n**Kabul ölçütü:** \" 0 \"→0, \"100\"→100, \"75\"→75; \"\", \"elli\", \"1.5\", \"-1\", \"101\" reddedilir.\n\n**Kontrol:** `-k gorev_2`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Notu oku",
                             EgitimId = 2,
-                            No = 2
+                            No = 2,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 11,
                             Aciklama = "`durum(notu)` geçerli tamsayı not için 50 ve üzerindeyse \"gecti\", değilse \"kaldi\" döndürsün.\n\n**Kabul ölçütü:** 0/49 kaldi; 50/100 gecti.\n\n**Kontrol:** `-k gorev_3`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Geçti mi?",
                             EgitimId = 2,
-                            No = 3
+                            No = 3,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 12,
                             Aciklama = "`ayir(metinler)` sıralı str listesinden `(notlar, hatali_indeksler)` döndürsün; indeksler 0 tabanlı.\n\n**Kabul ölçütü:** [\"10\",\"x\",\"101\",\"0\"]→([10,0],[1,2]); boş liste→([],[]); giriş değişmez.\n\n**Kontrol:** `-k gorev_4`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta — Geçerli notları ayır",
                             EgitimId = 2,
-                            No = 4
+                            No = 4,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 13,
                             Aciklama = "`menu(metinler)` ilk strip sonrası `q` girdisine kadar geçerli notları toplayıp döndürsün; bozuk notları atla. q büyük/küçük harf duyarlıdır.\n\n**Kabul ölçütü:** [\"2\",\"x\",\"3\",\" q \",\"100\"]→5; ilk q→0; q yoksa sonuna kadar işler.\n\n**Kontrol:** `-k gorev_5`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta — Döngüyü bitir",
                             EgitimId = 2,
-                            No = 5
+                            No = 5,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 14,
                             Aciklama = "`sinir_duzelt(metin)` içindeki varsayılan `0 < n < 100` kusurunu düzelt; not_oku ile aynı sözleşmeye getir.\n\n**Kabul ölçütü:** \"0\" ve \"100\" kabul; \"-1\" ve \"101\" ret. Hangi iki örneğin yanlış sürümü yakaladığını yaz.\n\n**Kontrol:** `-k gorev_6`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta · hata ayıklama — Dahil sınırlar",
                             EgitimId = 2,
-                            No = 6
+                            No = 6,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 15,
                             Aciklama = "`ozet(metinler)` toplam geçerli sayısı, geçen ve kalan sayısı ile hatalı indeksleri sözlükte döndürsün: gecerli, gecen, kalan, hatalar.\n\n**Kabul ölçütü:** [\"0\",\"50\",\"100\",\"x\"]→{gecerli:3,gecen:2,kalan:1,hatalar:[3]}; geçerli=geçen+kalan.\n\n**Kontrol:** `-k gorev_7`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Zor — Sayaçların tutarlılığı",
                             EgitimId = 2,
-                            No = 7
+                            No = 7,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 16,
                             Aciklama = "`not_defteri(metinler)` ozet alanlarına `en_yuksek` eklesin; geçerli veri yoksa None olsun. Veriyi terminalden, dosyadan veya elle listeden alma seçeneklerinden birini seçip hata sunumunu tasarla.\n\n**Kabul ölçütü:** Boş ve tümü bozuk veri en_yuksek=None; [\"40\",\"90\",\"x\"] için 90 ve hatalar=[2]. Tasarımda geçersiz veri ile sıfır not ayrılır.\n\n**Kontrol:** `-k gorev_8`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n[Gerekçeli çözümler](cozumler/CEVAPLAR.md). Mini görevde tasarımını, bir normal ve bir hata/sınır örneğini yaz; test raporuyla birlikte sakla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Zor · açık uçlu mini görev — Not takip çekirdeği",
                             EgitimId = 2,
-                            No = 8
+                            No = 8,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 17,
                             Aciklama = "`a=[[1]]; b=a; c=a.copy(); c[0].append(2)` sonrası a,b,c değerlerini ve `a is b`, `a is c`, `a[0] is c[0]` sonuçlarını yaz.\n\n**Kabul ölçütü:** Üç değer de `[[1,2]]`; kimlikler True,False,True; dış ve iç nesne ayrılır.\n\n**Kontrol:** Cevap anahtarıyla elle karşılaştır; ölçütlerin her birini işaretle.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Nesne oklarını çiz",
                             EgitimId = 3,
-                            No = 1
+                            No = 1,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 18,
                             Aciklama = "`tekil(kelimeler)` metin listesini ilk görülme sırasını koruyarak tekilleştirsin. Büyük/küçük harf burada ayrı kabul edilir.\n\n**Kabul ölçütü:** [\"b\",\"a\",\"b\",\"B\"]→[\"b\",\"a\",\"B\"]; boş liste→[]; girdi korunur.\n\n**Kontrol:** `-k gorev_2`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Sıralı tekilleştirme",
                             EgitimId = 3,
-                            No = 2
+                            No = 2,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 19,
                             Aciklama = "`frekans(kelimeler)` casefold uygulanmış kelimelerin sayılarını dict olarak döndürsün; kelimeleri ayrıca strip etme.\n\n**Kabul ölçütü:** [\"A\",\"a\",\"B\",\"Straße\",\"STRASSE\"]→{\"a\":2,\"b\":1,\"strasse\":2}; boş veri→{}.\n\n**Kontrol:** `-k gorev_3`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Temel — Frekans",
                             EgitimId = 3,
-                            No = 3
+                            No = 3,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 20,
                             Aciklama = "`kullanicilar(adlar)` ile her ad için {ad:...,etiketler:[]} kaydı üret; her kaydın listesi ayrı olsun.\n\n**Kabul ölçütü:** İki kayıttan birine etiket eklemek diğerini etkilemez; ad sırası ve tekrarlar korunur.\n\n**Kontrol:** `-k gorev_4`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta — Bağımsız kullanıcılar",
                             EgitimId = 3,
-                            No = 4
+                            No = 4,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 21,
                             Aciklama = "`etiket_ekle(kayit,etiket)` yalnız ad ve etiketler alanı olan kaydın yeni sürümünü döndürsün. Etiket metindir; özgün etiket listesi değişmesin.\n\n**Kabul ölçütü:** {ad:\"Ada\",etiketler:[\"py\"]} ve \"sql\"→yeni [\"py\",\"sql\"]; özgün [\"py\"].\n\n**Kontrol:** `-k gorev_5`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta — Etiketli kopya",
                             EgitimId = 3,
-                            No = 5
+                            No = 5,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 22,
                             Aciklama = "Hatalı `tablo(satir,sutun): return [[0]*sutun]*satir` kodunu düzelt. Negatif boyutlarda ValueError ver.\n\n**Kabul ölçütü:** tablo(2,2) satırları bağımsız; (0,3)→[]; (2,0)→[[],[]]; negatif ret.\n\n**Kontrol:** `-k gorev_6`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Orta · hata ayıklama — Paylaşılan satırlar",
                             EgitimId = 3,
-                            No = 6
+                            No = 6,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 23,
                             Aciklama = "`birlestir(a,b)` metin anahtarlı, negatif olmayan tamsayı sayımları yeni dict içinde toplasın; kaynak sözlükler değişmesin.\n\n**Kabul ölçütü:** {x:2,y:1}+{x:3,z:4}→{x:5,y:1,z:4}; eksik anahtar 0; boşlar desteklenir.\n\n**Kontrol:** `-k gorev_7`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Zor — Sayımları birleştir",
                             EgitimId = 3,
-                            No = 7
+                            No = 7,
+                            Tur = "eski-pytest"
                         },
                         new
                         {
                             Id = 24,
                             Aciklama = "`metin_raporu(kelimeler)` {toplam,tekil,frekans} döndürsün; tekil sayısı casefold sonrası hesaplanır. Raporu alfabetik ya da sıklık sırasıyla göstermek için bir sunum tercihi yapıp gerekçelendir.\n\n**Kabul ölçütü:** [\"A\",\"a\",\"B\"]→{toplam:3,tekil:2,frekans:{a:2,b:1}}; boş veri için sıfırlar/{}. Sunum sırası sayım sonucunu değiştirmez.\n\n**Kontrol:** `-k gorev_8`; ayrıca aşağıdaki gerekçeyi kendi cümlelerinle açıkla.\n\n[Gerekçeli çözümler](cozumler/CEVAPLAR.md). Mini görevde tasarımını, bir normal ve bir hata/sınır örneğini yaz; test raporuyla birlikte sakla.",
+                            Aktif = true,
+                            BaslangicKodu = "",
                             Baslik = "Zor · açık uçlu mini görev — Küçük metin raporu",
                             EgitimId = 3,
-                            No = 8
+                            No = 8,
+                            Tur = "eski-pytest"
                         });
                 });
 

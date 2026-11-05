@@ -1,0 +1,116 @@
+{
+  "surum": 2,
+  "kategoriler": [
+    {
+      "kisaltma": "PY",
+      "ad": "Python dili",
+      "aciklama": "Görev başına bağımsız program ve çıktı kontrolü.",
+      "sira": 1,
+      "egitimler": [
+        {
+          "kod": "PY-01",
+          "baslik": "İlk Python programı",
+          "sira": 1,
+          "icerikMarkdown": "# PY-01 — İlk Python programı: görevler\n\nYedi görev var. Beşinde kod yazarsın (1–5), ikisinde kısa bir açıklama hazırlarsın (6, 7). Başlamadan önce [anlatımı](README.md) ve [laboratuvarı](LAB.md) bitir.\n\n## Kod görevleri nasıl yapılır?\n\nKod görevlerinin dosyaları [gorevler/](gorevler/) klasöründe. Her dosya küçük bir programdır. Kodunu `# TODO` notunun yerine yaz. `ornek.py`'ye dokunma.\n\nBir görevi denemek için terminal `PY-01` klasöründeyken çalıştır (README 10. bölüm):\n\n```bash\npython3 gorevler/selam.py\n```\n\nBütün kod görevlerini birlikte kontrol ettirmek için:\n\n```bash\npython3 ../../kontrol/kontrol.py --ders PY-01\n```\n\nTest programı her görev dosyasını çalıştırır ve ekrana yazılanı aşağıdaki **Beklenen çıktı** ile harfi harfine karşılaştırır. Her görev için `GEÇTİ` ya da `KALDI` yazar. Kalan görevde beklenen çıktıyı ve programının çıktısını alt alta gösterir; Python hata verdiyse onun mesajını da gösterir. Tek bir görevi kontrol etmek için sonuna `--gorev selam` ekle.\n\nDosyalara henüz dokunmadıysan bütün görevler `KALDI` verir; başlangıç durumu budur.\n\nAçıklama görevlerini kendi notuna yaz, sonra [çözüm notlarıyla](cozumler/CEVAPLAR.md) karşılaştır. Test programı bunları sınamaz.\n\n## Görev 1 — Selam\n\n**Dosya:** `gorevler/selam.py`\n\nEkrana `Merhaba, dünya!` yaz.\n\n**Beklenen çıktı:**\n\n```text\nMerhaba, dünya!\n```\n\n## Görev 2 — Üçgen\n\n**Dosya:** `gorevler/ucgen.py`\n\nYıldızlardan (`*`) üç satırlık, ortalanmış bir üçgen çiz. Birinci satırda 2 boşluk ve 1 yıldız, ikincide 1 boşluk ve 3 yıldız, üçüncüde 5 yıldız var. Satırların sonunda boşluk olmasın.\n\n**Beklenen çıktı:**\n\n```text\n  *\n ***\n*****\n```\n\n## Görev 3 — Bilgi kartı\n\n**Dosya:** `gorevler/bilgi_karti.py`\n\nDosyada dört değişken hazır: `ders`, `ders_sayisi`, `ortalama`, `harf_notu`. Değerlerini değiştirmeden her birini bir f-string içinde, etiketiyle birlikte yazdır. Ortalama virgülden sonra iki basamakla yazılsın (README 8. bölüm).\n\n**Beklenen çıktı:**\n\n```text\nDers: Python\nDers sayısı: 20\nOrtalama: 3.50\nHarf notu: A\n```\n\n## Görev 4 — Bozuk programı düzelt\n\n**Dosya:** `gorevler/bozuk_program.py`\n\nBu programda iki hata var. Önce çalıştır ve Python'un mesajını oku (README 9. bölüm). İlk hatayı düzeltince program çalışır; ikinci hatayı çıktıya bakarak bul.\n\n**Beklenen çıktı:**\n\n```text\nProgram başladı\nMerhaba, Ada\n```\n\n## Görev 5 — Süre hesabı\n\n**Dosya:** `gorevler/sure_hesabi.py`\n\nDosyada `saat` ve `dakika` değişkenleri hazır. Bir saat 3600, bir dakika 60 saniyedir. Toplam süreyi saniye olarak hesaplayıp `toplam_saniye` adlı bir değişkene ata, sonra üç değeri etiketleriyle yazdır. Sonucu kendin hesaplayıp `8100` diye yazma; hesabı Python yapsın. `saat` ya da `dakika` değişince çıktı da kendiliğinden doğru kalmalı.\n\n**Beklenen çıktı:**\n\n```text\nSaat: 2\nDakika: 15\nToplam saniye: 8100\n```\n\n## Görev 6 — Çıktı tahmini\n\nAşağıdaki programı çalıştırmadan ekrana tam olarak ne yazacağını tahmin et:\n\n```python\ndakika = 3\nsaniye = dakika * 60\ndakika = 5\nprint(dakika, saniye)\n```\n\n**Kabul ölçütü:** Tek satırlık çıktı doğru ve `saniye`'nin neden değişmediği bir cümleyle açıklanmış. Sonra tahminini kendi `deneme/` klasöründe bir dosyada dene.\n\n## Görev 7 — Hata mesajını oku\n\nBir öğrenci programını çalıştırınca şu mesajı gördü:\n\n```text\nMerhaba, dünya!\nTraceback (most recent call last):\n  File \".../PY-01/deneme/fiyat.py\", line 4, in <module>\n    print(f\"Toplam: {toplm}\")\n                     ^^^^^\nNameError: name 'toplm' is not defined. Did you mean: 'toplam'?\n```\n\nŞu üç soruyu cevapla:\n\n1. Hata hangi satırda?\n2. Hatanın türü ne ve ne anlama geliyor?\n3. Program hatadan önce bir şey yazdı mı? Bu, Python'un programı nasıl çalıştırdığı hakkında ne söylüyor?\n\n**Kabul ölçütü:** Satır numarası (4), hata türü (`NameError`: tanımlanmamış ad) ve düzeltme (`toplm` yerine `toplam`) doğru. Üçüncü soruda, hatalı satıra gelene kadar önceki satırların çalıştığı söylenmiş.\n\n[Çözüm notları](cozumler/CEVAPLAR.md) · Kod görevlerinin çözümleri `cozumler/` klasöründe, görev dosyalarıyla aynı adlarla durur. Önce kendin dene; çözümleri test programıyla sınamak için komutun sonuna `--referans` ekle.\n",
+          "baslangicKodu": "",
+          "testKodu": "",
+          "gorevler": [
+            {
+              "no": 1,
+              "baslik": "Selam",
+              "aciklama": "**Dosya:** `gorevler/selam.py`\n\nEkrana `Merhaba, dünya!` yaz.\n\n**Beklenen çıktı:**\n\n```text\nMerhaba, dünya!\n```",
+              "baslangicDosyasi": "gorevler/selam.py",
+              "baslangicKodu": "# Görev 1 (ALISTIRMALAR.md): ekrana \"Merhaba, dünya!\" yaz.\n\n# TODO: print satırını buraya yaz.\n",
+              "kontrol": {
+                "tur": "standart-cikti",
+                "beklenenCikti": "Merhaba, dünya!\n",
+                "girdi": "",
+                "beklenenCikisKodu": 0,
+                "kullanilmamali": []
+              },
+              "tur": "kod"
+            },
+            {
+              "no": 2,
+              "baslik": "Üçgen",
+              "aciklama": "**Dosya:** `gorevler/ucgen.py`\n\nYıldızlardan (`*`) üç satırlık, ortalanmış bir üçgen çiz. Birinci satırda 2 boşluk ve 1 yıldız, ikincide 1 boşluk ve 3 yıldız, üçüncüde 5 yıldız var. Satırların sonunda boşluk olmasın.\n\n**Beklenen çıktı:**\n\n```text\n  *\n ***\n*****\n```",
+              "baslangicDosyasi": "gorevler/ucgen.py",
+              "baslangicKodu": "# Görev 2 (ALISTIRMALAR.md): yıldızlardan üç satırlık bir üçgen çiz.\n\n# TODO: her satır için bir print yaz.\n",
+              "kontrol": {
+                "tur": "standart-cikti",
+                "beklenenCikti": "  *\n ***\n*****\n",
+                "girdi": "",
+                "beklenenCikisKodu": 0,
+                "kullanilmamali": []
+              },
+              "tur": "kod"
+            },
+            {
+              "no": 3,
+              "baslik": "Bilgi kartı",
+              "aciklama": "**Dosya:** `gorevler/bilgi_karti.py`\n\nDosyada dört değişken hazır: `ders`, `ders_sayisi`, `ortalama`, `harf_notu`. Değerlerini değiştirmeden her birini bir f-string içinde, etiketiyle birlikte yazdır. Ortalama virgülden sonra iki basamakla yazılsın (README 8. bölüm).\n\n**Beklenen çıktı:**\n\n```text\nDers: Python\nDers sayısı: 20\nOrtalama: 3.50\nHarf notu: A\n```",
+              "baslangicDosyasi": "gorevler/bilgi_karti.py",
+              "baslangicKodu": "# Görev 3 (ALISTIRMALAR.md): dört değişkeni etiketleriyle yazdır.\nders = \"Python\"\nders_sayisi = 20\nortalama = 3.5\nharf_notu = \"A\"\n\n# TODO: Değişkenlerin değerlerini değiştirmeden dört satırı f-string ile yazdır.\n",
+              "kontrol": {
+                "tur": "standart-cikti",
+                "beklenenCikti": "Ders: Python\nDers sayısı: 20\nOrtalama: 3.50\nHarf notu: A\n",
+                "girdi": "",
+                "beklenenCikisKodu": 0,
+                "kullanilmamali": []
+              },
+              "tur": "kod"
+            },
+            {
+              "no": 4,
+              "baslik": "Bozuk programı düzelt",
+              "aciklama": "**Dosya:** `gorevler/bozuk_program.py`\n\nBu programda iki hata var. Önce çalıştır ve Python'un mesajını oku (README 9. bölüm). İlk hatayı düzeltince program çalışır; ikinci hatayı çıktıya bakarak bul.\n\n**Beklenen çıktı:**\n\n```text\nProgram başladı\nMerhaba, Ada\n```",
+              "baslangicDosyasi": "gorevler/bozuk_program.py",
+              "baslangicKodu": "# Görev 4 (ALISTIRMALAR.md): Bu programda iki hata var. Program iki satır yazmalı.\nad = \"Ada\"\nprint(\"Program başladı)\nprint(\"Merhaba, {ad}\")\n",
+              "kontrol": {
+                "tur": "standart-cikti",
+                "beklenenCikti": "Program başladı\nMerhaba, Ada\n",
+                "girdi": "",
+                "beklenenCikisKodu": 0,
+                "kullanilmamali": []
+              },
+              "tur": "kod"
+            },
+            {
+              "no": 5,
+              "baslik": "Süre hesabı",
+              "aciklama": "**Dosya:** `gorevler/sure_hesabi.py`\n\nDosyada `saat` ve `dakika` değişkenleri hazır. Bir saat 3600, bir dakika 60 saniyedir. Toplam süreyi saniye olarak hesaplayıp `toplam_saniye` adlı bir değişkene ata, sonra üç değeri etiketleriyle yazdır. Sonucu kendin hesaplayıp `8100` diye yazma; hesabı Python yapsın. `saat` ya da `dakika` değişince çıktı da kendiliğinden doğru kalmalı.\n\n**Beklenen çıktı:**\n\n```text\nSaat: 2\nDakika: 15\nToplam saniye: 8100\n```",
+              "baslangicDosyasi": "gorevler/sure_hesabi.py",
+              "baslangicKodu": "# Görev 5 (ALISTIRMALAR.md): saat ve dakikadan toplam saniyeyi hesapla.\nsaat = 2\ndakika = 15\n\n# TODO: toplam_saniye değişkenini saat ve dakikadan hesapla.\n# TODO: Üç satırı etiketleriyle yazdır.\n",
+              "kontrol": {
+                "tur": "standart-cikti",
+                "beklenenCikti": "Saat: 2\nDakika: 15\nToplam saniye: 8100\n",
+                "girdi": "",
+                "beklenenCikisKodu": 0,
+                "kullanilmamali": []
+              },
+              "tur": "kod"
+            },
+            {
+              "no": 6,
+              "baslik": "Çıktı tahmini",
+              "aciklama": "Aşağıdaki programı çalıştırmadan ekrana tam olarak ne yazacağını tahmin et:\n\n```python\ndakika = 3\nsaniye = dakika * 60\ndakika = 5\nprint(dakika, saniye)\n```\n\n**Kabul ölçütü:** Tek satırlık çıktı doğru ve `saniye`'nin neden değişmediği bir cümleyle açıklanmış. Sonra tahminini kendi `deneme/` klasöründe bir dosyada dene.",
+              "baslangicDosyasi": null,
+              "baslangicKodu": "",
+              "kontrol": null,
+              "tur": "aciklama"
+            },
+            {
+              "no": 7,
+              "baslik": "Hata mesajını oku",
+              "aciklama": "Bir öğrenci programını çalıştırınca şu mesajı gördü:\n\n```text\nMerhaba, dünya!\nTraceback (most recent call last):\n  File \".../PY-01/deneme/fiyat.py\", line 4, in <module>\n    print(f\"Toplam: {toplm}\")\n                     ^^^^^\nNameError: name 'toplm' is not defined. Did you mean: 'toplam'?\n```\n\nŞu üç soruyu cevapla:\n\n1. Hata hangi satırda?\n2. Hatanın türü ne ve ne anlama geliyor?\n3. Program hatadan önce bir şey yazdı mı? Bu, Python'un programı nasıl çalıştırdığı hakkında ne söylüyor?\n\n**Kabul ölçütü:** Satır numarası (4), hata türü (`NameError`: tanımlanmamış ad) ve düzeltme (`toplm` yerine `toplam`) doğru. Üçüncü soruda, hatalı satıra gelene kadar önceki satırların çalıştığı söylenmiş.\n\n[Çözüm notları](cozumler/CEVAPLAR.md) · Kod görevlerinin çözümleri `cozumler/` klasöründe, görev dosyalarıyla aynı adlarla durur. Önce kendin dene; çözümleri test programıyla sınamak için komutun sonuna `--referans` ekle.",
+              "baslangicDosyasi": null,
+              "baslangicKodu": "",
+              "kontrol": null,
+              "tur": "aciklama"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

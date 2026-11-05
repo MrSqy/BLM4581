@@ -13,11 +13,9 @@ public class MobilEntegrasyonTests
     {
         public int Calls;
         public string? TestKodu;
-        public bool Fail;
         public Task<MobilKodSonucu> CalistirAsync(string kod, string testKodu, bool test, int[] gorevler, CancellationToken ct)
         {
             Calls++; TestKodu = testKodu;
-            if (Fail) throw new InvalidOperationException();
             return Task.FromResult(new MobilKodSonucu(true, "tamamlandi", "ok", "", []));
         }
     }
@@ -46,11 +44,9 @@ public class MobilEntegrasyonTests
         foreach (var action in new[] { "calistir", "test" })
         {
             Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsJsonAsync($"/api/mobil/egitimler/2/{action}", new { kod = "pass" })).StatusCode);
-            Assert.Equal(HttpStatusCode.OK, (await c.PostAsJsonAsync($"/api/mobil/egitimler/1/{action}", new { kod = "pass", testKodu = "CLIENT_TEST" })).StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync($"/api/mobil/egitimler/1/{action}", new { kod = "pass", testKodu = "CLIENT_TEST" })).StatusCode);
         }
-        Assert.Equal(2, runner.Calls); Assert.NotEqual("CLIENT_TEST", runner.TestKodu); Assert.False(string.IsNullOrEmpty(runner.TestKodu));
-        runner.Fail = true;
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await c.PostAsJsonAsync("/api/mobil/egitimler/1/calistir", new { kod = "pass" })).StatusCode);
+        Assert.Equal(0, runner.Calls); // Güncel ders ders-bazlı pytest uçlarına gönderilmez.
     }
     [Fact]
     public async Task MobilKayitOrtakTokenVeCikisTumTokenlariIptalEder()

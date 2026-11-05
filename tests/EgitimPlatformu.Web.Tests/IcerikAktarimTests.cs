@@ -146,7 +146,7 @@ public sealed class IcerikAktarimTests
         using var app = new IdentityApplication();
         using var client = await YoneticiAsync(app);
         var paket = Paket();
-        paket.Kategoriler[0].Egitimler[0].Kod = "PY-01";
+        paket.Kategoriler[0].Egitimler[0].Kod = "PY-02";
         var json = System.Text.Json.JsonSerializer.SerializeToNode(paket,
             new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
         json["kategoriler"]![0]!["egitimler"]![0]!.AsObject().Remove(alan);
@@ -154,7 +154,7 @@ public sealed class IcerikAktarimTests
             new StringContent(json.ToJsonString(), Encoding.UTF8, "application/json"))).StatusCode);
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
-        var ders = await db.Egitimler.SingleAsync(e => e.Kod == "PY-01");
+        var ders = await db.Egitimler.SingleAsync(e => e.Kod == "PY-02");
         Assert.NotEmpty(ders.IcerikMarkdown);
         Assert.NotEmpty(ders.BaslangicKodu);
         Assert.NotEmpty(ders.TestKodu);
@@ -167,11 +167,11 @@ public sealed class IcerikAktarimTests
         using var app = new IdentityApplication();
         using var client = await YoneticiAsync(app);
         var paket = Paket();
-        paket.Kategoriler[0].Egitimler[0].Kod = "PY-01";
+        paket.Kategoriler[0].Egitimler[0].Kod = "PY-02";
         paket.Kategoriler[0].Egitimler[0].IcerikMarkdown = "";
         Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/icerik/aktar", paket)).StatusCode);
         using var scope = app.Services.CreateScope();
-        var ders = await scope.ServiceProvider.GetRequiredService<UygulamaDbContext>().Egitimler.SingleAsync(e => e.Kod == "PY-01");
+        var ders = await scope.ServiceProvider.GetRequiredService<UygulamaDbContext>().Egitimler.SingleAsync(e => e.Kod == "PY-02");
         Assert.Equal("", ders.IcerikMarkdown);
     }
 
@@ -184,15 +184,15 @@ public sealed class IcerikAktarimTests
         using (var scope = app.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
-            eskiBaslik = (await db.Egitimler.SingleAsync(e => e.Kod == "PY-01")).Baslik;
+            eskiBaslik = (await db.Egitimler.SingleAsync(e => e.Kod == "PY-03")).Baslik;
             await db.Database.ExecuteSqlRawAsync("CREATE TRIGGER reddet BEFORE UPDATE ON Egitimler WHEN NEW.Kod = 'PY-02' BEGIN SELECT RAISE(ABORT, 'test'); END;");
         }
         var paket = Paket();
-        paket.Kategoriler[0].Egitimler = [new() { Kod = "PY-01", Baslik = "Değişmemeli" }, new() { Kod = "PY-02", Baslik = "Hatalı" }];
+        paket.Kategoriler[0].Egitimler = [new() { Kod = "PY-03", Baslik = "Değişmemeli" }, new() { Kod = "PY-02", Baslik = "Hatalı" }];
         Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync("/api/icerik/aktar", paket)).StatusCode);
         using var check = app.Services.CreateScope();
         var context = check.ServiceProvider.GetRequiredService<UygulamaDbContext>();
-        Assert.Equal(eskiBaslik, (await context.Egitimler.SingleAsync(e => e.Kod == "PY-01")).Baslik);
+        Assert.Equal(eskiBaslik, (await context.Egitimler.SingleAsync(e => e.Kod == "PY-03")).Baslik);
         Assert.False(await context.Kategoriler.AnyAsync(k => k.Kisaltma == "DEN"));
     }
 }

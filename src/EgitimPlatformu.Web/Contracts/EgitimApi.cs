@@ -21,5 +21,5 @@ public sealed class EgitimSorgusu
 public sealed record EgitimOzet(int Id, int? KategoriId, string Kod, string Baslik, int Sira);
 public sealed record GorevDetay(int Id, int? No, string Baslik, string Aciklama);
 public sealed record EgitimDetay(int Id, int? KategoriId, string Kod, string Baslik, int Sira,
-    string IcerikMarkdown, string BaslangicKodu, List<GorevDetay> Gorevler);
+    string IcerikMarkdown, string BaslangicKodu, List<GorevBilgisi> Gorevler);
 public sealed record EgitimSayfasi(int Toplam, int Sayfa, int SayfaBoyutu, List<EgitimOzet> Egitimler);

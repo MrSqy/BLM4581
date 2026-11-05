@@ -1,0 +1,14 @@
+{
+  "kaynak": "/home/baranbeey/Masaüstü/masaüstü/01_Eğitim/Kurslar_ve_Eğitim_Paketleri/Muhendislik-Egitimleri/Eğitimler/yazilim-gelistirme/programlama-dilleri/python",
+  "ureticininCiktisi": "20 ders, 140 görev, 100 standart çıktı kontrolü, 0 test_gorev_N; inceleme çıktısı /tmp/blm-python-source.json",
+  "sha256": {
+    "dersler/PY-01/README.md": "d711871752b17af7dc12edc175ce87a2609ae0c05dcf277a7486c20f4117fef1",
+    "dersler/PY-01/ALISTIRMALAR.md": "e3c894788f909b39630af68d72a91b42bc24dd461bc468acd93d2a0c5bb1205e",
+    "kontrol/kontrol.py": "01a0aa9d4eca5f7e92af21f16f7270a109672f9d22415acf0eba06625bc6d532",
+    "dersler/PY-01/gorevler/bilgi_karti.py": "0cc4cc2917c8373137ab49b53841455a9dfa69d04af3734ecaabaa7c91fd4211",
+    "dersler/PY-01/gorevler/bozuk_program.py": "f51d960b253b57ba06232248d0526027851f5b4ec96c68dc5327c000a09c2ab2",
+    "dersler/PY-01/gorevler/selam.py": "94c1b80359e6038e42da2e8311331b443624359b6af7dc3f49cd2c6cb3aac3f6",
+    "dersler/PY-01/gorevler/sure_hesabi.py": "45b25cff81860fe001204c511477a78b6af0e3b7b3fe970cd5035aa79756a91f",
+    "dersler/PY-01/gorevler/ucgen.py": "982c9cbebd1dee5022593bd833b847ec497e07327f12d571ae7629e34bdd8bbb"
+  }
+}

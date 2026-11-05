@@ -2,10 +2,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EgitimPlatformu.Web.Models;
 
-// Dersteki bir alıştırma. No, test dosyasındaki test_gorev_N fonksiyonlarıyla eşleşir.
+// Görev türü: eski-pytest (v1), kod veya aciklama (v2).
 public class Gorev
 {
     public int Id { get; set; }
+    public bool Aktif { get; set; } = true;
+    public string Tur { get; set; } = "eski-pytest";
+    public string? BaslangicDosyasi { get; set; }
+    public string BaslangicKodu { get; set; } = "";
+    public string? KontrolJson { get; set; }
+
 
     [Required(ErrorMessage = "Ders seçiniz.")]
     [Display(Name = "Ders")]

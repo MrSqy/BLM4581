@@ -6,7 +6,7 @@ namespace EgitimPlatformu.Web.Contracts;
 public sealed class IcerikPaketi
 {
     [JsonRequired]
-    [Range(1, 1)] public int Surum { get; set; }
+    [Range(1, 2)] public int Surum { get; set; }
     [JsonRequired]
     [Required, MinLength(1), MaxLength(50)] public List<KategoriAktarimi> Kategoriler { get; set; } = [];
 }
@@ -45,10 +45,24 @@ public sealed class EgitimAktarimi
 
 public sealed class GorevAktarimi
 {
+    public string? Tur { get; set; }
+    public string? BaslangicDosyasi { get; set; }
+    [StringLength(100000)] public string? BaslangicKodu { get; set; }
+    public GorevKontrolu? Kontrol { get; set; }
+
     [JsonRequired]
     [Range(1, 100)] public int No { get; set; }
     [JsonRequired]
     [Required, StringLength(200)] public string Baslik { get; set; } = "";
     [JsonRequired]
     [Required(AllowEmptyStrings = true), StringLength(50000)] public string Aciklama { get; set; } = "";
+}
+
+public sealed class GorevKontrolu
+{
+    [JsonRequired, Required] public string Tur { get; set; } = "";
+    [JsonRequired, Required(AllowEmptyStrings = true), StringLength(64000)] public string BeklenenCikti { get; set; } = "";
+    [JsonRequired, Required(AllowEmptyStrings = true), StringLength(32000)] public string Girdi { get; set; } = "";
+    [JsonRequired, Range(0, 255)] public int BeklenenCikisKodu { get; set; }
+    [JsonRequired, Required, MaxLength(30)] public List<string> Kullanilmamali { get; set; } = [];
 }

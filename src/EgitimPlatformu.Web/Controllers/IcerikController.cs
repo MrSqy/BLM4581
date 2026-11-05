@@ -32,6 +32,10 @@ public sealed class IcerikController(IcerikAktarimServisi aktarim) : ControllerB
         {
             return Ok(await aktarim.AktarAsync(paket, cancellationToken));
         }
+        catch (ArgumentException ex)
+        {
+            return Problem(statusCode: 400, title: ex.Message);
+        }
         catch (DbUpdateException)
         {
             return Problem(statusCode: 409, title: "İçerik kaydedilemedi. Paket bütünüyle geri alındı; veriyi kontrol edip yeniden deneyin.");
