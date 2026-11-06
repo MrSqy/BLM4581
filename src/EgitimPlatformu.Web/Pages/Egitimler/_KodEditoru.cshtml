@@ -1,0 +1,63 @@
+@using System.Text.Json
+@model EgitimPlatformu.Web.Pages.Egitimler.DetayModel
+@{
+    var ayarlar = new
+    {
+        calistirUrl = Url.Page("/Egitimler/Detay", "Calistir", new { id = Model.Egitim!.Id }),
+        testUrl = Url.Page("/Egitimler/Detay", "Test", new { id = Model.Egitim.Id }),
+        girisUrl = Url.Page("/Hesap/Giris", new { returnUrl = Url.Page("/Egitimler/Detay", new { id = Model.Egitim.Id }) }),
+        monacoUrl = Url.Content("~/lib/monaco/editor.js"),
+        izinli = Model.CalistirmayaIzinVar,
+        gorevBazli = Model.GorevBazli,
+        baslangicKodu = Model.Egitim.BaslangicKodu,
+        testVar = !string.IsNullOrWhiteSpace(Model.Egitim.TestKodu),
+        gorevler = Model.Gorevler.Select(g => new { id = g.Id, no = g.No, baslik = g.Baslik, tur = g.Tur, baslangicKodu = g.BaslangicKodu, kontrolVar = g.OtomatikKontrolVar })
+    };
+}
+<section id="kod-editoru" class="content-panel code-workspace mt-4" aria-labelledby="editor-title">
+    <div class="workspace-heading">
+        <div><p class="eyebrow">ÖĞRENDİKLERİNİ UYGULA</p><h2 id="editor-title" class="panel-title">Kod alanın</h2></div>
+        <span class="level-badge">Python</span>
+    </div>
+    <p class="section-note">Kodunu burada düzenle. Çalıştır ile çıktıyı gör; Test Et ile dersin kontrol ölçütlerini dene.</p>
+    @if (!Model.CalistirmayaIzinVar)
+    {
+        <div class="alert alert-info" role="status">Kodu düzenleyebilirsin. Bu derste çalıştırma ve test için <a href="@ayarlar.girisUrl">oturum aç</a>.</div>
+    }
+    @if (Model.GorevBazli)
+    {
+        <label for="editor-task" class="form-label">Üzerinde çalışacağın görev</label>
+        <select id="editor-task" class="form-select mb-2">
+            @foreach (var gorev in Model.Gorevler)
+            {
+                <option value="@gorev.Id">@gorev.No — @gorev.Baslik @(gorev.Tur == "aciklama" ? "(Açıklama)" : "")</option>
+            }
+        </select>
+        <a id="editor-task-link" class="editor-task-link" href="#gorevler">Seçili görevin açıklamasını oku <span aria-hidden="true">↓</span></a>
+    }
+    <p id="editor-task-note" class="section-note mt-3" role="status"></p>
+    <p id="editor-load-status" class="section-note" role="status">Kod editörü yükleniyor…</p>
+    <div id="monaco-host" class="monaco-host" aria-label="Python kod editörü" hidden></div>
+    <div id="editor-fallback">
+        <label for="code-fallback" class="form-label">Python kodu (düz metin editörü)</label>
+        <textarea id="code-fallback" class="form-control code-fallback" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="editor-help" rows="14">@Model.Egitim.BaslangicKodu</textarea>
+    </div>
+    <p class="editor-help" id="editor-help">Monaco'da Tab girinti ekler. Tab ile gezinmeye geçmek için Ctrl+M kullan. Kodun yalnızca bu sayfa açıkken tutulur; yenilemeden önce kopyala.</p>
+    <form id="code-actions" class="workspace-actions" aria-label="Kod işlemleri">
+        @Html.AntiForgeryToken()
+        <button id="run-code" class="btn btn-primary" type="button" disabled>Çalıştır <span aria-hidden="true">▷</span></button>
+        <button id="test-code" class="btn btn-outline-primary" type="button" disabled>Test Et <span aria-hidden="true">✓</span></button>
+        <span id="code-loading" class="code-loading" role="status" hidden><span class="spinner-border spinner-border-sm" aria-hidden="true"></span> İşleniyor…</span>
+    </form>
+    <section id="code-output" class="code-output" aria-labelledby="output-title" aria-busy="false">
+        <div class="output-heading"><h3 id="output-title">Çıktı</h3><span id="output-status" class="output-status" data-state="idle" role="status" aria-live="polite">Henüz çalıştırılmadı</span></div>
+        <p id="output-message" class="output-message">Sonuçlar burada görünecek.</p>
+        <a id="output-login" href="@ayarlar.girisUrl" hidden>Oturum aç</a>
+        <div class="output-block" id="stdout-block" hidden><h4>Standart çıktı</h4><pre id="code-stdout" tabindex="0" aria-label="Standart çıktı"></pre></div>
+        <div class="output-block" id="stderr-block" hidden><h4>Hata çıktısı</h4><pre id="code-stderr" tabindex="0" aria-label="Hata çıktısı"></pre></div>
+        <div class="output-block" id="tests-block" hidden><h4>Test sonuçları</h4><ul id="code-tests"></ul></div>
+    </section>
+    <noscript><p class="alert alert-warning mt-3">Kod editörü ve çalıştırma düğmeleri için JavaScript'i etkinleştir. Ders içeriğini ve görevleri okumaya devam edebilirsin.</p></noscript>
+</section>
+@* Varsayılan JSON encoder <, > ve & karakterlerini escape eder; öğrenci kodu script bloğunu kapatamaz. *@
+<script id="code-editor-config" type="application/json">@Html.Raw(JsonSerializer.Serialize(ayarlar))</script>
