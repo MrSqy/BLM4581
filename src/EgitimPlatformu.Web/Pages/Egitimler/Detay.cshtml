@@ -17,8 +17,9 @@ else
             </section>
             @if (!string.IsNullOrWhiteSpace(Model.Egitim.BaslangicKodu))
             {
-                <section id="baslangic-kodu" class="content-panel mt-4" aria-labelledby="starter-title"><h2 id="starter-title" class="panel-title">Başlangıç kodu</h2><p class="section-note">Bu şablonu kendi çalışma ortamında tamamlayabilirsin. Bu sayfada kod çalıştırılmaz.</p><pre class="starter-code"><code>@Model.Egitim.BaslangicKodu</code></pre></section>
+                <section id="baslangic-kodu" class="content-panel mt-4" aria-labelledby="starter-title"><h2 id="starter-title" class="panel-title">Başlangıç kodu</h2><p class="section-note">Bu şablonu aşağıdaki kod alanında düzenleyebilirsin.</p><pre class="starter-code"><code>@Model.Egitim.BaslangicKodu</code></pre></section>
             }
+            <partial name="_KodEditoru" model="Model" />
             <section id="gorevler" class="content-panel mt-4" aria-labelledby="tasks-title"><h2 id="tasks-title" class="panel-title">Görevler <span class="task-count">@Model.Gorevler.Count</span></h2>
                 @if (Model.Gorevler.Count == 0) { <p>Bu derse henüz görev eklenmemiş.</p> }
                 @foreach (var gorev in Model.Gorevler)
@@ -27,6 +28,14 @@ else
                 }
             </section>
         </div>
-        <aside class="col-lg-4"><nav class="lesson-sidebar" aria-label="Bu derste"><p class="eyebrow">BU DERSTE</p><a href="#ders-icerigi">Ders içeriği <span aria-hidden="true">↓</span></a>@if (!string.IsNullOrWhiteSpace(Model.Egitim.BaslangicKodu)) { <a href="#baslangic-kodu">Başlangıç kodu <span aria-hidden="true">↓</span></a> }<a href="#gorevler">Görevler <span>@Model.Gorevler.Count</span></a><hr /><p>Küçük adımlarla ilerle. Önce kendi çözümünü dene, ardından kontrol ölçütlerini gözden geçir.</p><a class="btn btn-outline-primary mt-3" asp-page="/Egitimler/Index" asp-route-kategoriId="@Model.Egitim.KategoriId">Kategorideki dersler</a></nav></aside>
+        <aside class="col-lg-4"><nav class="lesson-sidebar" aria-label="Bu derste"><p class="eyebrow">BU DERSTE</p><a href="#ders-icerigi">Ders içeriği <span aria-hidden="true">↓</span></a>@if (!string.IsNullOrWhiteSpace(Model.Egitim.BaslangicKodu)) { <a href="#baslangic-kodu">Başlangıç kodu <span aria-hidden="true">↓</span></a> }<a href="#kod-editoru">Kod editörü <span aria-hidden="true">↓</span></a><a href="#gorevler">Görevler <span>@Model.Gorevler.Count</span></a><hr /><p>Küçük adımlarla ilerle. Önce kendi çözümünü dene, ardından kontrol ölçütlerini gözden geçir.</p><a class="btn btn-outline-primary mt-3" asp-page="/Egitimler/Index" asp-route-kategoriId="@Model.Egitim.KategoriId">Kategorideki dersler</a></nav></aside>
     </div>
+}
+@section Scripts {
+    @if (Model.Egitim is not null && Model.Hata is null)
+    {
+        <link rel="stylesheet" href="~/lib/monaco/editor.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/kod-editoru.css" asp-append-version="true" />
+        <script type="module" src="~/js/kod-editoru.js" asp-append-version="true"></script>
+    }
 }

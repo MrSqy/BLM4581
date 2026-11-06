@@ -1,0 +1,10 @@
+{
+  "name": "egitim-platformu-editor-assets",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "monaco-editor": "0.57.0"
+  }
+}
