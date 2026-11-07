@@ -79,7 +79,7 @@ public sealed class KodCalistirmaServisiTests
             "--timeout", "7",
             "--volume", "/tmp/calisma:/calisma:ro",
             "--workdir", "/calisma",
-            "--", "python", "-m", "pytest", "-q"
+            "--", "python", "-m", "pytest", "-v"
         ], hariciIslem.Argumanlar);
         Assert.Equal(0, sonuc.CikisKodu);
     }
