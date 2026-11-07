@@ -23,7 +23,7 @@ public sealed class BashSandboxIslemCalistirici(string uygulamaDizini, IHariciIs
             "--timeout", istek.SureSiniriSaniye.ToString(),
             "--volume", $"{istek.CalismaDizini}:/calisma:ro",
             "--workdir", "/calisma",
-            "--", "python", "-m", "pytest", "-q"
+            "--", "python", "-m", "pytest", "-v"
         ];
         return islemCalistirici.CalistirAsync("setsid", argumanlar, cancellationToken);
     }

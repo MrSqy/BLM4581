@@ -24,6 +24,17 @@ public interface ISandboxIslemCalistirici
 public sealed class PythonKodCalistirmaServisi(ISandboxIslemCalistirici sandbox) : IKodCalistirmaServisi
 {
     private const int SureSiniriSaniye = 5;
+    private const string CozumFixture = """
+        import importlib
+
+        import pytest
+
+
+        @pytest.fixture
+        def cozum():
+            return importlib.import_module("calisma")
+
+        """;
 
     public async Task<KodCalistirmaSonucu> CalistirAsync(string kod, string testKodu,
         CancellationToken cancellationToken = default)
@@ -38,6 +49,8 @@ public sealed class PythonKodCalistirmaServisi(ISandboxIslemCalistirici sandbox)
             await File.WriteAllTextAsync(Path.Combine(calismaDizini, "calisma.py"), kod, cancellationToken);
             await File.WriteAllTextAsync(Path.Combine(calismaDizini, "test_alistirmalar.py"), testKodu,
                 cancellationToken);
+            // Ders testleri öğrenci modülünü `cozum` fixture'ı ile alır.
+            await File.WriteAllTextAsync(Path.Combine(calismaDizini, "conftest.py"), CozumFixture, cancellationToken);
             return await sandbox.CalistirAsync(
                 new SandboxCalistirmaIstegi(calismaDizini, SureSiniriSaniye), cancellationToken);
         }
