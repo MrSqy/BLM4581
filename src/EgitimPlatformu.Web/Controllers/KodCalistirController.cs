@@ -38,14 +38,13 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
         try
         {
             var sonuc = await servis.CalistirAsync(istek.Kod, ders.TestKodu, ct);
-            if (sonuc.AltyapiHatasi)
-                return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor." });
+            if (sonuc.AltyapiHatasi) return SandboxHataYaniti.AltyapiYok();
             return Ok(PytestGorevAyristirici.Ayristir(sonuc,
                 gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value)));
         }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or IOException)
         {
-            return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor." });
+            return SandboxHataYaniti.Olustur(ex);
         }
     }
 }

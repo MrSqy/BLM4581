@@ -24,6 +24,6 @@ public sealed class MobilGorevController(UygulamaDbContext db, DersErisimi erisi
             return Conflict(new { mesaj = "Bu görevde otomatik program kontrolü yok." });
         if (string.IsNullOrWhiteSpace(input.Kod)) return BadRequest(new { mesaj = "Çalıştırılacak kodu yazın." });
         try { return Ok(await runner.CalistirAsync(gorev, input.Kod, test, ct)); }
-        catch (InvalidOperationException) { return StatusCode(503, new { mesaj = "Sandbox kullanılamıyor veya meşgul." }); }
+        catch (InvalidOperationException ex) { return SandboxHataYaniti.Olustur(ex); }
     }
 }

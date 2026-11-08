@@ -67,9 +67,9 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
             return Ok(await runner.CalistirAsync(input.Kod, ders.TestKodu, test,
                 ders.Gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value).ToArray(), ct));
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
-            return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor. Tekrar deneyin." });
+            return SandboxHataYaniti.Olustur(ex);
         }
     }
 }

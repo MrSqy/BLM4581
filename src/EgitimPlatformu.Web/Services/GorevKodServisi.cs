@@ -11,11 +11,10 @@ public interface IGorevKodServisi
 }
 public sealed class GorevKodServisi(IHariciIslemCalistirici process) : IGorevKodServisi
 {
-    private readonly SemaphoreSlim slots = new(2, 2);
     public async Task<GorevKodSonucu> CalistirAsync(Gorev gorev, string kod, bool test, CancellationToken ct)
     {
         var kontrol = JsonSerializer.Deserialize<GorevKontrolu>(gorev.KontrolJson!)!;
-        if (!await slots.WaitAsync(0, ct)) throw new InvalidOperationException("Sandbox meşgul.");
+        // Eşzamanlılık ve sıra ortak sandbox kuyruğunda (KuyrukluIslemCalistirici) tutulur.
         var dir = Path.Combine(Path.GetTempPath(), "egitim-gorev-" + Guid.NewGuid().ToString("N"));
         try
         {
@@ -53,6 +52,6 @@ public sealed class GorevKodServisi(IHariciIslemCalistirici process) : IGorevKod
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or IOException)
         { throw new InvalidOperationException("Sandbox yanıtı okunamadı.", ex); }
-        finally { try { if (Directory.Exists(dir)) Directory.Delete(dir, true); } finally { slots.Release(); } }
+        finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
     }
 }
