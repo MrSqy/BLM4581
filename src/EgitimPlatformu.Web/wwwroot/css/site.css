@@ -325,3 +325,28 @@ main:focus { outline: none; }
     .secondary-page { padding-block: 36px; }
     .markdown-content { font-size: .9rem; }
 }
+
+/* Hafta 4: yönetim, gönderimler ve sonuç kartları */
+.management-nav { display:flex; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:30px; }
+.management-nav a { color:var(--primary-color); padding:8px 12px; background:#edf1e8; border-radius:6px; font-weight:600; font-size:.85rem; text-decoration:none; }
+.management-table { background:white; border:1px solid var(--line); border-radius:10px; padding:12px; }
+.management-table td, .management-table th { padding:14px; }
+.management-table td { overflow-wrap:anywhere; max-width:450px; }
+.management-form { display:grid; gap:20px; max-width:850px; }
+.management-form fieldset { border:1px solid var(--line); padding:20px; border-radius:8px; display:grid; gap:16px; }
+.management-form legend { font-size:1rem; font-weight:600; float:none; width:auto; }
+.delete-confirmation { border-color:#b94e54; margin-bottom:24px; }
+.management-form textarea { font-family:inherit; }
+.history-note { font-size:.76rem; color:var(--muted); margin-top:18px; }
+.result-cards-section { margin-top:24px; }
+.result-cards-section > h4 { font-size:.9rem; font-weight:700; }
+.result-cards { display:grid; gap:12px; margin-top:14px; }
+.test-result-card { border:1px solid var(--line); border-left:4px solid #87958b; background:white; border-radius:8px; padding:16px; min-width:0; }
+.test-result-card h5 { font-size:.9rem; font-weight:650; overflow-wrap:anywhere; }
+.test-result-card[data-state=success] { border-left-color:#287148; }
+.test-result-card[data-state=failure], .test-result-card[data-state=error] { border-left-color:#ac3741; }
+.result-badge { display:inline-block; font-size:.75rem; margin-top:8px; padding:3px 8px; border-radius:5px; background:#edf1e8; }
+.test-result-card[data-state=success] .result-badge { background:#e0efdf; color:#245c35; }
+.test-result-card[data-state=failure] .result-badge, .test-result-card[data-state=error] .result-badge { background:#f8e1e1; color:#8e2932; }
+.test-result-card pre { max-height:220px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font-size:.8rem; margin:12px 0 0; }
+@media (min-width:1200px) and (max-width:1399.98px) { .navbar-collapse { gap:12px; } .navbar-nav { gap:0; } .site-search { width:150px; } .nav-account { gap:12px; } .brand { margin-right:18px; } }

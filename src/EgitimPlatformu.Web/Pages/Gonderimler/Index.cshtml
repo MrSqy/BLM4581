@@ -1,0 +1,23 @@
+@page "/Gonderimler"
+@model EgitimPlatformu.Web.Pages.Gonderimler.IndexModel
+@{ ViewData["Title"] = "Gönderimlerim"; }
+<header class="page-heading"><p class="eyebrow">ÖĞRENME YOLCULUĞUN</p><h1>Gönderimlerim</h1><p>Önceki kodlarına ve değerlendirme sonuçlarına buradan ulaşabilirsin.</p></header>
+@if (!Model.Hazir)
+{
+    <div class="empty-courses" role="status"><h2>Gönderim geçmişi henüz kullanıma açılmadı.</h2><p>Kayıt ve geçmiş altyapısının entegrasyonu bekleniyor. Mevcut test sonuçları geçmişe kaydedilmiş sayılmaz.</p><a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimlere dön</a></div>
+}
+else if (Model.Sonuc.Kayitlar.Count == 0)
+{
+    <div class="empty-courses"><h2>Henüz gönderimin yok.</h2><p>@(Model.Sayfa > 1 ? "Bu sayfada kayıt bulunamadı. İlk sayfaya dönebilirsin." : "Kaydedilen gönderimlerin burada görünecek.")</p><a asp-page="./Index" class="btn btn-outline-primary">İlk sayfa</a></div>
+}
+else
+{
+    <div class="table-responsive management-table"><table class="table align-middle"><caption class="visually-hidden">Yalnızca kendi gönderimlerin</caption><thead><tr><th>Tarih (UTC)</th><th>Ders / görev</th><th>Sonuç</th><th>Ayrıntı</th></tr></thead><tbody>
+    @foreach (var g in Model.Sonuc.Kayitlar) { <tr><td>@g.Tarih.UtcDateTime.ToString("dd.MM.yyyy HH:mm")</td><td>@g.Ders<br /><small>@g.Gorev</small></td><td>@g.Durum</td><td><a asp-page="./Detay" asp-route-id="@g.Id">Gönderim #@g.Id</a></td></tr> }
+    </tbody></table></div>
+    <nav class="d-flex gap-3 mt-4" aria-label="Gönderim sayfaları">
+        @if (Model.Sayfa > 1) { <a asp-route-sayfa="@(Model.Sayfa - 1)">Önceki</a> }
+        <span>Sayfa @Model.Sayfa</span>
+        @if ((long)Model.Sayfa * EgitimPlatformu.Web.Pages.Gonderimler.IndexModel.Boyut < Model.Sonuc.Toplam) { <a asp-route-sayfa="@(Model.Sayfa + 1)">Sonraki</a> }
+    </nav>
+}
