@@ -1,0 +1,13 @@
+@page "/Gonderimler/{id:int}"
+@model EgitimPlatformu.Web.Pages.Gonderimler.DetayModel
+@{ ViewData["Title"] = "Gönderim ayrıntısı"; }
+<a asp-page="./Index" class="text-link">← Gönderimlerim</a>
+@if (!Model.Hazir)
+{
+    <div class="empty-courses" role="status"><h1>Gönderim ayrıntıları henüz kullanıma açılmadı.</h1><p>Gönderim altyapısının entegrasyonu bekleniyor.</p></div>
+}
+else if (Model.Kayit is { } g)
+{
+    <header class="page-heading"><p class="eyebrow">GÖNDERİM #@g.Id</p><h1>@g.Ders</h1><p>@g.Gorev · @g.Tarih.UtcDateTime.ToString("dd.MM.yyyy HH:mm") UTC · @g.Durum</p></header>
+    <section class="content-panel"><h2>Kod</h2><pre class="starter-code"><code>@g.Kod</code></pre><h2>Standart çıktı</h2><pre class="starter-code">@(g.Cikti.Length == 0 ? "(Çıktı boş.)" : g.Cikti)</pre><h2>Hata çıktısı</h2><pre class="starter-code">@(g.Hata.Length == 0 ? "(Hata çıktısı yok.)" : g.Hata)</pre></section>
+}

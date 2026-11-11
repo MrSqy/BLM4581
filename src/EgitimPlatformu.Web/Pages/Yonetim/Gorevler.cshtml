@@ -1,0 +1,24 @@
+@page
+@model EgitimPlatformu.Web.Pages.Yonetim.GorevlerModel
+@{ ViewData["Title"] = "Görev yönetimi"; }
+<partial name="_Menu" /><header class="page-heading"><h1>Görevler</h1><p>Derse bağlı alıştırmaları ve kontrol ölçütlerini yönetin.</p></header>
+<div asp-validation-summary="All" class="text-danger" role="alert"></div><partial name="_SilmeOnayi" model="Model" />
+<div class="table-responsive management-table"><table class="table align-middle"><caption>Aktif ve pasif görevler</caption><thead><tr><th>Ders</th><th>No / başlık</th><th>Tür</th><th>Durum</th><th>İşlemler</th></tr></thead><tbody>@foreach (var g in Model.Kayitlar) { <tr><td>@g.Egitim?.Kod</td><td>@g.No — @g.Baslik</td><td>@g.Tur</td><td>@(g.Aktif ? "Aktif" : "Pasif")</td><td><a asp-route-duzenleId="@g.Id">Düzenle</a> · <a asp-route-silId="@g.Id">Sil</a></td></tr> }</tbody></table></div>
+@if (Model.Kayitlar.Count == 0) { <p>Henüz görev yok.</p> }
+<section class="content-panel mt-4"><h2>@(Model.DuzenleId.HasValue ? "Görevi düzenle" : "Yeni görev")</h2><form method="post" class="management-form"><input type="hidden" asp-for="DuzenleId" />
+<div><label asp-for="Input.EgitimId" class="form-label"></label><select asp-for="Input.EgitimId" class="form-select"><option value="">Eğitim seçin</option>@foreach (var e in Model.Egitimler) { <option value="@e.Id">@e.Kod — @e.Baslik</option> }</select><span asp-validation-for="Input.EgitimId" class="text-danger"></span></div>
+<div><label asp-for="Input.No" class="form-label"></label><input asp-for="Input.No" class="form-control" /><span asp-validation-for="Input.No" class="text-danger"></span></div>
+<div><label asp-for="Input.Baslik" class="form-label"></label><input asp-for="Input.Baslik" class="form-control" /><span asp-validation-for="Input.Baslik" class="text-danger"></span></div>
+<div><label asp-for="Input.Aciklama" class="form-label"></label><textarea asp-for="Input.Aciklama" class="form-control" rows="6"></textarea><span asp-validation-for="Input.Aciklama" class="text-danger"></span></div>
+<div><label asp-for="Input.Tur" class="form-label"></label><select asp-for="Input.Tur" class="form-select"><option value="kod">Kod görevi</option><option value="aciklama">Açıklama görevi</option><option value="eski-pytest">Eski pytest görevi</option></select><span asp-validation-for="Input.Tur" class="text-danger"></span></div>
+<div class="form-check"><input asp-for="Input.Aktif" class="form-check-input" /><label asp-for="Input.Aktif" class="form-check-label"></label></div>
+<p class="form-text">Açıklama ve eski pytest görevlerinde aşağıdaki başlangıç/kontrol alanlarını boş bırakın. Eski pytest kodu eğitim sayfasında yönetilir. Bir eğitimde aktif eski ve yeni görev türleri karıştırılamaz.</p>
+<div><label asp-for="Input.BaslangicDosyasi" class="form-label"></label><input asp-for="Input.BaslangicDosyasi" class="form-control" placeholder="gorevler/selam.py" /><span asp-validation-for="Input.BaslangicDosyasi" class="text-danger"></span></div>
+<div><label asp-for="Input.BaslangicKodu" class="form-label"></label><textarea asp-for="Input.BaslangicKodu" class="form-control" rows="6" spellcheck="false"></textarea><span asp-validation-for="Input.BaslangicKodu" class="text-danger"></span></div>
+<fieldset><legend>Standart çıktı kontrolü (kod görevleri)</legend><p class="form-text">Boşluklar korunur; beklenen çıktı boş olabilir. Yeni kontrol metinlerinde satır sonları Python ile uyumlu LF olarak kaydedilir; değiştirilmeyen metnin özgün satır sonları korunur.</p>
+<div><label asp-for="Input.BeklenenCikti" class="form-label"></label><textarea asp-for="Input.BeklenenCikti" class="form-control" rows="4" spellcheck="false"></textarea><span asp-validation-for="Input.BeklenenCikti" class="text-danger"></span></div>
+<div><label asp-for="Input.Girdi" class="form-label"></label><textarea asp-for="Input.Girdi" class="form-control" rows="3" spellcheck="false"></textarea><span asp-validation-for="Input.Girdi" class="text-danger"></span></div>
+<div><label asp-for="Input.BeklenenCikisKodu" class="form-label"></label><input asp-for="Input.BeklenenCikisKodu" class="form-control" /><span asp-validation-for="Input.BeklenenCikisKodu" class="text-danger"></span></div>
+<div><label asp-for="Input.Yasaklar" class="form-label"></label><textarea asp-for="Input.Yasaklar" class="form-control" rows="3"></textarea><span asp-validation-for="Input.Yasaklar" class="text-danger"></span></div></fieldset>
+<div class="d-flex gap-3"><button class="btn btn-primary" type="submit">Kaydet</button><a asp-page="./Gorevler" class="btn btn-outline-primary">Yeni kayıt / temizle</a></div></form></section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
