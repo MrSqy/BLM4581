@@ -77,9 +77,9 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
             return Ok(sonuc with { GonderimId = gonderimId });
         }
         catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
-            return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor. Tekrar deneyin." });
+            return SandboxHataYaniti.Olustur(ex);
         }
     }
 }

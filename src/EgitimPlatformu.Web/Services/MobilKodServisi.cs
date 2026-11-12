@@ -15,10 +15,9 @@ public interface IMobilKodServisi
 
 public sealed class MobilKodServisi(IHariciIslemCalistirici process) : IMobilKodServisi
 {
-    private readonly SemaphoreSlim slots = new(2, 2);
     public async Task<MobilKodSonucu> CalistirAsync(string kod, string testKodu, bool test, int[] gorevler, CancellationToken ct)
     {
-        if (!await slots.WaitAsync(0, ct)) throw new InvalidOperationException("Sandbox meşgul.");
+        // Eşzamanlılık ve sıra ortak sandbox kuyruğunda (KuyrukluIslemCalistirici) tutulur.
         var dir = Path.Combine(Path.GetTempPath(), $"egitim-mobil-{Guid.NewGuid():N}");
         try
         {
@@ -51,7 +50,6 @@ public sealed class MobilKodServisi(IHariciIslemCalistirici process) : IMobilKod
         finally
         {
             if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
-            slots.Release();
         }
     }
 }

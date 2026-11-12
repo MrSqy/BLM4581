@@ -40,8 +40,7 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
         {
             var sonuc = await servis.CalistirAsync(istek.Kod, ders.TestKodu, ct);
             var sure = System.Diagnostics.Stopwatch.GetElapsedTime(baslangic);
-            if (sonuc.AltyapiHatasi)
-                return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor." });
+            if (sonuc.AltyapiHatasi) return SandboxHataYaniti.AltyapiYok();
             var yanit = PytestGorevAyristirici.Ayristir(sonuc,
                 gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value));
             var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
@@ -52,7 +51,7 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
         catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or IOException)
         {
-            return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor." });
+            return SandboxHataYaniti.Olustur(ex);
         }
     }
 }

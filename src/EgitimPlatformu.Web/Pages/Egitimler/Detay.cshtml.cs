@@ -119,7 +119,7 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or IOException)
         {
             logger.LogWarning(ex, "Editör sandbox servisine ulaşamadı: {Id}", id);
-            return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor veya meşgul. Daha sonra yeniden deneyin." });
+            return SandboxHataYaniti.Olustur(ex);
         }
     }
 
