@@ -65,6 +65,7 @@ public sealed class MonacoEditorTests
         using var config = JsonDocument.Parse(json);
         Assert.True(config.RootElement.GetProperty("gorevBazli").GetBoolean());
         Assert.True(config.RootElement.GetProperty("izinli").GetBoolean());
+        Assert.Equal(60000, config.RootElement.GetProperty("istekZamanAsimiMs").GetInt32());
         var tasks = config.RootElement.GetProperty("gorevler").EnumerateArray().ToArray();
         Assert.Equal(7, tasks.Length);
         Assert.Equal(5, tasks.Count(t => t.GetProperty("tur").GetString() == "kod"));

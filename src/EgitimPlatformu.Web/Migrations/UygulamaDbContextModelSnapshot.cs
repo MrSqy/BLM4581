@@ -103,6 +103,75 @@ namespace EgitimPlatformu.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Gonderim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Basarili")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("CikisKodu")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Cikti")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Ders")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Durum")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("EgitimId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GorevBasligi")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("GorevId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("GorevNo")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Hata")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Kod")
+                        .IsRequired()
+                        .HasMaxLength(32000)
+                        .HasColumnType("character varying(32000)");
+
+                    b.Property<string>("KullaniciId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("SureMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("TarihUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GorevId");
+
+                    b.HasIndex("KullaniciId", "TarihUtc", "Id");
+
+                    b.ToTable("Gonderimler");
+                });
+
             modelBuilder.Entity("EgitimPlatformu.Web.Models.Gorev", b =>
                 {
                     b.Property<int>("Id")
@@ -684,6 +753,20 @@ namespace EgitimPlatformu.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Kategori");
+                });
+
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Gonderim", b =>
+                {
+                    b.HasOne("EgitimPlatformu.Web.Models.Gorev", null)
+                        .WithMany()
+                        .HasForeignKey("GorevId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("KullaniciId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EgitimPlatformu.Web.Models.Gorev", b =>

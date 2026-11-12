@@ -1,0 +1,5 @@
+@page "/Yonetim"
+@model EgitimPlatformu.Web.Pages.Yonetim.IndexModel
+@{ ViewData["Title"] = "Yönetici paneli"; }
+<partial name="_Menu" /><header class="page-heading"><p class="eyebrow">İÇERİK YÖNETİMİ</p><h1>Yönetici paneli</h1><p>Kategori, eğitim ve görev içeriklerini yönetin.</p></header>
+<div class="row g-4"><div class="col-md-4"><section class="content-panel"><h2>Kategoriler</h2><p>Eğitim alanlarını düzenleyin.</p><a asp-page="./Kategoriler" class="text-link">Kategorileri yönet ↗</a></section></div><div class="col-md-4"><section class="content-panel"><h2>Eğitimler</h2><p>Ders içeriklerini ve kategorilerini yönetin.</p><a asp-page="./Egitimler" class="text-link">Eğitimleri yönet ↗</a></section></div><div class="col-md-4"><section class="content-panel"><h2>Görevler</h2><p>Alıştırmaları ve kontrol ölçütlerini düzenleyin.</p><a asp-page="./Gorevler" class="text-link">Görevleri yönet ↗</a></section></div></div>

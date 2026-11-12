@@ -21,6 +21,14 @@
                         <li class="nav-item"><a class="nav-link" asp-page="/Egitimler/Index">Eğitimler</a></li>
                         <li class="nav-item"><a class="nav-link" asp-page="/Egitimler/Index" asp-fragment="KategoriId">Kategoriler</a></li>
                         <li class="nav-item"><a class="nav-link" asp-page="/Index" asp-fragment="nasil-calisir">Nasıl çalışır?</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Gonderimler/Index">Gönderimlerim</a></li>
+                        }
+                        @if (User.IsInRole(EgitimPlatformu.Web.Services.Roller.Yonetici))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Yonetim/Index">Yönetim</a></li>
+                        }
                     </ul>
                     <form class="site-search" role="search" method="get" asp-page="/Egitimler/Index">
                         <label for="course-search" class="visually-hidden">Eğitim ara</label>

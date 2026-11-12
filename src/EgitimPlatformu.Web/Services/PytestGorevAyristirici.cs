@@ -5,7 +5,11 @@ namespace EgitimPlatformu.Web.Services;
 public sealed record GorevDurumu(int No, string Durum);
 
 public sealed record KodCalistirYaniti(bool Basarili, string Durum, string Cikti, string Hata,
-    IReadOnlyList<GorevDurumu> Gorevler);
+    IReadOnlyList<GorevDurumu> Gorevler)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? GonderimId { get; init; }
+}
 
 // pytest -v satırlarını (dosya.py::test_gorev_N[...] PASSED) görev numarasına göre toplar.
 // Durum adları mobil sözleşmesiyle aynıdır: basarili, basarisiz, atlanmis, test_yok.

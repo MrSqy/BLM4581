@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 builder.Services.AddScoped<IcerikAktarimServisi>();
 builder.Services.AddScoped<MarkdownServisi>();
+builder.Services.AddScoped<GonderimServisi>();
+builder.Services.AddScoped<IGonderimGecmisi>(services => services.GetRequiredService<GonderimServisi>());
 builder.Services.AddScoped<IHesapServisi, IdentityHesapServisi>();
 builder.Services.AddSingleton(SandboxKuyruguAyarlari.Oku(builder.Configuration));
 builder.Services.AddSingleton<IHariciIslemCalistirici>(services =>

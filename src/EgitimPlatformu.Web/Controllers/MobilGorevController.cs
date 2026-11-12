@@ -7,7 +7,7 @@ namespace EgitimPlatformu.Web.Controllers;
 
 [ApiController, Route("api/mobil/egitimler/{id:int}/gorevler/{no:int}"), EnableRateLimiting("mobil")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), RequestSizeLimit(256 * 1024)]
-public sealed class MobilGorevController(UygulamaDbContext db, DersErisimi erisim, IGorevKodServisi runner) : ControllerBase
+public sealed class MobilGorevController(UygulamaDbContext db, DersErisimi erisim, IGorevKodServisi runner, GonderimServisi gonderimler) : ControllerBase
 {
     [HttpPost("calistir"), IstegeBagliBearer]
     public Task<IActionResult> Calistir(int id, int no, MobilKodIstegi input, CancellationToken ct) => Kod(id, no, input, false, ct);
@@ -23,7 +23,18 @@ public sealed class MobilGorevController(UygulamaDbContext db, DersErisimi erisi
         if (gorev.Tur != "kod" || gorev.KontrolJson is null)
             return Conflict(new { mesaj = "Bu görevde otomatik program kontrolü yok." });
         if (string.IsNullOrWhiteSpace(input.Kod)) return BadRequest(new { mesaj = "Çalıştırılacak kodu yazın." });
-        try { return Ok(await runner.CalistirAsync(gorev, input.Kod, test, ct)); }
+        var baslangic = System.Diagnostics.Stopwatch.GetTimestamp();
+        try
+        {
+            var sonuc = await runner.CalistirAsync(gorev, input.Kod, test, ct);
+            var sure = System.Diagnostics.Stopwatch.GetElapsedTime(baslangic);
+            if (!test) return Ok(sonuc);
+            var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
+            var gonderimId = await gonderimler.KaydetAsync(kullaniciId, ders, gorev, input.Kod,
+                new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata, sonuc.CikisKodu), sure, ct);
+            return Ok(sonuc with { GonderimId = gonderimId });
+        }
+        catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (InvalidOperationException ex) { return SandboxHataYaniti.Olustur(ex); }
     }
 }

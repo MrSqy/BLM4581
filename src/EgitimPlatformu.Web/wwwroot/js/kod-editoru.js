@@ -44,6 +44,9 @@ if (configElement) {
         find("code-tests").replaceChildren();
         find("tests-block").hidden = true;
         find("output-login").hidden = true;
+        find("result-cards").replaceChildren();
+        find("result-cards-section").hidden = true;
+        find("result-cards-empty").hidden = false;
     }
 
     function showCode() {
@@ -108,6 +111,7 @@ if (configElement) {
         }
         if (Number.isInteger(data.cikisKodu)) addTestResult(`Program çıkış kodu: ${data.cikisKodu}`);
         if (!test) return;
+        renderCards(data);
         if (typeof data.ciktiEslesiyor === "boolean") addTestResult(`Beklenen çıktı: ${data.ciktiEslesiyor ? "eşleşiyor" : "eşleşmiyor"}`);
         if (typeof data.cikisKoduEslesiyor === "boolean") addTestResult(`Beklenen çıkış kodu: ${data.cikisKoduEslesiyor ? "eşleşiyor" : "eşleşmiyor"}`);
         if (Array.isArray(data.kuralIhlalleri)) data.kuralIhlalleri.forEach(rule => addTestResult(`Kural ihlali: ${rule}`));
@@ -115,6 +119,35 @@ if (configElement) {
         if (Array.isArray(data.gorevler)) data.gorevler.forEach(task => {
             if (Number.isInteger(task.no)) addTestResult(`Görev ${task.no}: ${taskLabels[task.durum] ?? "Sonuç alınamadı"}`);
         });
+    }
+
+    function renderCards(data) {
+        find("result-cards-section").hidden = false;
+        const labels = { basarili: ["Başarılı", "success"], basarisiz: ["Başarısız", "failure"], atlanmis: ["Atlandı", "neutral"], test_yok: ["Test bulunamadı", "neutral"], hata: ["Hata", "error"], zaman_asimi: ["Süre aşıldı", "error"], cikti_siniri: ["Çıktı sınırı aşıldı", "error"] };
+        const add = (name, state, detail) => {
+            const card = document.createElement("article");
+            card.className = "test-result-card";
+            card.setAttribute("role", "listitem");
+            const [label, color] = labels[state] ?? ["Sonuç bilinmiyor", "neutral"];
+            card.dataset.state = color;
+            const title = document.createElement("h5"); title.textContent = name;
+            const badge = document.createElement("span"); badge.className = "result-badge"; badge.textContent = label;
+            card.append(title, badge);
+            if (detail) { const text = document.createElement("pre"); text.textContent = detail; card.append(text); }
+            find("result-cards").append(card);
+            find("result-cards-empty").hidden = true;
+        };
+        if (Array.isArray(data.gorevler)) data.gorevler.forEach(task => {
+            if (!Number.isInteger(task.no)) return;
+            const taskInfo = config.gorevler.find(g => g.no === task.no);
+            add(`Görev ${task.no}${taskInfo ? ` — ${taskInfo.baslik}` : ""}`, task.durum,
+                typeof task.hata === "string" ? task.hata : task.durum === "basarisiz" ? "Ayrıntılı hata bu görev için ayrı verilmedi. Çıktı panelini incele." : "");
+        });
+        if (config.gorevBazli && currentTask?.tur === "kod") {
+            add(`Görev ${currentTask.no} — ${currentTask.baslik}`, data.durum === "tamamlandi" ? (data.basarili ? "basarili" : "hata") : data.durum, data.hata);
+            if (typeof data.ciktiEslesiyor === "boolean") add("Standart çıktı kontrolü", data.ciktiEslesiyor ? "basarili" : "basarisiz", "");
+            if (typeof data.cikisKoduEslesiyor === "boolean") add("Program çıkış kodu kontrolü", data.cikisKoduEslesiyor ? "basarili" : "basarisiz", "");
+        }
     }
 
     async function sendCode(test) {
@@ -129,7 +162,7 @@ if (configElement) {
         updateControls();
         status(test ? "Test ediliyor…" : "Çalıştırılıyor…", "loading", "Sonuç bekleniyor.");
         const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 20000);
+        const timeout = window.setTimeout(() => controller.abort(), config.istekZamanAsimiMs ?? 60000);
         try {
             const url = new URL(test ? config.testUrl : config.calistirUrl, location.href);
             if (config.gorevBazli) url.searchParams.set("no", String(currentTask.no));
@@ -152,7 +185,21 @@ if (configElement) {
                     429: "Çok fazla istek gönderildi. Bir süre bekleyip yeniden dene.",
                     503: "Kod çalıştırma servisi şu anda kullanılamıyor veya meşgul. Daha sonra yeniden dene."
                 };
-                status("İşlem tamamlanamadı", "error", messages[response.status] ?? "Sunucuda bir sorun oluştu. Kodun editörde duruyor; daha sonra yeniden deneyebilirsin.");
+                let message = messages[response.status] ?? "Sunucuda bir sorun oluştu. Kodun editörde duruyor; daha sonra yeniden deneyebilirsin.";
+                if (response.status === 503) {
+                    const error = await response.json().catch(() => null);
+                    if (error?.durum === "gonderim_kayit_hatasi") {
+                        message = "Test tamamlandı ancak gönderim kaydedilemedi. Kodun editörde duruyor.";
+                    } else if (error?.durum === "kuyruk_dolu") {
+                        const seconds = Number(response.headers.get("Retry-After"));
+                        message = Number.isInteger(seconds) && seconds > 0
+                            ? `Sandbox yoğun. ${seconds} saniye sonra yeniden dene.`
+                            : "Sandbox yoğun. Birkaç saniye sonra yeniden dene.";
+                    } else if (error?.durum === "altyapi_yok") {
+                        message = "Kod çalıştırma altyapısına şu anda ulaşılamıyor.";
+                    }
+                }
+                status("İşlem tamamlanamadı", "error", message);
                 find("output-login").hidden = response.status !== 401;
                 return;
             }

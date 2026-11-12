@@ -12,6 +12,12 @@ public sealed class DersErisimi(UygulamaDbContext db)
         await db.Egitimler.AsNoTracking().Where(e => e.KategoriId == ders.KategoriId)
             .OrderBy(e => e.Sira).ThenBy(e => e.Id).Select(e => e.Id).FirstOrDefaultAsync(ct) == ders.Id;
 
+    public static async Task<string?> BearerKullaniciId(HttpContext context)
+    {
+        var oturum = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+        return oturum.Succeeded ? oturum.Principal?.FindFirst("sub")?.Value : null;
+    }
+
     public async Task<bool> Izinli(HttpContext context, Egitim ders, CancellationToken ct = default) =>
         await IlkDers(ders, ct) || (await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme)).Succeeded;
 }

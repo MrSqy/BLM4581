@@ -15,7 +15,7 @@ public sealed record KodCalistirIstegi(
 // Yalnız eski-pytest dersleri içindir; görev bazlı derslerde /api/mobil/.../gorevler/{no} uçları kullanılır.
 [ApiController, Route("api/calistir"), EnableRateLimiting("mobil")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), RequestSizeLimit(256 * 1024)]
-public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi erisim, IKodCalistirmaServisi servis)
+public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi erisim, IKodCalistirmaServisi servis, GonderimServisi gonderimler)
     : ControllerBase
 {
     [HttpPost, IstegeBagliBearer]
@@ -35,13 +35,20 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
             return Conflict(new { mesaj = "Bu derse henüz otomatik test eklenmemiş." });
         if (string.IsNullOrWhiteSpace(istek.Kod)) return BadRequest(new { mesaj = "Çalıştırılacak kodu yazın." });
 
+        var baslangic = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
             var sonuc = await servis.CalistirAsync(istek.Kod, ders.TestKodu, ct);
+            var sure = System.Diagnostics.Stopwatch.GetElapsedTime(baslangic);
             if (sonuc.AltyapiHatasi) return SandboxHataYaniti.AltyapiYok();
-            return Ok(PytestGorevAyristirici.Ayristir(sonuc,
-                gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value)));
+            var yanit = PytestGorevAyristirici.Ayristir(sonuc,
+                gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value));
+            var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
+            var gonderimId = await gonderimler.KaydetAsync(kullaniciId, ders, null, istek.Kod,
+                new(yanit.Basarili, yanit.Durum, yanit.Cikti, yanit.Hata, sonuc.CikisKodu), sure, ct);
+            return Ok(yanit with { GonderimId = gonderimId });
         }
+        catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or IOException)
         {
             return SandboxHataYaniti.Olustur(ex);

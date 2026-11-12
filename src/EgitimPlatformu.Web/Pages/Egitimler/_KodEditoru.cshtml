@@ -8,6 +8,7 @@
         girisUrl = Url.Page("/Hesap/Giris", new { returnUrl = Url.Page("/Egitimler/Detay", new { id = Model.Egitim.Id }) }),
         monacoUrl = Url.Content("~/lib/monaco/editor.js"),
         izinli = Model.CalistirmayaIzinVar,
+        istekZamanAsimiMs = Model.IstekZamanAsimiMs,
         gorevBazli = Model.GorevBazli,
         baslangicKodu = Model.Egitim.BaslangicKodu,
         testVar = !string.IsNullOrWhiteSpace(Model.Egitim.TestKodu),
@@ -56,6 +57,12 @@
         <div class="output-block" id="stdout-block" hidden><h4>Standart çıktı</h4><pre id="code-stdout" tabindex="0" aria-label="Standart çıktı"></pre></div>
         <div class="output-block" id="stderr-block" hidden><h4>Hata çıktısı</h4><pre id="code-stderr" tabindex="0" aria-label="Hata çıktısı"></pre></div>
         <div class="output-block" id="tests-block" hidden><h4>Test sonuçları</h4><ul id="code-tests"></ul></div>
+        <section class="result-cards-section" id="result-cards-section" aria-labelledby="result-cards-title" hidden>
+            <h4 id="result-cards-title">Görev değerlendirmesi</h4>
+            <p id="result-cards-empty" class="section-note">Bu işlem için ayrıntılı görev sonucu bulunamadı.</p>
+            <div id="result-cards" class="result-cards" role="list"></div>
+        </section>
+        <p class="history-note">Bu ekrandaki sonuçlar kalıcı gönderim kaydı değildir. <a asp-page="/Gonderimler/Index">Gönderim geçmişi</a></p>
     </section>
     <noscript><p class="alert alert-warning mt-3">Kod editörü ve çalıştırma düğmeleri için JavaScript'i etkinleştir. Ders içeriğini ve görevleri okumaya devam edebilirsin.</p></noscript>
 </section>
