@@ -76,6 +76,19 @@ dotnet ef migrations add DegisiklikAdi --project src/EgitimPlatformu.Web
 dotnet ef database update --project src/EgitimPlatformu.Web
 ```
 
+## Gönderim geçmişi (4.1)
+
+Yeni sürümü başlatmadan önce hedef ortamın yedeğini alın ve Kurulum bölümündeki
+`dotnet ef database update` adımını o ortamın bağlantı ayarıyla uygulayın.
+`GonderimGecmisi` migration'ı gönderim tablosunu ekler. Sunucu açılışında
+migration çalıştırılmaz. Tablo henüz yoksa web ve API geçmişi 503 ile bildirir.
+Demo için ayrı bir veritabanı kullanın.
+
+Oturum açıp bir kod görevinde **Test Et** seçeneğiyle gönderim oluşturabilir,
+**Gönderimlerim** sayfasında sonucu açabilirsiniz. Misafir denemeleri,
+**Çalıştır** işlemleri ve otomatik test bulunmayan denemeler geçmişe eklenmez.
+Mobil istemci sözleşmesi [Flutter devir metninde](docs/FLUTTER_DEVAM_PROMPTU.txt).
+
 ## Python kod çalıştırma sandbox'ı
 
 Öğrenci kodlarını doğrudan ana makinede çalıştırmayın. Hafta 01 sandbox imajını depo kökünden oluşturun:

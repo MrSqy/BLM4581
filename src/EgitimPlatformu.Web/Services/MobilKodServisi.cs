@@ -3,7 +3,11 @@ using System.Text.Json;
 namespace EgitimPlatformu.Web.Services;
 
 public sealed record GorevTestSonucu(int No, string Durum);
-public sealed record MobilKodSonucu(bool Basarili, string Durum, string Cikti, string Hata, IReadOnlyList<GorevTestSonucu> Gorevler);
+public sealed record MobilKodSonucu(bool Basarili, string Durum, string Cikti, string Hata, IReadOnlyList<GorevTestSonucu> Gorevler)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? GonderimId { get; init; }
+}
 public interface IMobilKodServisi
 {
     Task<MobilKodSonucu> CalistirAsync(string kod, string testKodu, bool test, int[] gorevler, CancellationToken ct);

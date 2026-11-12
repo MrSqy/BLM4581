@@ -14,7 +14,7 @@ POST /api/mobil/egitimler/{id}/gorevler/{no}/test
 İstek: {"kod":"print('Merhaba, dünya!')"}
 Girdi, dosya yolu, beklenen çıktı ve kuralları istemciden gönderme. Sunucu kaydedilmiş stdin ile çalıştırır; bu sürüm serbest kullanıcı stdin alanı içermez.
 Test yanıtı:
-{"no":1,"basarili":true,"durum":"basarili","cikti":"Merhaba, dünya!\n","hata":"","cikisKodu":0,"ciktiEslesiyor":true,"cikisKoduEslesiyor":true,"kuralIhlalleri":[]}
+{"no":1,"basarili":true,"durum":"basarili","cikti":"Merhaba, dünya!\n","hata":"","cikisKodu":0,"ciktiEslesiyor":true,"cikisKoduEslesiyor":true,"kuralIhlalleri":[],"gonderimId":42}
 Çalıştırmada ciktiEslesiyor/cikisKoduEslesiyor null, durum tamamlandi veya hata; test geçildi etiketi gösterme. Testte basarisiz, timeout'ta zaman_asimi, çıktı taşmasında cikti_siniri gelebilir. Eşleşme alanları null olabilir. Çıktının boşluklarını ve son satır sonunu koru; beklenen/gerçek farkını anlaşılır göster. Beklenen çıkış kodu 0 dışında olabilir.
 
 Eski ders düzeyi /egitimler/{id}/calistir ve /test güncel derste 409 döndürür. tur=eski-pytest içeren henüz aktarılmamış derslere görev endpoint'i kullanma; gerekirse açık eski akış veya aktarım gerekli mesajı göster. veri/ veya ek modül isteyen görevlerin tam dosya paketi bu v2 sözleşmesinde desteklenmiyor; bu dersleri çalışıyor gibi sunma.
@@ -24,3 +24,45 @@ JWT sözleşmesi korundu: POST /api/mobil/hesap/giris|kayit -> token,bitis,kulla
 Backend URL API_ADRESI ile ayarlı kalsın; emülatörde 10.0.2.2:5080, fiziksel telefonda bilgisayarın LAN adresi. JWT anahtarı sadece backend'de bulunur.
 
 Modelleri, API istemcisini, görev seçimini ve ekranı güncelle. analyze ve Flutter testlerini çalıştır: seçili görevin dosya/kodu, görevler arası taslak koruma, açıklamada otomasyon yokluğu, doğru/yanlış çıktı ve çıkış kodu, timeout/çıktı limiti, misafir/üye erişimi ve 401/409/429/503. Gerçek cihaz kabulünü taklit testlerden ayır. JSON üreticisi Nisa'nın kapsamında; değiştirme. Büyük blok sonunda yerel checkpoint commit at; push/gh/PR/ağ kurulumu yapma. Dış işleri tam komutlarla raporla.
+
+
+4.1 — Gönderim geçmişi ve ilerleme ekranı
+
+Backend'de GonderimGecmisi migration'ı uygulanmış olmalı. Denemeyi izole DB'de yap; gerçek kullanıcı veritabanında migration veya seed başlatma.
+
+Görev okuma uçları:
+- GET /api/egitimler/{id}/gorevler → aktif görevlerden oluşan JSON dizisi.
+- GET /api/egitimler/{id}/gorevler/{no} → yukarıdaki görev örneğiyle aynı nesne. URL'de görev no kullanılır.
+- GET /api/mobil/egitimler/{id} içindeki gorevler alanı mevcut istemciler için devam eder.
+İlk derse misafir erişebilir. Sonraki derslerde geçerli JWT gerekir (401). Olmayan ders veya olmayan/pasif görev 404 döner.
+
+Oturumlu Test Et istekleri sonuç ürettiğinde yeni bir gönderim kaydı oluşur. Başarısız değerlendirme de HTTP 200 döner ve kendi gonderimId alanını taşır. Çalıştır ve misafir denemelerinin yanıtlarda gonderimId alanı yoktur. Geçersiz istek, açıklama görevi, test_yok sonucu veya çalıştırıcının altyapı hatası kayıt oluşturmaz. Eski mobil derste test kodu boşsa /test, çalıştırıcıya gitmeden 409 döner. Kod gönderme gövdesi {"kod":"..."} olarak kalır. Başarı, süre, çıktı ve kullanıcı kimliğini sunucu belirler.
+
+Geçmiş uçları /api/gonderimler altında. API_ADRESI /api/mobil ile bitiyorsa bu uçları sunucu kökünden çözümle; /api/mobil ekleme. Her iki istek Authorization: Bearer <token> ister. Gövdeye veya sorguya kullanıcı kimliği ekleme.
+
+GET /api/gonderimler?sayfa=1&sayfaBoyutu=20
+200 örneği:
+{"toplam":2,"sayfa":1,"sayfaBoyutu":20,"kayitlar":[{"id":42,"tarih":"2026-11-12T15:45:00+00:00","egitimId":1,"ders":"Python Temelleri","gorevId":1,"gorevNo":1,"gorev":"Selam","durum":"basarili","basarili":true,"cikisKodu":0,"sureMs":238},{"id":41,"tarih":"2026-11-12T15:42:00+00:00","egitimId":1,"ders":"Python Temelleri","gorevId":1,"gorevNo":1,"gorev":"Selam","durum":"basarisiz","basarili":false,"cikisKodu":0,"sureMs":201}]}
+
+Sayfa 1'den başlar, en fazla 1000000. Varsayılan boyut 20, izin verilen aralık 1–100. Sıra tarih azalan ve aynı tarihte id azalan. toplam yalnız oturum sahibinin gönderim sayısıdır. Boş sayfada kayitlar:[] gelir. sayfa × sayfaBoyutu < toplam ise sonraki sayfa var. Yenilemede birinci sayfaya dön; bir sonraki sayfayı eklerken id ile tekrarları ayıkla. Başarılı veya başarısız bir kayıtlı testten sonra geçmişi yenile. Liste kod ve çıktı gövdelerini içermez.
+
+GET /api/gonderimler/42
+200 örneği:
+{"gonderim":{"id":42,"tarih":"2026-11-12T15:45:00+00:00","egitimId":1,"ders":"Python Temelleri","gorevId":1,"gorevNo":1,"gorev":"Selam","durum":"basarili","basarili":true,"cikisKodu":0,"sureMs":238},"kod":"print('Merhaba, dünya!')","cikti":"Merhaba, dünya!\n","hata":""}
+
+gonderimId, ayrıntı URL'sindeki id değeridir. GorevId, gorevNo, gorev ve cikisKodu null olabilir. Eski ders düzeyindeki gönderimde görev alanları boştur. Görevin silinmesi gorevId'yi boşaltır; geçmişteki başlık ve numara korunur. Tarih UTC olarak gelir, gerekirse kullanıcıya yerel saati göster. sureMs çalıştırıcı çağrısı için ölçülen milisaniyedir. Kod, çıktı ve hatayı düz metin göster; boşlukları ve satır sonlarını koru.
+
+Hata durumları:
+- 400: Geçersiz sayfa/boyut veya test girdisi.
+- 401: Oturum yok, geçersiz veya süresi dolmuş. Geçmişte oturum açma akışına dön.
+- 404: Gönderim bulunamadı veya bu hesaba ait değil. Aynı mesajı göster.
+- 409: Açıklama görevi ya da görev/pytest akışının yanlış ucu. İsteği otomatik yeniden deneme.
+- 429: Hız sınırı. Kullanıcıya daha sonra yeniden deneme seçeneği sun.
+- 503 gonderim_kayit_hatasi: Test çalıştı, gönderim kaydedilemedi. Kayıtlı sonuç etiketi gösterme.
+- 503 gonderim_gecmisi_kullanilamiyor: Geçmiş geçici olarak okunamadı. Boş geçmiş olarak gösterme.
+- 4.4 ortak kuyruk devredeyse 503 kuyruk_dolu, Retry-After ve altyapi_yok yanıtlarını ayırt et. Kullanıcıya yeniden deneme seçeneği sun; kendiliğinden test tekrarı başlatma.
+- Diğer 5xx ve ağ hatalarında yeniden deneme sun. ProblemDetails, {mesaj} ve boş yanıtları işle.
+
+İlerleme ekranı için 4.1 yalnız kendi gönderimlerinin tarihini, durumunu, ders/görev bilgisini, süresini ve ayrıntısını sağlar. Liste toplamı gönderim sayısıdır. Ders tamamlama yüzdesi, tamamlanan benzersiz görev sayısı ve ilerleme güncelleme API'si 5.1 kapsamındadır. Bu ekran 4.1 ile son gönderimleri ve değerlendirme geçmişini gösterebilir.
+
+Flutter doğrulaması: boş geçmiş, ikinci sayfa, doğru/yanlış değerlendirmeden sonra yenileme, ayrıntıya geçiş, null görev alanları, 401/404/429 ve yeniden deneme. Ayrıntı örneğindeki id'yi sabitleme.

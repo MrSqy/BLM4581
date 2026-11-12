@@ -15,7 +15,7 @@ public sealed record MobilKodIstegi([Required, StringLength(32000)] string Kod);
 
 [ApiController, Route("api/mobil"), EnableRateLimiting("mobil")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi runner, DersErisimi erisim) : ControllerBase
+public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi runner, DersErisimi erisim, GonderimServisi gonderimler) : ControllerBase
 {
     private async Task<bool> OturumVar() => (await HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme)).Succeeded;
     [HttpGet("kategoriler")]
@@ -61,12 +61,22 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
         if (!await erisim.Izinli(HttpContext, ders, ct)) return Unauthorized(new { mesaj = "Bu derste kod çalıştırmak için giriş yapın." });
         if (ders.Gorevler.Any(g => g.Aktif && g.Tur != "eski-pytest"))
             return Conflict(new { mesaj = "Bu ders görev bazlıdır. /egitimler/{id}/gorevler/{no}/calistir veya /test kullanın." });
+        if (test && string.IsNullOrWhiteSpace(ders.TestKodu))
+            return Conflict(new { mesaj = "Bu derse henüz otomatik test eklenmemiş." });
         if (string.IsNullOrWhiteSpace(input.Kod)) return BadRequest(new { mesaj = "Çalıştırılacak kodu yazın." });
+        var baslangic = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
-            return Ok(await runner.CalistirAsync(input.Kod, ders.TestKodu, test,
-                ders.Gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value).ToArray(), ct));
+            var sonuc = await runner.CalistirAsync(input.Kod, ders.TestKodu, test,
+                ders.Gorevler.Where(g => g.Aktif && g.No.HasValue).Select(g => g.No!.Value).ToArray(), ct);
+            var sure = System.Diagnostics.Stopwatch.GetElapsedTime(baslangic);
+            if (!test) return Ok(sonuc);
+            var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
+            var gonderimId = await gonderimler.KaydetAsync(kullaniciId, ders, null, input.Kod,
+                new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata), sure, ct);
+            return Ok(sonuc with { GonderimId = gonderimId });
         }
+        catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (InvalidOperationException)
         {
             return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor. Tekrar deneyin." });

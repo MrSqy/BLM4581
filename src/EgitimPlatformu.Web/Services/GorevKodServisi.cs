@@ -4,7 +4,11 @@ using EgitimPlatformu.Web.Models;
 namespace EgitimPlatformu.Web.Services;
 
 public sealed record GorevKodSonucu(int? No, bool Basarili, string Durum, string Cikti, string Hata,
-    int? CikisKodu, bool? CiktiEslesiyor, bool? CikisKoduEslesiyor, IReadOnlyList<string> KuralIhlalleri);
+    int? CikisKodu, bool? CiktiEslesiyor, bool? CikisKoduEslesiyor, IReadOnlyList<string> KuralIhlalleri)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? GonderimId { get; init; }
+}
 public interface IGorevKodServisi
 {
     Task<GorevKodSonucu> CalistirAsync(Gorev gorev, string kod, bool test, CancellationToken ct);

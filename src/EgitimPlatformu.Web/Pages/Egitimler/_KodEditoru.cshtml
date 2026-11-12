@@ -8,6 +8,7 @@
         girisUrl = Url.Page("/Hesap/Giris", new { returnUrl = Url.Page("/Egitimler/Detay", new { id = Model.Egitim.Id }) }),
         monacoUrl = Url.Content("~/lib/monaco/editor.js"),
         izinli = Model.CalistirmayaIzinVar,
+        istekZamanAsimiMs = Model.IstekZamanAsimiMs,
         gorevBazli = Model.GorevBazli,
         baslangicKodu = Model.Egitim.BaslangicKodu,
         testVar = !string.IsNullOrWhiteSpace(Model.Egitim.TestKodu),
