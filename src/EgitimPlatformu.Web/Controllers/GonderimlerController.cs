@@ -11,7 +11,7 @@ namespace EgitimPlatformu.Web.Controllers;
 [ApiController, Route("api/gonderimler"), EnableRateLimiting("mobil")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class GonderimlerController(GonderimServisi gonderimler) : ControllerBase
+public sealed class GonderimlerController(GonderimServisi gonderimler, ILogger<GonderimlerController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<GonderimListeYaniti>> Liste(CancellationToken ct,
@@ -20,9 +20,16 @@ public sealed class GonderimlerController(GonderimServisi gonderimler) : Control
     {
         var kullaniciId = User.FindFirst("sub")?.Value;
         if (string.IsNullOrEmpty(kullaniciId)) return Unauthorized();
-        var sonuc = await gonderimler.ListeAsync(kullaniciId, sayfa, sayfaBoyutu, ct);
-        return new GonderimListeYaniti(sonuc.Toplam, sayfa, sayfaBoyutu,
-            sonuc.Kayitlar.Select(GonderimOzeti.Olustur).ToArray());
+        try
+        {
+            var sonuc = await gonderimler.ListeAsync(kullaniciId, sayfa, sayfaBoyutu, ct);
+            return new GonderimListeYaniti(sonuc.Toplam, sayfa, sayfaBoyutu,
+                sonuc.Kayitlar.Select(GonderimOzeti.Olustur).ToArray());
+        }
+        catch (Exception ex) when (GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
+        {
+            return GecmisOkunamadi(ex);
+        }
     }
 
     [HttpGet("{id:int:min(1)}")]
@@ -31,7 +38,20 @@ public sealed class GonderimlerController(GonderimServisi gonderimler) : Control
     {
         var kullaniciId = User.FindFirst("sub")?.Value;
         if (string.IsNullOrEmpty(kullaniciId)) return Unauthorized();
-        var g = await gonderimler.DetayAsync(kullaniciId, id, ct);
-        return g is null ? NotFound() : new GonderimDetayYaniti(GonderimOzeti.Olustur(g), g.Kod, g.Cikti, g.Hata);
+        try
+        {
+            var g = await gonderimler.DetayAsync(kullaniciId, id, ct);
+            return g is null ? NotFound() : new GonderimDetayYaniti(GonderimOzeti.Olustur(g), g.Kod, g.Cikti, g.Hata);
+        }
+        catch (Exception ex) when (GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
+        {
+            return GecmisOkunamadi(ex);
+        }
+    }
+
+    private ObjectResult GecmisOkunamadi(Exception ex)
+    {
+        logger.LogWarning(ex, GonderimGecmisiHatasi.OkumaMesaji);
+        return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.OkumaMesaji, durum = "gonderim_gecmisi_kullanilamiyor" });
     }
 }

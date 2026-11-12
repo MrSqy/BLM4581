@@ -4,7 +4,7 @@
 <header class="page-heading"><p class="eyebrow">ÖĞRENME YOLCULUĞUN</p><h1>Gönderimlerim</h1><p>Önceki kodlarına ve değerlendirme sonuçlarına buradan ulaşabilirsin.</p></header>
 @if (!Model.Hazir)
 {
-    <div class="empty-courses" role="status"><h2>Gönderim geçmişi henüz kullanıma açılmadı.</h2><p>Kayıt ve geçmiş altyapısının entegrasyonu bekleniyor. Mevcut test sonuçları geçmişe kaydedilmiş sayılmaz.</p><a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimlere dön</a></div>
+    <div class="empty-courses" role="status"><h2>Gönderim geçmişine şu anda ulaşılamıyor.</h2><p>Daha sonra yeniden dene.</p><a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimlere dön</a></div>
 }
 else if (Model.Sonuc.Kayitlar.Count == 0)
 {

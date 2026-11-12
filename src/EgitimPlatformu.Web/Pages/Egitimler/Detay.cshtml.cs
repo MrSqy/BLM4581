@@ -15,13 +15,17 @@ namespace EgitimPlatformu.Web.Pages.Egitimler;
 [RequestSizeLimit(256 * 1024)]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<DetayModel> logger,
-    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner, GonderimServisi gonderimler) : PageModel
+    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner, GonderimServisi gonderimler, IConfiguration configuration) : PageModel
 {
     public Egitim? Egitim { get; private set; }
     public string IcerikHtml { get; private set; } = "";
     public List<GorevIcerigi> Gorevler { get; private set; } = [];
     public string? Hata { get; private set; }
     public bool CalistirmayaIzinVar { get; private set; }
+    // Kuyruk ve çalıştırıcı üst sınırından sonra yanıt/kayıt için 15 saniye ayır.
+    public int IstekZamanAsimiMs => (int)Math.Clamp(
+        1000L * (15L + configuration.GetValue("Sandbox:BeklemeSaniye", 15)
+                     + configuration.GetValue("Sandbox:IslemUstSiniriSaniye", 30)), 20000L, int.MaxValue);
     public bool GorevBazli => Gorevler.Any(g => g.Tur != "eski-pytest");
 
     public async Task<IActionResult> OnGetAsync(int? id, CancellationToken cancellationToken)
@@ -105,7 +109,7 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
         catch (DbUpdateException ex)
         {
             logger.LogWarning(ex, "Gönderim kaydedilemedi: {Id}", id);
-            return StatusCode(503, new { mesaj = "Gönderim kaydedilemedi." });
+            return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" });
         }
         catch (Exception ex) when (ex is DbException || ex is InvalidOperationException { InnerException: DbException })
         {

@@ -13,7 +13,7 @@ public sealed class GonderimServisi(UygulamaDbContext db) : IGonderimGecmisi
     public async Task<int?> KaydetAsync(string? kullaniciId, Egitim ders, Gorev? gorev, string kod,
         GonderimDegerlendirmesi sonuc, TimeSpan sure, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(kullaniciId)) return null;
+        if (string.IsNullOrEmpty(kullaniciId) || sonuc.Durum == "test_yok") return null;
 
         var kayit = new Gonderim
         {

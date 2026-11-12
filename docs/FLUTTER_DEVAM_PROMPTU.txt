@@ -36,7 +36,7 @@ Görev okuma uçları:
 - GET /api/mobil/egitimler/{id} içindeki gorevler alanı mevcut istemciler için devam eder.
 İlk derse misafir erişebilir. Sonraki derslerde geçerli JWT gerekir (401). Olmayan ders veya olmayan/pasif görev 404 döner.
 
-Oturumlu Test Et istekleri sonuç ürettiğinde yeni bir gönderim kaydı oluşur. Başarısız değerlendirme de HTTP 200 döner ve kendi gonderimId alanını taşır. Çalıştır ve misafir denemelerinin yanıtlarda gonderimId alanı yoktur. Geçersiz istek, açıklama görevi veya çalıştırıcının altyapı hatası kayıt oluşturmaz. Kod gönderme gövdesi {"kod":"..."} olarak kalır. Başarı, süre, çıktı ve kullanıcı kimliğini sunucu belirler.
+Oturumlu Test Et istekleri sonuç ürettiğinde yeni bir gönderim kaydı oluşur. Başarısız değerlendirme de HTTP 200 döner ve kendi gonderimId alanını taşır. Çalıştır ve misafir denemelerinin yanıtlarda gonderimId alanı yoktur. Geçersiz istek, açıklama görevi, test_yok sonucu veya çalıştırıcının altyapı hatası kayıt oluşturmaz. Eski mobil derste test kodu boşsa /test, çalıştırıcıya gitmeden 409 döner. Kod gönderme gövdesi {"kod":"..."} olarak kalır. Başarı, süre, çıktı ve kullanıcı kimliğini sunucu belirler.
 
 Geçmiş uçları /api/gonderimler altında. API_ADRESI /api/mobil ile bitiyorsa bu uçları sunucu kökünden çözümle; /api/mobil ekleme. Her iki istek Authorization: Bearer <token> ister. Gövdeye veya sorguya kullanıcı kimliği ekleme.
 
@@ -58,7 +58,9 @@ Hata durumları:
 - 404: Gönderim bulunamadı veya bu hesaba ait değil. Aynı mesajı göster.
 - 409: Açıklama görevi ya da görev/pytest akışının yanlış ucu. İsteği otomatik yeniden deneme.
 - 429: Hız sınırı. Kullanıcıya daha sonra yeniden deneme seçeneği sun.
-- 503: Test altyapısı veya gönderim kaydı başarısız. Başarı etiketi gösterme; otomatik test tekrarı başlatma.
+- 503 gonderim_kayit_hatasi: Test çalıştı, gönderim kaydedilemedi. Kayıtlı sonuç etiketi gösterme.
+- 503 gonderim_gecmisi_kullanilamiyor: Geçmiş geçici olarak okunamadı. Boş geçmiş olarak gösterme.
+- 4.4 ortak kuyruk devredeyse 503 kuyruk_dolu, Retry-After ve altyapi_yok yanıtlarını ayırt et. Kullanıcıya yeniden deneme seçeneği sun; kendiliğinden test tekrarı başlatma.
 - Diğer 5xx ve ağ hatalarında yeniden deneme sun. ProblemDetails, {mesaj} ve boş yanıtları işle.
 
 İlerleme ekranı için 4.1 yalnız kendi gönderimlerinin tarihini, durumunu, ders/görev bilgisini, süresini ve ayrıntısını sağlar. Liste toplamı gönderim sayısıdır. Ders tamamlama yüzdesi, tamamlanan benzersiz görev sayısı ve ilerleme güncelleme API'si 5.1 kapsamındadır. Bu ekran 4.1 ile son gönderimleri ve değerlendirme geçmişini gösterebilir.

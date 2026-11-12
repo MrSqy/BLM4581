@@ -27,8 +27,13 @@ public sealed class GonderimEntegrasyonTests
                 test ? basarili : null, test ? true : null, []));
         }
 
+        public int DersCalistirmaSayisi { get; private set; }
         public Task<MobilKodSonucu> CalistirAsync(string kod, string testKodu, bool test, int[] gorevler, CancellationToken ct)
-            => Task.FromResult(new MobilKodSonucu(true, "tamamlandi", "çıktı\n", "", []));
+        {
+            DersCalistirmaSayisi++;
+            var testYok = test && kod == "test-yok";
+            return Task.FromResult(new MobilKodSonucu(!testYok, testYok ? "test_yok" : "tamamlandi", "çıktı\n", "", []));
+        }
     }
 
     private static async Task JwtAl(HttpClient c, string eposta)
@@ -93,6 +98,71 @@ public sealed class GonderimEntegrasyonTests
         Assert.Equal(HttpStatusCode.ServiceUnavailable, (await c.PostAsJsonAsync(
             "/api/mobil/egitimler/1/gorevler/1/test", new { kod = "altyapi" })).StatusCode);
         Assert.Equal(0, (await c.GetFromJsonAsync<GonderimListeYaniti>("/api/gonderimler"))!.Toplam);
+    }
+
+    [Fact]
+    public async Task EskiMobilDersTestiYoksaCalistirmadanReddedilirVeGecmiseYazilmaz()
+    {
+        var runner = new Runner();
+        using var app = new IdentityApplication(runner: runner);
+        using var c = await app.IstemciAsync();
+        await JwtAl(c, "ogrenci@example.test");
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
+        var ders = await db.Egitimler.SingleAsync(e => e.Id == 2);
+        ders.TestKodu = "";
+        await db.SaveChangesAsync();
+
+        const string yol = "/api/mobil/egitimler/2";
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync(yol + "/test", new { kod = "pass" })).StatusCode);
+        Assert.Equal(0, runner.DersCalistirmaSayisi);
+        Assert.Equal(HttpStatusCode.OK, (await c.PostAsJsonAsync(yol + "/calistir", new { kod = "pass" })).StatusCode);
+        Assert.Equal(1, runner.DersCalistirmaSayisi);
+
+        ders.TestKodu = "# pytest işlevi bulunmayan dosya";
+        await db.SaveChangesAsync();
+        var cevap = await c.PostAsJsonAsync(yol + "/test", new { kod = "test-yok" });
+        cevap.EnsureSuccessStatusCode();
+        var sonuc = (await cevap.Content.ReadFromJsonAsync<MobilKodSonucu>())!;
+        Assert.Equal("test_yok", sonuc.Durum);
+        Assert.Null(sonuc.GonderimId);
+        Assert.Equal(2, runner.DersCalistirmaSayisi);
+        Assert.Equal(0, (await c.GetFromJsonAsync<GonderimListeYaniti>("/api/gonderimler"))!.Toplam);
+    }
+
+    [Fact]
+    public async Task EksikGonderimTablosundaWebVeApiAyri503MesajlariVerir()
+    {
+        using var app = new IdentityApplication(gorevRunner: new Runner());
+        using var c = await app.IstemciAsync();
+        await JwtAl(c, "ogrenci@example.test");
+        await IdentityApplication.GirisAsync(c);
+        using (var scope = app.Services.CreateScope())
+        {
+            // Yalnız bu testin bellek içi SQLite veritabanında eski şemayı taklit et.
+            var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
+            await db.Database.ExecuteSqlRawAsync("DROP TABLE Gonderimler");
+        }
+        foreach (var path in new[] { "/api/gonderimler", "/api/gonderimler/1" })
+        {
+            using var yanit = await c.GetAsync(path);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, yanit.StatusCode);
+            var hata = await yanit.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal("gonderim_gecmisi_kullanilamiyor", hata.GetProperty("durum").GetString());
+        }
+
+        using var test = await c.PostAsJsonAsync("/api/mobil/egitimler/1/gorevler/1/test", new { kod = "print('doğru')" });
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, test.StatusCode);
+        var kayitHatasi = await test.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("gonderim_kayit_hatasi", kayitHatasi.GetProperty("durum").GetString());
+        Assert.False(kayitHatasi.TryGetProperty("gonderimId", out _));
+
+        using var liste = await c.GetAsync("/Gonderimler");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, liste.StatusCode);
+        Assert.Contains("Gönderim geçmişine şu anda ulaşılamıyor.", WebUtility.HtmlDecode(await liste.Content.ReadAsStringAsync()));
+        using var detay = await c.GetAsync("/Gonderimler/1");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, detay.StatusCode);
+        Assert.Contains("Gönderim ayrıntısına şu anda ulaşılamıyor.", WebUtility.HtmlDecode(await detay.Content.ReadAsStringAsync()));
     }
 
     [Theory]

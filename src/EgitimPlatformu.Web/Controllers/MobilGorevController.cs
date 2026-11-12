@@ -34,7 +34,7 @@ public sealed class MobilGorevController(UygulamaDbContext db, DersErisimi erisi
                 new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata, sonuc.CikisKodu), sure, ct);
             return Ok(sonuc with { GonderimId = gonderimId });
         }
-        catch (DbUpdateException) { return StatusCode(503, new { mesaj = "Gönderim kaydedilemedi." }); }
+        catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (InvalidOperationException) { return StatusCode(503, new { mesaj = "Sandbox kullanılamıyor veya meşgul." }); }
     }
 }

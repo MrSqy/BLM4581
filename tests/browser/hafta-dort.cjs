@@ -39,12 +39,15 @@ const path = require("node:path");
                     await page.screenshot({ path: path.join(process.env.EDITOR_SCREENSHOT_DIR, "hafta4-yonetim.png") });
             }
         }
-        assert.match(await page.locator("main").innerText(), /henüz kullanıma açılmadı/);
+        assert.match(await page.locator("main").innerText(), /Henüz gönderimin yok/);
         await page.setViewportSize({ width: 1440, height: 1000 });
         await page.goto(`${base}/Egitimler/Detay/1`);
         await page.waitForFunction(() => document.getElementById("editor-load-status").textContent === "Monaco editörü hazır.");
         let result;
-        await page.route(/\/Egitimler\/Detay\/\d+\?handler=Test/, route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(result) }));
+        let status = 200;
+        let headers = {};
+        await page.route(/\/Egitimler\/Detay\/\d+\?handler=Test/, route =>
+            route.fulfill({ status, headers, contentType: "application/json", body: JSON.stringify(result) }));
         const test = async () => {
             await page.click("#test-code");
             await page.waitForFunction(() => document.getElementById("output-status").dataset.state !== "loading");
@@ -58,6 +61,19 @@ const path = require("node:path");
         assert.match(await page.locator(".test-result-card pre").innerText(), /<img/);
         result = { basarili: false, durum: "zaman_asimi", cikti: "", hata: "Süre aşıldı" };
         await test(); assert.equal(await page.locator('.test-result-card[data-state="error"]').count(), 1);
+        status = 503;
+        result = { durum: "gonderim_kayit_hatasi" };
+        await test();
+        assert.match(await page.locator("#output-message").innerText(), /gönderim kaydedilemedi/);
+        result = { durum: "kuyruk_dolu" };
+        headers = { "Retry-After": "5" };
+        await test();
+        assert.match(await page.locator("#output-message").innerText(), /5 saniye sonra/);
+        result = { durum: "altyapi_yok" };
+        await test();
+        assert.match(await page.locator("#output-message").innerText(), /altyapısına şu anda ulaşılamıyor/);
+        status = 200;
+        headers = {};
         await page.goto(`${base}/Egitimler/Detay/2`);
         await page.waitForFunction(() => document.getElementById("editor-load-status").textContent === "Monaco editörü hazır.");
         result = { basarili: true, durum: "tamamlandi", cikti: "", hata: "", gorevler: [{ no: 1, durum: "basarili" }, { no: 2, durum: "basarisiz" }] };
@@ -66,6 +82,6 @@ const path = require("node:path");
         await test(); assert.equal(await page.locator("#result-cards-empty").isVisible(), true);
         assert.equal(await page.locator(".test-result-card").count(), 0);
         assert.deepEqual(errors, []);
-        console.log("PASS: real Identity admin login; category add/edit/delete confirmation; responsive admin/history at 4 widths; missing integration message; result cards success/failure/timeout/empty and safe text. History persistence and runner are not real backend acceptance.");
+        console.log("PASS: real Identity admin login; category add/edit/delete confirmation; responsive admin/history at 4 widths; empty history; result cards success/failure/timeout/empty, distinct 503 errors and safe text. History persistence and runner are not real backend acceptance.");
     } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

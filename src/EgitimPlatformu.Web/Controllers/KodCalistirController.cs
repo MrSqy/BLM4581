@@ -49,7 +49,7 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
                 new(yanit.Basarili, yanit.Durum, yanit.Cikti, yanit.Hata, sonuc.CikisKodu), sure, ct);
             return Ok(yanit with { GonderimId = gonderimId });
         }
-        catch (DbUpdateException) { return StatusCode(503, new { mesaj = "Gönderim kaydedilemedi." }); }
+        catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or IOException)
         {
             return StatusCode(503, new { mesaj = "Kod çalıştırma servisi şu anda kullanılamıyor." });

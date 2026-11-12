@@ -4,7 +4,7 @@
 <a asp-page="./Index" class="text-link">← Gönderimlerim</a>
 @if (!Model.Hazir)
 {
-    <div class="empty-courses" role="status"><h1>Gönderim ayrıntıları henüz kullanıma açılmadı.</h1><p>Gönderim altyapısının entegrasyonu bekleniyor.</p></div>
+    <div class="empty-courses" role="status"><h1>Gönderim ayrıntısına şu anda ulaşılamıyor.</h1><p>Daha sonra yeniden dene.</p></div>
 }
 else if (Model.Kayit is { } g)
 {

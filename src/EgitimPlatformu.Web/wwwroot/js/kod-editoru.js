@@ -162,7 +162,7 @@ if (configElement) {
         updateControls();
         status(test ? "Test ediliyor…" : "Çalıştırılıyor…", "loading", "Sonuç bekleniyor.");
         const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 20000);
+        const timeout = window.setTimeout(() => controller.abort(), config.istekZamanAsimiMs ?? 60000);
         try {
             const url = new URL(test ? config.testUrl : config.calistirUrl, location.href);
             if (config.gorevBazli) url.searchParams.set("no", String(currentTask.no));
@@ -185,7 +185,21 @@ if (configElement) {
                     429: "Çok fazla istek gönderildi. Bir süre bekleyip yeniden dene.",
                     503: "Kod çalıştırma servisi şu anda kullanılamıyor veya meşgul. Daha sonra yeniden dene."
                 };
-                status("İşlem tamamlanamadı", "error", messages[response.status] ?? "Sunucuda bir sorun oluştu. Kodun editörde duruyor; daha sonra yeniden deneyebilirsin.");
+                let message = messages[response.status] ?? "Sunucuda bir sorun oluştu. Kodun editörde duruyor; daha sonra yeniden deneyebilirsin.";
+                if (response.status === 503) {
+                    const error = await response.json().catch(() => null);
+                    if (error?.durum === "gonderim_kayit_hatasi") {
+                        message = "Test tamamlandı ancak gönderim kaydedilemedi. Kodun editörde duruyor.";
+                    } else if (error?.durum === "kuyruk_dolu") {
+                        const seconds = Number(response.headers.get("Retry-After"));
+                        message = Number.isInteger(seconds) && seconds > 0
+                            ? `Sandbox yoğun. ${seconds} saniye sonra yeniden dene.`
+                            : "Sandbox yoğun. Birkaç saniye sonra yeniden dene.";
+                    } else if (error?.durum === "altyapi_yok") {
+                        message = "Kod çalıştırma altyapısına şu anda ulaşılamıyor.";
+                    }
+                }
+                status("İşlem tamamlanamadı", "error", message);
                 find("output-login").hidden = response.status !== 401;
                 return;
             }
