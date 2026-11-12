@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Security.Claims;
 using EgitimPlatformu.Web.Data;
 using EgitimPlatformu.Web.Models;
 using EgitimPlatformu.Web.Services;
@@ -14,7 +15,7 @@ namespace EgitimPlatformu.Web.Pages.Egitimler;
 [RequestSizeLimit(256 * 1024)]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<DetayModel> logger,
-    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner) : PageModel
+    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner, GonderimServisi gonderimler) : PageModel
 {
     public Egitim? Egitim { get; private set; }
     public string IcerikHtml { get; private set; } = "";
@@ -80,14 +81,31 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
                 if (gorev is null) return NotFound(new { mesaj = "Aktif görev bulunamadı." });
                 if (gorev.Tur != "kod" || gorev.KontrolJson is null)
                     return StatusCode(409, new { mesaj = "Bu görevde otomatik program kontrolü yok." });
-                return new JsonResult(await gorevRunner.CalistirAsync(gorev, input.Kod, test, ct));
+                var baslangic = System.Diagnostics.Stopwatch.GetTimestamp();
+                var sonuc = await gorevRunner.CalistirAsync(gorev, input.Kod, test, ct);
+                var sure = System.Diagnostics.Stopwatch.GetElapsedTime(baslangic);
+                if (!test) return new JsonResult(sonuc);
+                var gonderimId = await gonderimler.KaydetAsync(User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    ders, gorev, input.Kod, new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata, sonuc.CikisKodu), sure, ct);
+                return new JsonResult(sonuc with { GonderimId = gonderimId });
             }
 
             if (no.HasValue) return StatusCode(409, new { mesaj = "Bu derste dersin tamamı için kod yazın." });
             if (test && string.IsNullOrWhiteSpace(ders.TestKodu))
                 return StatusCode(409, new { mesaj = "Bu derse henüz otomatik test eklenmemiş." });
-            return new JsonResult(await dersRunner.CalistirAsync(input.Kod, ders.TestKodu, test,
-                aktifGorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value).ToArray(), ct));
+            var dersBaslangic = System.Diagnostics.Stopwatch.GetTimestamp();
+            var dersSonucu = await dersRunner.CalistirAsync(input.Kod, ders.TestKodu, test,
+                aktifGorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value).ToArray(), ct);
+            var dersSuresi = System.Diagnostics.Stopwatch.GetElapsedTime(dersBaslangic);
+            if (!test) return new JsonResult(dersSonucu);
+            var dersGonderimId = await gonderimler.KaydetAsync(User.FindFirstValue(ClaimTypes.NameIdentifier),
+                ders, null, input.Kod, new(dersSonucu.Basarili, dersSonucu.Durum, dersSonucu.Cikti, dersSonucu.Hata), dersSuresi, ct);
+            return new JsonResult(dersSonucu with { GonderimId = dersGonderimId });
+        }
+        catch (DbUpdateException ex)
+        {
+            logger.LogWarning(ex, "Gönderim kaydedilemedi: {Id}", id);
+            return StatusCode(503, new { mesaj = "Gönderim kaydedilemedi." });
         }
         catch (Exception ex) when (ex is DbException || ex is InvalidOperationException { InnerException: DbException })
         {

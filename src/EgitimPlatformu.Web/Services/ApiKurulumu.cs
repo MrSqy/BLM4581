@@ -79,6 +79,7 @@ public sealed class JwtSwaggerFiltresi : IOperationFilter
         if (optional) operation.Security.Add(new OpenApiSecurityRequirement());
         operation.Responses ??= [];
         operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Geçerli JWT gerekli." });
-        if (!optional) operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Yönetici rolü gerekli." });
+        if (auth.Any(a => a.Policy == "ApiYonetici" || a.Roles == Roller.Yonetici))
+            operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Yönetici rolü gerekli." });
     }
 }

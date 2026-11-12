@@ -2,7 +2,6 @@ using EgitimPlatformu.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using EgitimPlatformu.Web.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 builder.Services.AddScoped<IcerikAktarimServisi>();
 builder.Services.AddScoped<MarkdownServisi>();
-builder.Services.TryAddScoped<IGonderimGecmisi, BekleyenGonderimGecmisi>();
+builder.Services.AddScoped<GonderimServisi>();
+builder.Services.AddScoped<IGonderimGecmisi>(services => services.GetRequiredService<GonderimServisi>());
 builder.Services.AddScoped<IHesapServisi, IdentityHesapServisi>();
 builder.Services.AddSingleton<IHariciIslemCalistirici, HariciIslemCalistirici>();
 builder.Services.AddSingleton<ISandboxIslemCalistirici>(services =>

@@ -102,13 +102,13 @@ public class HaftaDortTests
     }
 
     [Fact]
-    public async Task EksikGecmisGercekKayitGibiGosterilmez()
+    public async Task BosGecmisBosGosterilirVeEksikAyrinti404Doner()
     {
         using var app=new IdentityApplication();using var c=await app.IstemciAsync();
         Assert.Equal(HttpStatusCode.Redirect,(await c.GetAsync("/Gonderimler")).StatusCode);
         await Giris(app,c,"ogrenci@example.test");
-        Assert.Equal(HttpStatusCode.ServiceUnavailable,(await c.GetAsync("/Gonderimler")).StatusCode);
-        Assert.Equal(HttpStatusCode.ServiceUnavailable,(await c.GetAsync("/Gonderimler/1")).StatusCode);
+        Assert.Contains("Henüz gönderimin yok", WebUtility.HtmlDecode(await c.GetStringAsync("/Gonderimler")));
+        Assert.Equal(HttpStatusCode.NotFound,(await c.GetAsync("/Gonderimler/1")).StatusCode);
     }
 
     private sealed class Gecmis : IGonderimGecmisi
