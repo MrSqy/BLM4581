@@ -143,11 +143,12 @@ fi
 aktif_konteyner="$konteyner_adi"
 
 baslangic=$SECONDS
-set +e
-timeout --signal=TERM --kill-after=1s "${sure}s" \
-  docker start --attach "$konteyner_adi"
-baslatma_kodu=$?
-set -e
+# timeout .NET'in TERM gönderdiği süreç grubunda kalsın. Bash,
+# wait sırasında TERM alınca Docker CLI'ın çıkışını beklemeden temizliği başlatır.
+timeout --foreground --signal=TERM --kill-after=1s "${sure}s" \
+  docker start --attach "$konteyner_adi" &
+baslatma_kodu=0
+wait "$!" || baslatma_kodu=$?
 gecen_sure=$((SECONDS - baslangic))
 
 if [[ $baslatma_kodu -eq 124 || ( $baslatma_kodu -eq 137 && $gecen_sure -ge $sure ) ]]; then
