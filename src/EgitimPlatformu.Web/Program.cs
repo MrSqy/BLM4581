@@ -10,6 +10,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 builder.Services.AddScoped<IcerikAktarimServisi>();
+builder.Services.AddScoped<IcerikKaldirmaServisi>();
 builder.Services.AddScoped<MarkdownServisi>();
 builder.Services.AddScoped<GonderimServisi>();
 builder.Services.AddScoped<IGonderimGecmisi>(services => services.GetRequiredService<GonderimServisi>());
@@ -69,6 +70,14 @@ var app = builder.Build();
 if (args.Contains("--identity-hazirla"))
 {
     await IdentityBaslangic.HazirlaAsync(app.Services, app.Configuration);
+    return;
+}
+
+var kaldirKomutu = Array.IndexOf(args, "--icerik-kaldir");
+if (kaldirKomutu >= 0)
+{
+    if (kaldirKomutu + 1 >= args.Length) throw new InvalidOperationException("Paket dosya yolunu belirtin.");
+    await IcerikYerelKomutu.Kaldir(app.Services, args[kaldirKomutu + 1], args.Contains("--kategori-dahil"));
     return;
 }
 
