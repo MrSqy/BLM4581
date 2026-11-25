@@ -21,11 +21,14 @@ public sealed class JwtServisi(IConfiguration configuration)
         }
         catch (FormatException) { return null; }
     }
+    // Token ömrü Jwt:SureDakika ile ayarlanır (5–1440). Ayar yoksa veya geçersizse 15 dakika.
+    public int SureDakika() =>
+        int.TryParse(configuration["Jwt:SureDakika"], out var dakika) && dakika is >= 5 and <= 1440 ? dakika : 15;
     public TokenYaniti Uret(IdentityUser user, IEnumerable<string> roller)
     {
         var anahtar = Anahtar() ?? throw new InvalidOperationException("JWT anahtarı yapılandırılmadı.");
         var simdi = DateTime.UtcNow;
-        var bitis = simdi.AddMinutes(15);
+        var bitis = simdi.AddMinutes(SureDakika());
         var claims = new List<Claim>
         {
             new("sub", user.Id), new("jti", Guid.NewGuid().ToString()),
