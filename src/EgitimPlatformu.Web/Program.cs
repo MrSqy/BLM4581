@@ -24,6 +24,7 @@ builder.Services.AddSingleton<ISandboxIslemCalistirici>(services =>
         services.GetRequiredService<IHariciIslemCalistirici>());
 });
 builder.Services.AddSingleton<IKodCalistirmaServisi, PythonKodCalistirmaServisi>();
+builder.Services.AddSingleton<INotebookCalistirmaServisi, NotebookCalistirmaServisi>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
