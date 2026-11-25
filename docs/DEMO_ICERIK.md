@@ -17,14 +17,29 @@ Yerel DB yönetim komutlarıdır; HTTP kimliği istemez, iş bitince kapanır. A
 dotnet build EgitimPlatformu.slnx --no-restore
 ```
 
+**A** — Teknik Mülakat'a 3 ders ekle:
+
 ```bash
-K="ASPNETCORE_ENVIRONMENT=Development dotnet run --no-build --no-restore --no-launch-profile --project src/EgitimPlatformu.Web --"
+ASPNETCORE_ENVIRONMENT=Development dotnet run --no-build --no-restore --no-launch-profile --project src/EgitimPlatformu.Web -- --icerik-aktar "$PWD/docs/ornekler/tma-3-ders-v2.json"
 ```
 
-- **A** — Teknik Mülakat'a 3 ders ekle: `--icerik-aktar "$PWD/docs/ornekler/tma-3-ders-v2.json"`
-- **B** — Bu 3 dersi sil, kategori kalsın: `--icerik-kaldir "$PWD/docs/ornekler/tma-3-ders-v2.json"`
-- **C** — C# kategorisini 3 dersle aç: `--icerik-aktar "$PWD/docs/ornekler/cs-3-ders-v2.json"`
-- **D** — C# kategorisini dersleriyle sil: `--icerik-kaldir "$PWD/docs/ornekler/cs-3-ders-v2.json" --kategori-dahil`
+**B** — Bu 3 dersi sil, kategori kalsın:
+
+```bash
+ASPNETCORE_ENVIRONMENT=Development dotnet run --no-build --no-restore --no-launch-profile --project src/EgitimPlatformu.Web -- --icerik-kaldir "$PWD/docs/ornekler/tma-3-ders-v2.json"
+```
+
+**C** — C# kategorisini 3 dersle aç:
+
+```bash
+ASPNETCORE_ENVIRONMENT=Development dotnet run --no-build --no-restore --no-launch-profile --project src/EgitimPlatformu.Web -- --icerik-aktar "$PWD/docs/ornekler/cs-3-ders-v2.json"
+```
+
+**D** — C# kategorisini dersleriyle sil:
+
+```bash
+ASPNETCORE_ENVIRONMENT=Development dotnet run --no-build --no-restore --no-launch-profile --project src/EgitimPlatformu.Web -- --icerik-kaldir "$PWD/docs/ornekler/cs-3-ders-v2.json" --kategori-dahil
+```
 
 ## Kaldırma kuralları
 
