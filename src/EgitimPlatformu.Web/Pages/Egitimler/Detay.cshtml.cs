@@ -27,6 +27,9 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
         1000L * (15L + configuration.GetValue("Sandbox:BeklemeSaniye", 15)
                      + configuration.GetValue("Sandbox:IslemUstSiniriSaniye", 30)), 20000L, int.MaxValue);
     public bool GorevBazli => Gorevler.Any(g => g.Tur != "eski-pytest");
+    public List<DersBaglantisi> KategoriDersleri { get; private set; } = [];
+    public DersBaglantisi? OncekiDers { get; private set; }
+    public DersBaglantisi? SonrakiDers { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(int? id, CancellationToken cancellationToken)
     {
@@ -36,6 +39,16 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
             Egitim = await db.Egitimler.AsNoTracking().Include(e => e.Kategori).Include(e => e.Gorevler)
                 .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
             if (Egitim is null) return Bulunamadi();
+            // Metin erişimi mevcut davranışta herkese açıktır. Çalıştırma/test kontrolleri değişmez.
+            if (Egitim.KategoriId.HasValue)
+            {
+                KategoriDersleri = await db.Egitimler.AsNoTracking().Where(e => e.KategoriId == Egitim.KategoriId)
+                    .OrderBy(e => e.Sira).ThenBy(e => e.Id)
+                    .Select(e => new DersBaglantisi(e.Id, e.Kod, e.Baslik)).ToListAsync(cancellationToken);
+                var konum = KategoriDersleri.FindIndex(e => e.Id == Egitim.Id);
+                if (konum > 0) OncekiDers = KategoriDersleri[konum - 1];
+                if (konum >= 0 && konum + 1 < KategoriDersleri.Count) SonrakiDers = KategoriDersleri[konum + 1];
+            }
             IcerikHtml = markdown.Html(Egitim.IcerikMarkdown);
             Gorevler = Egitim.Gorevler.Where(g => g.Aktif).OrderBy(g => g.No).ThenBy(g => g.Id)
                 .Select(g => new GorevIcerigi(g.Id, g.No, g.Baslik, markdown.Html(g.Aciklama),
@@ -125,4 +138,5 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
 
     public sealed record GorevIcerigi(int Id, int? No, string Baslik, string AciklamaHtml,
         string Tur, string BaslangicKodu, bool OtomatikKontrolVar);
+    public sealed record DersBaglantisi(int Id, string Kod, string Baslik);
 }

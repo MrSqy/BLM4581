@@ -31,6 +31,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 }).AddEntityFrameworkStores<UygulamaDbContext>().AddDefaultTokenProviders();
+// Rol değişikliklerinde yenilenen security stamp eski web oturumlarını da geçersiz kılar.
+// JWT doğrulaması aynı stamp'i ve güncel rolleri zaten her istekte denetler.
+builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Hesap/Giris";

@@ -21,9 +21,6 @@ public sealed class HaftaIkiTests : IClassFixture<TestApplication>, IDisposable
     }
 
     [Theory]
-    [InlineData("/Egitimler", 3)]
-    [InlineData("/Egitimler?KategoriId=1", 3)]
-    [InlineData("/Egitimler?KategoriId=2", 0)]
     [InlineData("/Egitimler?Q=PY-03", 1)]
     [InlineData("/Egitimler?KategoriId=2&Q=PY-03", 0)]
     [InlineData("/Egitimler?Q=%27%20OR%201%3D1--", 0)]
@@ -34,6 +31,18 @@ public sealed class HaftaIkiTests : IClassFixture<TestApplication>, IDisposable
         var html = await response.Content.ReadAsStringAsync();
         Assert.Equal(expected, Regex.Matches(html, "class=\"course-card ").Count);
         if (expected == 0) Assert.Contains("eşleşen", WebUtility.HtmlDecode(html));
+    }
+
+    [Fact]
+    public async Task KatalogKategoriKartlariGosterirVeEskiKategoriAdresiIlkDerseGider()
+    {
+        var html = await client.GetStringAsync("/Egitimler");
+        Assert.Equal(2, Regex.Matches(html, "class=\"course-card category-card").Count);
+        var response = await client.GetAsync("/Egitimler?KategoriId=1");
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/Egitimler/Detay/1", response.Headers.Location!.OriginalString);
+        html = WebUtility.HtmlDecode(await client.GetStringAsync("/Egitimler?KategoriId=2"));
+        Assert.Contains("henüz erişilebilir ders yok", html);
     }
 
     [Theory]

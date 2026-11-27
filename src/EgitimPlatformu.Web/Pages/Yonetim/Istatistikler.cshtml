@@ -1,0 +1,25 @@
+@page
+@model EgitimPlatformu.Web.Pages.Yonetim.IstatistiklerModel
+@{ ViewData["Title"] = "Gönderim istatistikleri"; }
+<partial name="_Menu" /><header class="page-heading"><h1>Gönderim istatistikleri</h1><p>Kaydedilmiş test gönderimlerinin tüm zamanlardaki özeti.</p></header>
+@if (!Model.Hazir)
+{
+    <p class="alert alert-warning" role="status">Gönderim istatistiklerine şu anda ulaşılamıyor. Daha sonra yeniden deneyin.</p>
+}
+else if (Model.Toplam == 0)
+{
+    <section class="content-panel"><h2>Henüz kayıtlı gönderim yok.</h2><p>Öğrencilerin kaydedilen test sonuçları burada özetlenecek.</p></section>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><section class="content-panel h-100"><h2>Toplam gönderim</h2><p class="fs-2 fw-bold" id="istatistik-toplam">@Model.Toplam</p></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="content-panel h-100"><h2>Başarılı / başarısız</h2><p class="fs-2 fw-bold"><span id="istatistik-basarili">@Model.Basarili</span> / <span id="istatistik-basarisiz">@Model.Basarisiz</span></p></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="content-panel h-100"><h2>Başarı oranı</h2><p class="fs-2 fw-bold">%@Model.BasariYuzdesi</p></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="content-panel h-100"><h2>Gönderim yapan hesap</h2><p class="fs-2 fw-bold" id="istatistik-katilimci">@Model.Katilimci</p></section></div>
+    </div>
+    <div class="table-responsive management-table"><table class="table align-middle"><caption>Eğitim kimliğine göre gönderimler; en son gönderimdeki ders başlığı gösterilir.</caption><thead><tr><th scope="col">Eğitim kimliği</th><th scope="col">Ders</th><th scope="col">Toplam</th><th scope="col">Başarılı</th><th scope="col">Başarısız</th></tr></thead><tbody>
+    @foreach (var d in Model.Dersler) { <tr><td>@d.EgitimId</td><td>@d.Ders</td><td>@d.Toplam</td><td>@d.Basarili</td><td>@(d.Toplam - d.Basarili)</td></tr> }
+    </tbody></table></div>
+}
+<section class="content-panel mt-4"><h2>Ölçülerin anlamı</h2><p>Her kayıt bir test denemesidir; aynı görevdeki tekrarlar ayrı sayılır. Başarılı gönderim, kaydın başarı alanı doğru olan denemedir; diğer kayıtlar başarısız sayılır. Başarı oranı, başarılı gönderim sayısının toplam gönderime oranıdır. Gönderim yapan hesap sayısı, benzersiz kullanıcı kimliklerinin sayısıdır. Bu ölçüler ders tamamlama yüzdesi değildir. Misafir denemeleri ve Çalıştır işlemleri kaydedilmediğinden bu özete dahil değildir.</p></section>

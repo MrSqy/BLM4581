@@ -18,6 +18,17 @@ if (configElement) {
     const initialCode = () => currentTask?.baslangicKodu ?? config.baslangicKodu ?? "";
     const executable = () => !config.gorevBazli || (currentTask?.tur === "kod" && currentTask.kontrolVar && Number.isInteger(currentTask.no));
     const getCode = () => editor ? editor.getValue() : fallback.value;
+    // Otomatik kayıt yok: başka ders, yenileme veya sekme kapatmada kod kaybını bildir.
+    const warnBeforeLeaving = event => { event.preventDefault(); event.returnValue = ""; };
+    let leaveWarning = false;
+    function updateLeaveWarning() {
+        const changed = getCode() !== initialCode() || [...drafts].some(([id, code]) =>
+            id !== key() && code !== (config.gorevler.find(task => task.id === id)?.baslangicKodu ?? config.baslangicKodu ?? ""));
+        if (changed === leaveWarning) return;
+        leaveWarning = changed;
+        window[changed ? "addEventListener" : "removeEventListener"]("beforeunload", warnBeforeLeaving);
+    }
+    fallback.addEventListener("input", updateLeaveWarning);
 
     function updateControls() {
         const canRun = config.izinli && executable() && !busy;
@@ -67,6 +78,7 @@ if (configElement) {
             : "Çalıştır ve Test Et aynı kodu kullanır. Görev değiştirirken bu sayfadaki taslağın korunur.";
         find("editor-task-note").textContent = note;
         updateControls();
+        updateLeaveWarning();
     }
 
     taskSelect?.addEventListener("change", () => {
@@ -243,6 +255,7 @@ if (configElement) {
             ariaLabel: "Python kod editörü",
             accessibilitySupport: "auto"
         });
+        editor.onDidChangeModelContent(updateLeaveWarning);
         find("editor-fallback").hidden = true;
         find("editor-load-status").textContent = "Monaco editörü hazır.";
         find("editor-load-status").classList.add("visually-hidden");
