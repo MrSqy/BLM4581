@@ -1,0 +1,32 @@
+@page
+@model EgitimPlatformu.Web.Pages.Yonetim.KullanicilarModel
+@using EgitimPlatformu.Web.Services
+@{ ViewData["Title"] = "Kullanıcı yönetimi"; }
+<partial name="_Menu" />
+<header class="page-heading"><h1>Kullanıcılar</h1><p>Öğrenci ve yönetici rollerini yönetin. Rol değişikliğinde kullanıcının yeniden giriş yapması gerekir.</p></header>
+<div asp-validation-summary="All" class="text-danger" role="alert"></div>
+@if (!Model.Hazir) { <p class="alert alert-warning" role="status">Kullanıcı listesine şu anda ulaşılamıyor.</p> }
+else if (Model.Kayitlar.Count == 0) { <p>Bu sayfada kullanıcı bulunamadı.</p> }
+else
+{
+    <div class="table-responsive management-table"><table class="table align-middle"><caption>Toplam @Model.Toplam kullanıcı</caption><thead><tr><th scope="col">E-posta</th><th scope="col">Mevcut roller</th><th scope="col">Rol atama</th></tr></thead><tbody>
+    @foreach (var k in Model.Kayitlar)
+    {
+        <tr><td>@k.Eposta</td><td>@string.Join(", ", k.Roller.Select(r => r == Roller.Yonetici ? "Yönetici" : r == Roller.Ogrenci ? "Öğrenci" : r))</td><td>
+        <form method="post" class="d-flex flex-wrap gap-2 align-items-center">
+            <input type="hidden" name="Input.KullaniciId" value="@k.Id" /><input type="hidden" name="Sayfa" value="@Model.Sayfa" />
+            <label class="visually-hidden" for="rol-@k.Id">@k.Eposta için yeni rol</label>
+            <select asp-for="Input.Rol" class="form-select w-auto" id="rol-@k.Id" required>
+                <option value="">Rol seçin</option><option value="@Roller.Ogrenci">Öğrenci</option><option value="@Roller.Yonetici">Yönetici</option>
+            </select><button type="submit" class="btn btn-outline-primary">Rolü güncelle</button>
+        </form></td></tr>
+    }
+    </tbody></table></div>
+}
+<p class="mt-3">Seçilen rol, diğer öğrenci/yönetici rolünün yerini alır. Son yöneticinin yetkisi kaldırılamaz.</p>
+<nav class="d-flex gap-3" aria-label="Kullanıcı sayfaları">
+    @if (Model.Sayfa > 1) { <a asp-route-sayfa="@(Model.Sayfa - 1)">Önceki</a> }
+    <span>Sayfa @Model.Sayfa</span>
+    @if ((long)Model.Sayfa * EgitimPlatformu.Web.Pages.Yonetim.KullanicilarModel.Boyut < Model.Toplam) { <a asp-route-sayfa="@(Model.Sayfa + 1)">Sonraki</a> }
+</nav>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

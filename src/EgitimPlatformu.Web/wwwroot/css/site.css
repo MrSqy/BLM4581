@@ -311,6 +311,30 @@ main:focus { outline: none; }
 .lesson-sidebar > a:hover { text-decoration: underline; }
 .lesson-sidebar .eyebrow { color: var(--primary-color); margin-bottom: 10px; }
 .lesson-sidebar > p:not(.eyebrow) { font-size: .85rem; color: var(--muted); }
+.category-card .course-cover { background: #e4ecdf; color: var(--primary-color); }
+.curriculum-panel { padding: 0; overflow: hidden; }
+.curriculum-heading { padding: 22px; border-bottom: 1px solid var(--line); }
+.curriculum-heading h2 { font-size: 1.15rem; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.curriculum-subtitle { margin: 4px 0 0; color: var(--muted); font-size: .85rem; }
+.curriculum-body { padding: 12px; overflow-y: auto; max-height: 55dvh; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.curriculum-list { list-style: none; padding: 0; margin: 0; }
+.curriculum-list > li { border-radius: 8px; margin-block: 4px; }
+.curriculum-list > li > a { display: block; padding: 12px 14px; color: var(--ink); text-decoration: none; font-size: .9rem; line-height: 1.6; overflow-wrap: anywhere; }
+.curriculum-list .is-active { background: #dce9d5; box-shadow: inset 3px 0 var(--primary-color); }
+.curriculum-list .is-active > a { font-weight: 700; }
+.curriculum-list > li > a:hover { background: #e2e9dc; border-radius: 8px; }
+.curriculum-anchors { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: .8rem; }
+.curriculum-anchors a { color: var(--primary-color); text-underline-offset: 3px; }
+.curriculum-body :focus-visible { outline-offset: -3px; }
+.lesson-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
+.lesson-pagination .btn { white-space: normal; max-width: 100%; }
+.lesson-pagination .btn span { display: block; max-width: 240px; font-size: .75rem; margin-top: 4px; }
+@media (min-width: 992px) {
+    .curriculum-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 50px); }
+    .curriculum-heading { flex-shrink: 0; }
+    .curriculum-body { min-height: 0; max-height: calc(100dvh - 230px); }
+}
+@media (max-width: 991.98px) { .curriculum-panel { position: static; } }
 .task-count { font-size: .8rem; background: #edf1e8; padding: 4px 8px; border-radius: 6px; margin-left: 10px; }
 .task-item + .task-item { border-top: 1px solid var(--line); }
 .task-item summary { cursor: pointer; padding-block: 18px; font-size: .9rem; font-weight: 600; }
@@ -327,8 +351,14 @@ main:focus { outline: none; }
 }
 
 /* Hafta 4: yönetim, gönderimler ve sonuç kartları */
+.management-heading { margin-bottom: 18px; }
+.management-heading :is(h1,h2) { font-size: 1.5rem; margin: 0 0 6px; }
+.management-heading a { color: var(--ink); text-decoration: none; }
+.management-heading a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.management-heading p { color: var(--muted); font-size: .9rem; margin: 0; }
 .management-nav { display:flex; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:30px; }
 .management-nav a { color:var(--primary-color); padding:8px 12px; background:#edf1e8; border-radius:6px; font-weight:600; font-size:.85rem; text-decoration:none; }
+.management-nav a[aria-current="page"] { background: var(--primary-color); color: #fff; }
 .management-table { background:white; border:1px solid var(--line); border-radius:10px; padding:12px; }
 .management-table td, .management-table th { padding:14px; }
 .management-table td { overflow-wrap:anywhere; max-width:450px; }

@@ -1,0 +1,35 @@
+@page "/Pano"
+@model EgitimPlatformu.Web.Pages.Pano.IndexModel
+@{ ViewData["Title"] = "Öğrenci panosu"; }
+<header class="page-heading"><p class="eyebrow">ÖĞRENME YOLCULUĞUN</p><h1>Öğrenci panosu</h1><p>Son denemelerine göz at, öğrenmeye kaldığın yerden devam et.</p></header>
+<div class="row g-4">
+    <div class="col-lg-4"><section class="content-panel h-100" aria-labelledby="ilerleme-baslik">
+        <h2 id="ilerleme-baslik">Eğitim ilerlemen</h2>
+        @* 5.1 sözleşmesi henüz yok: gönderim sayısı tamamlanma yüzdesi olarak kullanılmaz. *@
+        <p role="status">İlerleme verisi henüz kullanıma açılmadı. Ders tamamlama bilgileri, ilerleme servisi bağlandığında burada gösterilecek.</p>
+        <a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimleri keşfet</a>
+    </section></div>
+    <div class="col-lg-8"><section class="content-panel h-100" aria-labelledby="gonderim-baslik">
+        <h2 id="gonderim-baslik">Son gönderimlerin</h2>
+        @if (!Model.GecmisHazir)
+        {
+            <p class="alert alert-warning" role="status">Son gönderimlerine şu anda ulaşılamıyor. Daha sonra yeniden dene.</p>
+        }
+        else if (Model.SonGonderimler.Kayitlar.Count == 0)
+        {
+            <p>Henüz gönderimin yok. Oturumun açıkken bir kod görevinde Test Et seçeneğini kullanarak ilk gönderimini oluşturabilirsin.</p>
+        }
+        else
+        {
+            <p>Toplam @Model.SonGonderimler.Toplam gönderiminden en yeni @Model.SonGonderimler.Kayitlar.Count kayıt gösteriliyor.</p>
+            <div class="table-responsive"><table class="table align-middle"><caption class="visually-hidden">Yalnızca sana ait son gönderimler</caption>
+            <thead><tr><th scope="col">Tarih (UTC)</th><th scope="col">Ders / görev</th><th scope="col">Sonuç</th></tr></thead><tbody>
+            @foreach (var g in Model.SonGonderimler.Kayitlar)
+            {
+                <tr><td>@g.Tarih.UtcDateTime.ToString("dd.MM.yyyy HH:mm")</td><td><a asp-page="/Gonderimler/Detay" asp-route-id="@g.Id">@g.Ders</a><br /><small>@g.Gorev</small></td><td><span class="badge @(g.Basarili ? "text-bg-success" : "text-bg-danger")">@(g.Basarili ? "Başarılı" : "Başarısız")</span><br /><small>@g.Durum</small></td></tr>
+            }
+            </tbody></table></div>
+        }
+        <a asp-page="/Gonderimler/Index" class="text-link">Tüm gönderimlerim ↗</a>
+    </section></div>
+</div>

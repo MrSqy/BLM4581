@@ -4,7 +4,7 @@
 <header class="page-heading">
     <p class="eyebrow">KENDİ YOLUNU OLUŞTUR</p>
     <h1>Eğitimleri keşfet.</h1>
-    <p>Bir konu seç, dersleri keşfet ve görevlerle öğrendiklerini pekiştir.</p>
+    <p>Bir eğitim seç, ilk dersten başla ve eğitim içeriği menüsünden diğer derslere geç.</p>
 </header>
 <form method="get" class="catalog-form row g-3 align-items-end" role="search" aria-label="Katalog filtreleri">
     <div class="col-md-4"><label asp-for="KategoriId" class="form-label">Kategori</label>
@@ -21,8 +21,28 @@
 }
 else
 {
+    @if (!Model.AramaYapiliyor)
+    {
+        @if (Model.SeciliKategori is not null)
+        {
+            <div class="empty-courses mb-4" role="status"><h2>@Model.SeciliKategori.Ad</h2><p>Bu kategoride henüz erişilebilir ders yok. İçerik eklendiğinde buradan başlayabilirsin.</p></div>
+        }
+        <div class="catalog-result-heading"><h2>Eğitim alanları</h2><p>@Model.KategoriKartlari.Count kategori</p></div>
+        @if (Model.KategoriKartlari.Count == 0) { <p class="empty-courses" role="status">Henüz eğitim kategorisi eklenmemiş.</p> }
+        <div class="row g-4">
+        @foreach (var kategori in Model.KategoriKartlari)
+        {
+            <div class="col-md-6 col-xl-4"><article class="course-card category-card h-100">
+                <div class="course-cover" aria-hidden="true"><span class="cover-label">EĞİTİM ALANI</span><span class="cover-symbol lesson-symbol">@kategori.Kisaltma</span><span class="cover-bottom">@kategori.DersSayisi ders<span>ÖĞREN &amp; UYGULA</span></span></div>
+                <div class="course-body"><h3><a asp-page="./Index" asp-route-kategoriId="@kategori.Id" class="course-link">@kategori.Ad</a></h3><p>@kategori.Aciklama</p><div class="course-footer"><span>@kategori.DersSayisi ders</span><span class="course-cta">@(kategori.DersSayisi > 0 ? "Eğitime başla" : "İçerik bekleniyor") <span aria-hidden="true">↗</span></span></div></div>
+            </article></div>
+        }
+        </div>
+    }
+    else
+    {
     <div class="catalog-result-heading">
-        <h2>@(Model.SeciliKategori?.Ad ?? "Tüm eğitimler")</h2>
+        <h2>@(Model.SeciliKategori?.Ad ?? "Arama sonuçları")</h2>
         <p role="status">@Model.Egitimler.Count ders listeleniyor</p>
     </div>
     @if (!string.IsNullOrWhiteSpace(Model.SeciliKategori?.Aciklama)) { <p class="category-description">@Model.SeciliKategori.Aciklama</p> }
@@ -33,5 +53,6 @@ else
     else
     {
         <div class="row g-4">@foreach (var egitim in Model.Egitimler) { <div class="col-md-6 col-xl-4"><partial name="_EgitimKarti" model="egitim" /></div> }</div>
+    }
     }
 }

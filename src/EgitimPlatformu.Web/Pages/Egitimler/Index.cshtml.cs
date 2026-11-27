@@ -22,6 +22,8 @@ public class IndexModel(UygulamaDbContext db, ILogger<IndexModel> logger) : Page
     public List<Kategori> Kategoriler { get; private set; } = [];
     public List<EgitimKartModel> Egitimler { get; private set; } = [];
     public Kategori? SeciliKategori { get; private set; }
+    public List<KategoriKarti> KategoriKartlari { get; private set; } = [];
+    public bool AramaYapiliyor => !string.IsNullOrWhiteSpace(Q);
     public string? Hata { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
@@ -34,6 +36,7 @@ public class IndexModel(UygulamaDbContext db, ILogger<IndexModel> logger) : Page
         }
         try
         {
+            Q = Q?.Trim();
             Kategoriler = await db.Kategoriler.AsNoTracking().OrderBy(k => k.Sira).ThenBy(k => k.Id).ToListAsync(cancellationToken);
             if (KategoriId.HasValue)
             {
@@ -44,6 +47,21 @@ public class IndexModel(UygulamaDbContext db, ILogger<IndexModel> logger) : Page
                     Hata = "Bu kategori bulunamadı. Mevcut kategorilerden birini seçebilirsiniz.";
                     return Page();
                 }
+                // Eski kategori URL'leri de ara ders listesine uğramadan ilk derse gider.
+                // Ders metinleri mevcut kurala göre herkese açıktır; çalıştırma yetkisi detayda korunur.
+                if (!AramaYapiliyor)
+                {
+                    var ilkId = await db.Egitimler.AsNoTracking().Where(e => e.KategoriId == KategoriId)
+                        .OrderBy(e => e.Sira).ThenBy(e => e.Id).Select(e => (int?)e.Id).FirstOrDefaultAsync(cancellationToken);
+                    if (ilkId.HasValue) return RedirectToPage("/Egitimler/Detay", new { id = ilkId.Value });
+                }
+            }
+            if (!AramaYapiliyor)
+            {
+                KategoriKartlari = await db.Kategoriler.AsNoTracking().OrderBy(k => k.Sira).ThenBy(k => k.Id)
+                    .Select(k => new KategoriKarti(k.Id, k.Ad, k.Kisaltma, k.Aciklama, k.Egitimler.Count))
+                    .ToListAsync(cancellationToken);
+                return Page();
             }
             var query = db.Egitimler.AsNoTracking().AsQueryable();
             if (KategoriId.HasValue) query = query.Where(e => e.KategoriId == KategoriId);
@@ -66,4 +84,6 @@ public class IndexModel(UygulamaDbContext db, ILogger<IndexModel> logger) : Page
         }
         return Page();
     }
+
+    public sealed record KategoriKarti(int Id, string Ad, string Kisaltma, string Aciklama, int DersSayisi);
 }

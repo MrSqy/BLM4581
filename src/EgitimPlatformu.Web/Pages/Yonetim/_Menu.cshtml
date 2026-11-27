@@ -1,1 +1,23 @@
-<nav class="management-nav" aria-label="Yönetici paneli"><a asp-page="/Yonetim/Index">Panel</a><a asp-page="/Yonetim/Kategoriler">Kategoriler</a><a asp-page="/Yonetim/Egitimler">Eğitimler</a><a asp-page="/Yonetim/Gorevler">Görevler</a></nav>
+@{
+    var sayfa = ViewContext.RouteData.Values["page"]?.ToString();
+    var anaSayfa = string.Equals(sayfa, "/Yonetim/Index", StringComparison.OrdinalIgnoreCase);
+    var baglantilar = new[] {
+        (Sayfa: "/Yonetim/Kategoriler", Ad: "Kategoriler"),
+        (Sayfa: "/Yonetim/Egitimler", Ad: "Eğitimler"),
+        (Sayfa: "/Yonetim/Gorevler", Ad: "Görevler"),
+        (Sayfa: "/Yonetim/Kullanicilar", Ad: "Kullanıcılar"),
+        (Sayfa: "/Yonetim/Istatistikler", Ad: "İstatistikler")
+    };
+}
+<header class="management-heading">
+    @if (anaSayfa) { <h1><a asp-page="/Yonetim/Index" aria-current="page">Yönetim</a></h1> }
+    else { <h2><a asp-page="/Yonetim/Index">Yönetim</a></h2> }
+    <p>İçerikleri, kullanıcı rollerini ve gönderim istatistiklerini yönetin.</p>
+</header>
+<nav class="management-nav" aria-label="Yönetim bölümleri">
+    @foreach (var baglanti in baglantilar)
+    {
+        var aktif = string.Equals(sayfa, baglanti.Sayfa, StringComparison.OrdinalIgnoreCase);
+        <a asp-page="@baglanti.Sayfa" aria-current="@(aktif ? "page" : null)">@baglanti.Ad</a>
+    }
+</nav>
