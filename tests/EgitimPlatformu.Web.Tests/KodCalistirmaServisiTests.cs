@@ -75,7 +75,7 @@ public sealed class KodCalistirmaServisiTests
         Assert.Equal("setsid", hariciIslem.DosyaAdi);
         Assert.Equal([
             "bash",
-            "/proje/scripts/run-python-sandbox.sh",
+            Path.Combine("/proje", "scripts", "run-python-sandbox.sh"),
             "--timeout", "7",
             "--volume", "/tmp/calisma:/calisma:ro",
             "--workdir", "/calisma",
@@ -84,7 +84,7 @@ public sealed class KodCalistirmaServisiTests
         Assert.Equal(0, sonuc.CikisKodu);
     }
 
-    [Fact]
+    [PosixSurecFact]
     public async Task HariciIslemCiktiVeHataAkislariniDondurur()
     {
         var calistirici = new HariciIslemCalistirici();
@@ -97,7 +97,7 @@ public sealed class KodCalistirmaServisiTests
         Assert.Equal("hata", sonuc.StandartHata);
     }
 
-    [Fact]
+    [PosixSurecFact]
     public async Task HariciIslemCiktiSiniriniAsincaSureciDurdurur()
     {
         var calistirici = new HariciIslemCalistirici(ciktiSiniri: 128);
@@ -110,7 +110,7 @@ public sealed class KodCalistirmaServisiTests
         Assert.Contains("çıktı sınırını aştı", sonuc.StandartHata);
     }
 
-    [Fact]
+    [PosixSurecFact]
     public async Task HariciIslemIptalEdilinceSurecGrubunuDurdurur()
     {
         var calistirici = new HariciIslemCalistirici();
@@ -118,6 +118,15 @@ public sealed class KodCalistirmaServisiTests
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             calistirici.CalistirAsync("setsid", ["bash", "-c", "sleep 30"], iptal.Token));
+    }
+
+    private sealed class PosixSurecFactAttribute : FactAttribute
+    {
+        public PosixSurecFactAttribute()
+        {
+            if (OperatingSystem.IsWindows())
+                Skip = "Bu test Linux süreç araçlarını doğrudan çağırır.";
+        }
     }
 
     private sealed class KaydedenSandboxIslemcisi : ISandboxIslemCalistirici

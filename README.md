@@ -19,6 +19,8 @@ Ekip: Ramazan, Nisa, Baran
    cp .env.example .env
    ```
 
+   Windows PowerShell’de bu adım için `Copy-Item .env.example .env` komutunu kullanın.
+
    `.env` içindeki `POSTGRES_PASSWORD` değerini kendinize göre değiştirin.
 
 3. PostgreSQL'i başlatın (bilgisayarın 5433 portunda çalışır):
@@ -91,22 +93,34 @@ Mobil istemci sözleşmesi [Flutter devir metninde](docs/FLUTTER_DEVAM_PROMPTU.t
 
 ## Python kod çalıştırma sandbox'ı
 
-Öğrenci kodlarını doğrudan ana makinede çalıştırmayın. Hafta 01 sandbox imajını depo kökünden oluşturun:
+Öğrenci kodu Docker’ın Linux konteynerinde çalışır. Sandbox, çalışan Docker Engine ve cgroup v2 gerektirir. Başlatıcı için Bash, `setsid` ve GNU `timeout` gerekir.
 
-Bu araçlar Linux konteynerleri, cgroup v2, çalışan Docker Engine, Bash ve GNU `timeout` gerektirir. Doğrulama betiği eksik komutları başlamadan bildirir.
+### Linux
+
+Docker ve başlatıcı araçlarını uygulamayı çalıştıran ortamda kurun.
+
+### Windows
+
+1. Docker Desktop’ta **Use the WSL 2 based engine** ayarını açın ve Linux konteyner modunu seçin. [Docker Desktop ve WSL 2](https://docs.docker.com/desktop/features/wsl/)
+2. `wsl --list --verbose` ile varsayılan dağıtımın WSL 2 olduğunu kontrol edin. Docker Desktop’ta **Settings → Resources → WSL Integration** altında bu dağıtımı etkinleştirin.
+3. PowerShell’de `wsl --exec docker info --format '{{.OSType}} {{.CgroupVersion}}'` komutunun `linux 2` döndürdüğünü kontrol edin. Uygulamayı Kurulum bölümündeki `dotnet run` komutuyla PowerShell’den başlatabilirsiniz. Uygulama sandbox betiğini varsayılan WSL dağıtımında çalıştırır.
+
+### İmaj ve doğrulama
+
+Hafta 01 imajını depo kökünden Linux terminalinde veya Windows PowerShell’de oluşturun.
 
 ```bash
 docker build -t egitim-python-sandbox:hafta-01 sandbox/python
 ```
 
-Örnek pytest çalışmasını ve bütün güvenlik sınırlarını tek komutla doğrulayın:
+Örnek pytest çalışmasını ve güvenlik sınırlarını Linux terminalinde doğrulayın. Windows’ta komutları WSL terminalinde, deponun bulunduğu klasörde çalıştırın.
 
 ```bash
 bash scripts/test-python-sandbox-hata-yollari.sh
 bash scripts/test-python-sandbox.sh
 ```
 
-İlk betik Docker altyapı ve temizlik hatalarının başarı sayılmadığını sahte hata yollarıyla sınar. İkinci betik başarılı/başarısız pytest çıkış kodlarını; ağ, kullanıcı, dosya sistemi, CPU, RAM, süreç ve süre sınırlarını gerçek konteyner üzerinde denetler.
+İlk betik Docker hata yollarını, Windows dosya yollarının dönüşümünü ve WSL iptal temizliğini sahte Docker ile sınar. İkinci betik pytest çıkış kodlarını ve izolasyon sınırlarını gerçek konteyner üzerinde denetler.
 
 Paylaşılan çalıştırıcıyla aynı güvenli profilde örnek testleri elle çalıştırmak için:
 
@@ -186,8 +200,10 @@ Her çağrı kendi çekirdeğini ve konteynerini kullanır. Jupyter portu yayım
 
 ```bash
 docker build -t egitim-jupyter:hafta-05 sandbox/jupyter
-NOTEBOOK_DOCKER_TEST=1 dotnet test EgitimPlatformu.slnx --filter FullyQualifiedName~NotebookCalistirmaTests
+dotnet test EgitimPlatformu.slnx -e NOTEBOOK_DOCKER_TEST=1 --filter FullyQualifiedName~NotebookCalistirmaTests
 ```
+
+Bu komutları Linux terminalinde veya Windows PowerShell’de çalıştırabilirsiniz. Test, .NET uygulamasının kullandığı başlatıcı üzerinden gerçek bir konteyner açar.
 
 `INotebookCalistirmaServisi` uygulama içinden çağrılır. Hücre çıktıları Jupyter
 `output_type` biçiminde döner. Çalıştırma sonucu tamamlanma, süre aşımı, çıktı

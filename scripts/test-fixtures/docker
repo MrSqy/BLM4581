@@ -39,10 +39,11 @@ case "$komut" in
     ;;
   create)
     while [[ $# -gt 0 ]]; do
-      if [[ $1 == "--name" ]]; then
-        echo "$2" >"$FAKE_DOCKER_STATE/name"
-        break
-      fi
+      case "$1" in
+        --name) echo "$2" >"$FAKE_DOCKER_STATE/name" ;;
+        --volume) echo "$2" >"$FAKE_DOCKER_STATE/volume" ;;
+        --) break ;;
+      esac
       shift
     done
     echo "sahte-konteyner-kimligi"
@@ -54,6 +55,9 @@ case "$komut" in
     echo "$sayac" >"$FAKE_DOCKER_STATE/start-count"
     if [[ $senaryo == "ikinci_baslatma_altyapi_hatasi" && $sayac -eq 2 ]]; then
       exit 125
+    fi
+    if [[ $senaryo == "wsl_iptal" ]]; then
+      exec sleep 30
     fi
     ;;
   *)
