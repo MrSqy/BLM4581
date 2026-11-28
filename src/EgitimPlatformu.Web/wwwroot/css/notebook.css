@@ -1,0 +1,30 @@
+.notebook-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 14px 18px; margin-bottom: 20px; position: sticky; top: 8px; z-index: 5; }
+.notebook-count { color: var(--muted); font-size: .85rem; margin-right: 6px; }
+.notebook-cells { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.notebook-cell { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 10px; padding: 12px 14px 4px; min-width: 0; }
+.notebook-cell--kod { border-left-color: var(--primary-color); }
+.notebook-cell--markdown { border-left-color: #b8c97a; }
+.notebook-cell--ham { border-left-color: #9aa5a8; }
+.notebook-cell:focus-within { box-shadow: 0 0 0 3px rgba(36, 92, 70, .12); }
+.cell-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cell-badge { font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.cell-prompt { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; color: var(--primary-color); }
+.cell-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+.cell-actions .btn { min-width: 36px; }
+.cell-source { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88rem; line-height: 1.5; resize: vertical; background: #f6f8f5; }
+.notebook-cell--markdown .cell-source { font-family: inherit; }
+.cell-preview { margin-top: 10px; padding: 12px 14px; border-radius: 8px; background: var(--paper); }
+.cell-outputs { margin-top: 10px; display: grid; gap: 6px; }
+.output { margin: 0; padding: 8px 12px; border-radius: 6px; background: #f3f5f2; font-size: .84rem; white-space: pre-wrap; word-break: break-word; max-height: 360px; overflow: auto; }
+.output--stderr { background: #fff6e6; }
+.output--error { background: #fdecec; color: #8a1f1f; }
+.output--image { max-width: 100%; height: auto; padding: 0; background: none; image-rendering: auto; }
+.cell-insert { display: flex; justify-content: center; gap: 4px; opacity: .55; }
+.notebook-cell:hover .cell-insert, .cell-insert:focus-within { opacity: 1; }
+
+@media (max-width: 575.98px) {
+    .notebook-toolbar { position: static; padding: 12px; }
+    .notebook-toolbar .ms-auto { margin-left: 0 !important; }
+    .notebook-cell { padding: 10px 10px 2px; }
+    .cell-actions { margin-left: 0; width: 100%; }
+}

@@ -1,0 +1,89 @@
+@page
+@using EgitimPlatformu.Web.Models
+@model EgitimPlatformu.Web.Pages.Notebook.IndexModel
+@{
+    ViewData["Title"] = "Notebook";
+    var hucreler = Model.Belge.Hucreler;
+}
+<header class="page-heading">
+    <p class="eyebrow">Notebook · @Model.Belge.CekirdekAdi</p>
+    <h1>Notebook düzenleyici</h1>
+    <p>Hücre ekle, sil, sırasını değiştir; markdown hücrelerinin önizlemesini gör. Çalıştırma bir sonraki sürümde eklenecek.</p>
+</header>
+
+@if (Model.Hata is not null) { <div class="alert alert-danger" role="alert">@Model.Hata</div> }
+@if (Model.Mesaj is not null) { <p class="visually-hidden" role="status">@Model.Mesaj</p> }
+
+<form method="post" class="notebook" id="notebook-formu" data-odak="@Model.Odak">
+    <input type="hidden" name="Ipynb" value="@Model.BelgeJson" />
+    <div class="notebook-toolbar content-panel">
+        <span class="notebook-count">@hucreler.Count hücre</span>
+        <button type="submit" class="btn btn-sm btn-outline-primary" asp-page-handler="Ekle" asp-route-sira="@hucreler.Count" asp-route-tur="kod">+ Kod</button>
+        <button type="submit" class="btn btn-sm btn-outline-primary" asp-page-handler="Ekle" asp-route-sira="@hucreler.Count" asp-route-tur="markdown">+ Markdown</button>
+        <button type="submit" class="btn btn-sm btn-primary" asp-page-handler="Onizle">Önizlemeyi güncelle</button>
+        <button type="submit" class="btn btn-sm btn-link ms-auto" asp-page-handler="Sifirla" formnovalidate>Örneği yeniden yükle</button>
+    </div>
+
+    <ol class="notebook-cells">
+    @for (var i = 0; i < hucreler.Count; i++)
+    {
+        var hucre = hucreler[i];
+        var tur = hucre.Tur switch { HucreTuru.Kod => "kod", HucreTuru.Markdown => "markdown", _ => "ham" };
+        var etiket = hucre.Tur switch { HucreTuru.Kod => "Kod", HucreTuru.Markdown => "Markdown", _ => "Ham" };
+        <li class="notebook-cell notebook-cell--@tur" id="hucre-@i" data-sira="@i">
+            <div class="cell-header">
+                <span class="cell-badge">@etiket</span>
+                @if (hucre.Tur == HucreTuru.Kod) { <span class="cell-prompt">In [@(hucre.CalistirmaSayaci?.ToString() ?? " ")]</span> }
+                <div class="cell-actions" role="group" aria-label="@(i + 1). hücre işlemleri">
+                    <button type="submit" class="btn btn-sm btn-light" asp-page-handler="Tasi" asp-route-sira="@i" asp-route-yon="-1" disabled="@(i == 0)" aria-label="@(i + 1). hücreyi yukarı taşı">↑</button>
+                    <button type="submit" class="btn btn-sm btn-light" asp-page-handler="Tasi" asp-route-sira="@i" asp-route-yon="1" disabled="@(i == hucreler.Count - 1)" aria-label="@(i + 1). hücreyi aşağı taşı">↓</button>
+                    @if (hucre.Tur != HucreTuru.Ham)
+                    {
+                        <button type="submit" class="btn btn-sm btn-light" asp-page-handler="Tur" asp-route-sira="@i">@(hucre.Tur == HucreTuru.Kod ? "Markdown yap" : "Kod yap")</button>
+                    }
+                    <button type="submit" class="btn btn-sm btn-outline-danger" asp-page-handler="Sil" asp-route-sira="@i" aria-label="@(i + 1). hücreyi sil">Sil</button>
+                </div>
+            </div>
+            <label class="visually-hidden" for="kaynak-@i">@(i + 1). hücrenin içeriği</label>
+            <textarea id="kaynak-@i" name="Kaynaklar" class="cell-source form-control" spellcheck="@(hucre.Tur == HucreTuru.Markdown ? "true" : "false")" rows="@Math.Clamp(hucre.Kaynak.Split('\n').Length, 2, 24)">@hucre.Kaynak</textarea>
+            @if (hucre.Tur == HucreTuru.Markdown)
+            {
+                <div class="cell-preview markdown-content" aria-label="@(i + 1). hücrenin önizlemesi">
+                    @if (string.IsNullOrWhiteSpace(hucre.Kaynak)) { <p class="section-note">Önizlenecek metin yok.</p> }
+                    else { @Html.Raw(Model.MarkdownHtml(hucre)) }
+                </div>
+            }
+            @if (hucre.Ciktilar.Count > 0)
+            {
+                <div class="cell-outputs" aria-label="@(i + 1). hücrenin kayıtlı çıktıları">
+                @foreach (var cikti in hucre.Ciktilar)
+                {
+                    switch (cikti.Tur)
+                    {
+                        case CiktiTuru.Akis:
+                            <pre class="output output--@(cikti.AkisAdi == "stderr" ? "stderr" : "stdout")">@IndexModel.AnsiTemizle(cikti.Metin ?? "")</pre>
+                            break;
+                        case CiktiTuru.Hata:
+                            <pre class="output output--error"><strong>@cikti.HataAdi</strong>: @cikti.HataDegeri</pre>
+                            break;
+                        default:
+                            if (IndexModel.GorselAdresi(cikti) is { } adres) { <img class="output output--image" src="@adres" alt="Hücre çıktısı görseli" /> }
+                            else if (cikti.MetinVerisi("text/plain") is { } metin) { <pre class="output">@IndexModel.AnsiTemizle(metin)</pre> }
+                            break;
+                    }
+                }
+                </div>
+            }
+            <div class="cell-insert">
+                <button type="submit" class="btn btn-sm btn-link" asp-page-handler="Ekle" asp-route-sira="@(i + 1)" asp-route-tur="kod" aria-label="@(i + 1). hücrenin altına kod hücresi ekle">+ Kod</button>
+                <button type="submit" class="btn btn-sm btn-link" asp-page-handler="Ekle" asp-route-sira="@(i + 1)" asp-route-tur="markdown" aria-label="@(i + 1). hücrenin altına markdown hücresi ekle">+ Markdown</button>
+            </div>
+        </li>
+    }
+    </ol>
+</form>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/notebook.css" asp-append-version="true" />
+    <script src="~/js/notebook.js" asp-append-version="true" defer></script>
+}
