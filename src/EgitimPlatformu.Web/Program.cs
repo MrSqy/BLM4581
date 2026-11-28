@@ -27,6 +27,7 @@ builder.Services.AddSingleton<ISandboxIslemCalistirici>(services =>
 });
 builder.Services.AddSingleton<IKodCalistirmaServisi, PythonKodCalistirmaServisi>();
 builder.Services.AddSingleton<INotebookCalistirmaServisi, NotebookCalistirmaServisi>();
+builder.Services.AddTransient<NotebookOturumu>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -110,6 +111,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(30) });
 app.UseRouting();
 
 app.UseAuthentication();
