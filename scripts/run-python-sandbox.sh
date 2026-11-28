@@ -29,6 +29,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --wsl)
       wsl=true
+      echo 'EGITIM_SANDBOX_WSL_BASLADI' >&2
       shift
       ;;
     --image)
@@ -101,9 +102,8 @@ sandbox_argumanlari=(
 
 konteyner_adi="egitim-python-sandbox-${PPID}-$$-${RANDOM}"
 calisma_etiketi="${SANDBOX_RUN_ID:-$konteyner_adi}"
-aktif_konteyner=""
+aktif_konteyner="$konteyner_adi"
 wsl_izleyici=""
-baslatma_pid=""
 
 konteyneri_temizle() {
   local ad="$1"
@@ -145,9 +145,6 @@ cikis_temizligi() {
     kill "$wsl_izleyici" 2>/dev/null || true
     wait "$wsl_izleyici" 2>/dev/null || true
   fi
-  if [[ -n $baslatma_pid ]]; then
-    kill -TERM "$baslatma_pid" 2>/dev/null || true
-  fi
   if [[ -n $aktif_konteyner ]] && ! konteyneri_temizle "$aktif_konteyner"; then
     kod=125
   fi
@@ -159,13 +156,12 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 if $wsl; then
-  # Windows süreci giriş borusunu kapattığında Bash'in EXIT temizliğini çalıştır.
+  # setsid ile başlayan gruba TERM göndererek Docker çağrısının beklemesini de kes.
   betik_pid=$$
-  aktif_konteyner="$konteyner_adi"
   exec {wsl_girdi_fd}<&0
   (
     IFS= read -r <&"$wsl_girdi_fd" || true
-    kill -TERM "$betik_pid" 2>/dev/null || true
+    kill -TERM -- "-$betik_pid" 2>/dev/null || true
   ) &
   wsl_izleyici=$!
   exec {wsl_girdi_fd}<&- </dev/null
@@ -186,17 +182,13 @@ if [[ -z $konteyner_id ]]; then
   echo "Docker create konteyner kimligi dondurmedi." >&2
   exit 125
 fi
-aktif_konteyner="$konteyner_adi"
-
 baslangic=$SECONDS
 # timeout .NET'in TERM gönderdiği süreç grubunda kalsın. Bash,
 # wait sırasında TERM alınca Docker CLI'ın çıkışını beklemeden temizliği başlatır.
 timeout --foreground --signal=TERM --kill-after=1s "${sure}s" \
   docker start --attach "$konteyner_adi" &
-baslatma_pid=$!
 baslatma_kodu=0
-wait "$baslatma_pid" || baslatma_kodu=$?
-baslatma_pid=""
+wait "$!" || baslatma_kodu=$?
 gecen_sure=$((SECONDS - baslangic))
 
 if [[ $baslatma_kodu -eq 124 || ( $baslatma_kodu -eq 137 && $gecen_sure -ge $sure ) ]]; then

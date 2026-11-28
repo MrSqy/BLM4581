@@ -52,8 +52,9 @@ export -f wslpath
 export FAKE_DOCKER_STATE="$durum_dizini" PATH="$sahte_docker_dizini:$PATH"
 
 for birim in 'C:\Users\Ada Kaya\calisma:/calisma:ro' 'C:/Users/Ada Kaya/istek.json:/istek.json:ro'; do
-  coproc WSL { exec setsid --wait bash "$runner" --wsl --volume "$birim" -- true; }
+  coproc WSL { exec setsid --wait bash "$runner" --wsl --volume "$birim" -- true 2>"$durum_dizini/wsl-hata"; }
   wait "$WSL_PID"
+  [[ $(cat "$durum_dizini/wsl-hata") == EGITIM_SANDBOX_WSL_BASLADI ]]
   case "$birim" in
     *:/calisma:ro) beklenen='/mnt/c/Users/Ada Kaya/calisma:/calisma:ro' ;;
     *) beklenen='/mnt/c/Users/Ada Kaya/istek.json:/istek.json:ro' ;;
@@ -65,16 +66,25 @@ gecersiz_yol_kodu=0
 bash "$runner" --wsl --volume 'C:\gecersiz:/calisma:ro' -- true 2>"$durum_dizini/wsl-hata" || gecersiz_yol_kodu=$?
 [[ $gecersiz_yol_kodu -eq 125 && ! -e "$durum_dizini/name" ]]
 
-command rm -f "$durum_dizini/start-count"
-coproc WSL { FAKE_DOCKER_SCENARIO=wsl_iptal exec setsid --wait bash "$runner" --wsl --timeout 25 -- true; }
-wsl_pid=$WSL_PID
-wsl_girdisi=${WSL[1]}
-for ((deneme = 0; deneme < 100; deneme++)); do
-  [[ ! -f "$durum_dizini/start-count" ]] || break
-  sleep 0.02
+wsl_iptalini_dogrula() {
+  local senaryo="$1" sinyal_dosyasi="$2" wsl_pid wsl_girdisi iptal_kodu=0
+  coproc WSL { FAKE_DOCKER_SCENARIO="$senaryo" exec setsid --wait bash "$runner" --wsl --timeout 25 -- true 2>"$durum_dizini/wsl-hata"; }
+  wsl_pid=$WSL_PID
+  wsl_girdisi=${WSL[1]}
+  for ((deneme = 0; deneme < 100; deneme++)); do
+    [[ ! -f "$durum_dizini/$sinyal_dosyasi" ]] || break
+    sleep 0.02
+  done
+  [[ -f "$durum_dizini/$sinyal_dosyasi" ]]
+  exec {wsl_girdisi}>&-
+  wait "$wsl_pid" || iptal_kodu=$?
+  [[ $iptal_kodu -eq 143 && ! -e "$durum_dizini/name" ]]
+}
+
+for adim in create start inspect; do
+  command rm -f "$durum_dizini/start-count"
+  sinyal_dosyasi="$adim-bekliyor"
+  if [[ $adim == start ]]; then sinyal_dosyasi=start-count; fi
+  wsl_iptalini_dogrula "wsl_iptal_$adim" "$sinyal_dosyasi"
 done
-exec {wsl_girdisi}>&-
-iptal_kodu=0
-wait "$wsl_pid" || iptal_kodu=$?
-[[ $iptal_kodu -eq 143 && ! -e "$durum_dizini/name" ]]
 echo "WSL dosya yollari ve iptal temizligi dogrulandi."

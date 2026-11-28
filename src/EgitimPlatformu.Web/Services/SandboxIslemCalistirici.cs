@@ -32,6 +32,8 @@ public sealed class BashSandboxIslemCalistirici(string uygulamaDizini, IHariciIs
 
 public sealed class HariciIslemCalistirici(int ciktiSiniri = 64 * 1024) : IHariciIslemCalistirici
 {
+    private const string WslBaslamaSatiri = "EGITIM_SANDBOX_WSL_BASLADI\n";
+
     private readonly int ciktiSiniri = ciktiSiniri > 0
         ? ciktiSiniri
         : throw new ArgumentOutOfRangeException(nameof(ciktiSiniri));
@@ -60,6 +62,7 @@ public sealed class HariciIslemCalistirici(int ciktiSiniri = 64 * 1024) : IHaric
             baslatmaBilgisi.StandardInputEncoding = new UTF8Encoding(false);
             baslatmaBilgisi.StandardOutputEncoding = Encoding.UTF8;
             baslatmaBilgisi.StandardErrorEncoding = Encoding.UTF8;
+            baslatmaBilgisi.Environment["WSL_UTF8"] = "1";
             argumanlar = argumanlar.Skip(2).ToArray();
         }
         foreach (var arguman in argumanlar) baslatmaBilgisi.ArgumentList.Add(arguman);
@@ -103,8 +106,15 @@ public sealed class HariciIslemCalistirici(int ciktiSiniri = 64 * 1024) : IHaric
         if (normalCikti.SinirAsildi || normalHata.SinirAsildi)
             return CiktiSiniriSonucu(normalCikti.Metin, normalHata.Metin);
         var cikisKodu = islem.ExitCode;
-        if (wsl && (cikisKodu is < 0 or > 255)) cikisKodu = 125;
-        return new KodCalistirmaSonucu(cikisKodu, normalCikti.Metin, normalHata.Metin);
+        var hataMetni = normalHata.Metin;
+        if (wsl)
+        {
+            // WSL veya Bash betiği açamadıysa çıkış kodu öğrenci koduna ait değildir.
+            var baslamaKonumu = hataMetni.IndexOf(WslBaslamaSatiri, StringComparison.Ordinal);
+            if (baslamaKonumu < 0 || cikisKodu is < 0 or > 255) cikisKodu = 125;
+            if (baslamaKonumu >= 0) hataMetni = hataMetni.Remove(baslamaKonumu, WslBaslamaSatiri.Length);
+        }
+        return new KodCalistirmaSonucu(cikisKodu, normalCikti.Metin, hataMetni);
     }
 
     private static KodCalistirmaSonucu CiktiSiniriSonucu(string cikti, string hata)

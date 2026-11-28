@@ -26,6 +26,10 @@ case "$komut" in
         command rm -f "$FAKE_DOCKER_STATE/name"
         ;;
       inspect)
+        if [[ $senaryo == "wsl_iptal_inspect" ]]; then
+          touch "$FAKE_DOCKER_STATE/inspect-bekliyor"
+          exec sleep 30
+        fi
         sayac=0
         [[ ! -f "$FAKE_DOCKER_STATE/start-count" ]] || sayac="$(command cat "$FAKE_DOCKER_STATE/start-count")"
         if [[ $senaryo == "ikinci_baslatma_altyapi_hatasi" && $sayac -eq 2 ]]; then
@@ -46,6 +50,10 @@ case "$komut" in
       esac
       shift
     done
+    if [[ $senaryo == "wsl_iptal_create" ]]; then
+      touch "$FAKE_DOCKER_STATE/create-bekliyor"
+      exec sleep 30
+    fi
     echo "sahte-konteyner-kimligi"
     ;;
   start)
@@ -56,7 +64,7 @@ case "$komut" in
     if [[ $senaryo == "ikinci_baslatma_altyapi_hatasi" && $sayac -eq 2 ]]; then
       exit 125
     fi
-    if [[ $senaryo == "wsl_iptal" ]]; then
+    if [[ $senaryo == "wsl_iptal_start" ]]; then
       exec sleep 30
     fi
     ;;
