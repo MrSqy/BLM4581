@@ -45,7 +45,8 @@ public sealed class KodCalistirController(UygulamaDbContext db, DersErisimi eris
                 gorevler.Where(g => g.No.HasValue).Select(g => g.No!.Value));
             var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
             var gonderimId = await gonderimler.KaydetAsync(kullaniciId, ders, null, istek.Kod,
-                new(yanit.Basarili, yanit.Durum, yanit.Cikti, yanit.Hata, sonuc.CikisKodu), sure, ct);
+                new(yanit.Basarili, yanit.Durum, yanit.Cikti, yanit.Hata, sonuc.CikisKodu,
+                    yanit.Gorevler.Any(g => g.Durum == "atlanmis")), sure, ct);
             return Ok(yanit with { GonderimId = gonderimId });
         }
         catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }

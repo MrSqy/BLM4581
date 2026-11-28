@@ -167,6 +167,8 @@ namespace EgitimPlatformu.Web.Migrations
 
                     b.HasIndex("GorevId");
 
+                    b.HasIndex("KullaniciId", "EgitimId", "GorevId");
+
                     b.HasIndex("KullaniciId", "TarihUtc", "Id");
 
                     b.ToTable("Gonderimler");
@@ -496,6 +498,24 @@ namespace EgitimPlatformu.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Ilerleme", b =>
+                {
+                    b.Property<string>("KullaniciId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EgitimId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("TamamlanmaUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("KullaniciId", "EgitimId");
+
+                    b.HasIndex("EgitimId");
+
+                    b.ToTable("Ilerlemeler");
+                });
+
             modelBuilder.Entity("EgitimPlatformu.Web.Models.Kategori", b =>
                 {
                     b.Property<int>("Id")
@@ -778,6 +798,21 @@ namespace EgitimPlatformu.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Egitim");
+                });
+
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Ilerleme", b =>
+                {
+                    b.HasOne("EgitimPlatformu.Web.Models.Egitim", null)
+                        .WithMany()
+                        .HasForeignKey("EgitimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("KullaniciId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
