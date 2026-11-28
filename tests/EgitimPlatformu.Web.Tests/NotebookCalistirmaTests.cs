@@ -54,7 +54,8 @@ public sealed class NotebookCalistirmaTests
         {
             Assert.Equal("setsid", dosyaAdi);
             Assert.Contains("--jupyter", argumanlar);
-            Dosya = argumanlar.Single(a => a.EndsWith(":/istek.json:ro")).Split(':')[0];
+            const string baglamaHedefi = ":/istek.json:ro";
+            Dosya = argumanlar.Single(a => a.EndsWith(baglamaHedefi))[..^baglamaHedefi.Length];
             Assert.Contains("print(42)", File.ReadAllText(Dosya));
             return Task.FromResult(sonuc);
         }

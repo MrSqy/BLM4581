@@ -6,6 +6,7 @@ image="egitim-python-sandbox:hafta-01"
 sure=5
 bellek=128m
 gecici_alan=16m
+wsl=false
 ek_docker_argumanlari=()
 komut=()
 
@@ -26,6 +27,11 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --wsl)
+      wsl=true
+      echo 'EGITIM_SANDBOX_WSL_BASLADI' >&2
+      shift
+      ;;
     --image)
       [[ $# -ge 2 ]] || { kullanim; exit 2; }
       image="$2"
@@ -44,7 +50,16 @@ while [[ $# -gt 0 ]]; do
       ;;
     --env|--volume|--workdir)
       [[ $# -ge 2 ]] || { kullanim; exit 2; }
-      ek_docker_argumanlari+=("$1" "$2")
+      deger="$2"
+      if $wsl && [[ $1 == --volume ]]; then
+        kaynak="${deger%:/*}"
+        if [[ $kaynak == "$deger" ]] || ! linux_yolu="$(wslpath -u "$kaynak")" || [[ -z $linux_yolu ]]; then
+          echo "WSL birim yolu donusturulemedi: $kaynak" >&2
+          exit 125
+        fi
+        deger="$linux_yolu${deger#"$kaynak"}"
+      fi
+      ek_docker_argumanlari+=("$1" "$deger")
       shift 2
       ;;
     --)
@@ -87,7 +102,8 @@ sandbox_argumanlari=(
 
 konteyner_adi="egitim-python-sandbox-${PPID}-$$-${RANDOM}"
 calisma_etiketi="${SANDBOX_RUN_ID:-$konteyner_adi}"
-aktif_konteyner=""
+aktif_konteyner="$konteyner_adi"
+wsl_izleyici=""
 
 konteyneri_temizle() {
   local ad="$1"
@@ -124,6 +140,11 @@ konteyneri_temizle() {
 cikis_temizligi() {
   local kod=$?
   trap - EXIT
+  trap '' INT TERM
+  if [[ -n $wsl_izleyici ]]; then
+    kill "$wsl_izleyici" 2>/dev/null || true
+    wait "$wsl_izleyici" 2>/dev/null || true
+  fi
   if [[ -n $aktif_konteyner ]] && ! konteyneri_temizle "$aktif_konteyner"; then
     kod=125
   fi
@@ -133,6 +154,18 @@ cikis_temizligi() {
 trap cikis_temizligi EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+
+if $wsl; then
+  # setsid ile başlayan gruba TERM göndererek Docker çağrısının beklemesini de kes.
+  betik_pid=$$
+  exec {wsl_girdi_fd}<&0
+  (
+    IFS= read -r <&"$wsl_girdi_fd" || true
+    kill -TERM -- "-$betik_pid" 2>/dev/null || true
+  ) &
+  wsl_izleyici=$!
+  exec {wsl_girdi_fd}<&- </dev/null
+fi
 
 if ! konteyner_id="$(docker create \
   --name "$konteyner_adi" \
@@ -149,8 +182,6 @@ if [[ -z $konteyner_id ]]; then
   echo "Docker create konteyner kimligi dondurmedi." >&2
   exit 125
 fi
-aktif_konteyner="$konteyner_adi"
-
 baslangic=$SECONDS
 # timeout .NET'in TERM gönderdiği süreç grubunda kalsın. Bash,
 # wait sırasında TERM alınca Docker CLI'ın çıkışını beklemeden temizliği başlatır.
