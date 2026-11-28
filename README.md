@@ -176,6 +176,8 @@ JWT başlatma, erişim kuralları, Swagger ve mobil uçların sözleşmesi: [API
 
 Güncel PY-01 (5 kod + 2 açıklama), görev bazlı sandbox, v2 içerik sözleşmesi ve mevcut DB için açık migration/plan/aktarım adımları: [GOREV_AKTARIMI_V2](docs/GOREV_AKTARIMI_V2.md). Normal açılışta migration veya içerik aktarımı yapılmaz.
 
+Teknik Mülakat ve C# derslerini geri alınabilir şekilde yükleme/kaldırma: [DEMO_ICERIK](docs/DEMO_ICERIK.md).
+
 ## Jupyter çalıştırma (5. hafta)
 
 Jupyter imajını oluşturmadan önce yukarıdaki Python sandbox imajını hazırlayın.

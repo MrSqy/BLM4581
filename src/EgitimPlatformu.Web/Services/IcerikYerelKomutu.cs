@@ -9,7 +9,7 @@ namespace EgitimPlatformu.Web.Services;
 // Açık yerel yönetim komutu; normal uygulama açılışında çalışmaz.
 public static class IcerikYerelKomutu
 {
-    public static async Task Calistir(IServiceProvider services, string dosya, bool plan)
+    public static async Task<IcerikPaketi> Oku(string dosya)
     {
         var info = new FileInfo(dosya);
         if (info.Length > 5 * 1024 * 1024) throw new InvalidOperationException("Paket en fazla 5 MiB olabilir.");
@@ -17,6 +17,21 @@ public static class IcerikYerelKomutu
         Dogrula(paket);
         var hata = IcerikAktarimServisi.TutarlilikHatasi(paket);
         if (hata is not null) throw new InvalidOperationException(hata);
+        return paket;
+    }
+
+    // Paketteki dersleri siler; kategoriDahil ise kategoriyi de siler (yalnız paket dışı ders yoksa).
+    public static async Task Kaldir(IServiceProvider services, string dosya, bool kategoriDahil)
+    {
+        var paket = await Oku(dosya);
+        using var scope = services.CreateScope();
+        var sonuc = await scope.ServiceProvider.GetRequiredService<IcerikKaldirmaServisi>().KaldirAsync(paket, kategoriDahil, default);
+        Console.WriteLine($"Kaldırma tamamlandı: {sonuc.KategoriSayisi} kategori, {sonuc.EgitimSayisi} ders, {sonuc.GorevSayisi} görev silindi. Paket dışı kayıtlara dokunulmadı.");
+    }
+
+    public static async Task Calistir(IServiceProvider services, string dosya, bool plan)
+    {
+        var paket = await Oku(dosya);
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
         if (plan)

@@ -12,11 +12,18 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --no-launch-profile --project src/
 unset Jwt__Anahtar
 ```
 
-Bu komut her çalıştırıldığında yeni anahtar üretir ve önceki tokenlar geçersiz olur. Kalıcı ortamda anahtar gizli yapılandırmada sabit tutulmalıdır. HTTP adresi yalnız yerel geliştirme içindir; yayın ortamı HTTPS kullanmalıdır. Swagger yalnız Development ortamında `/swagger/index.html` adresindedir.
+Bu komut her çalıştırıldığında yeni anahtar üretir ve önceki tokenlar geçersiz olur. Sunucu yeniden başlayınca mobil oturumların korunması için anahtarı bir kez user-secrets'a yazın ve `export` satırı olmadan çalıştırın:
+
+```bash
+dotnet user-secrets set "Jwt:Anahtar" "$(openssl rand -base64 32)" --project src/EgitimPlatformu.Web
+ASPNETCORE_ENVIRONMENT=Development dotnet run --no-launch-profile --project src/EgitimPlatformu.Web -- --urls http://localhost:5080
+```
+
+Ortam değişkeni (`Jwt__Anahtar`) user-secrets'taki değeri ezer. Kalıcı ortamda anahtar gizli yapılandırmada sabit tutulmalıdır. HTTP adresi yalnız yerel geliştirme içindir; yayın ortamı HTTPS kullanmalıdır. Swagger yalnız Development ortamında `/swagger/index.html` adresindedir.
 
 ## Kimlik ve erişim
 
-Tek Bearer şeması, HS256 imzası, issuer `EgitimPlatformu`, audience `EgitimPlatformu.Mobile`, 15 dakika süre; doğrulamada 30 saniye saat toleransı. Refresh token yoktur. Token imzası, süre, issuer, audience, hesabın varlığı, kilit durumu, security stamp ve güncel roller denetlenir. Cookie tek başına API yönetici yetkisi vermez. İki faktör açık hesaplara bu parola uçlarından token verilmez.
+Tek Bearer şeması, HS256 imzası, issuer `EgitimPlatformu`, audience `EgitimPlatformu.Mobile`, varsayılan 15 dakika süre (`Jwt:SureDakika` ile 5–1440 dakika arası ayarlanır; geçersiz değerde 15 kalır; Development ayarı 120 dakikadır); doğrulamada 30 saniye saat toleransı. Refresh token yoktur. Token imzası, süre, issuer, audience, hesabın varlığı, kilit durumu, security stamp ve güncel roller denetlenir. Cookie tek başına API yönetici yetkisi vermez. İki faktör açık hesaplara bu parola uçlarından token verilmez.
 
 Misafir her kategorinin `sira`, ardından `id` ile belirlenen ilk dersini okuyabilir, çalıştırabilir ve test edebilir. Diğer derslerin listeleri/özetleri açıktır; detay ve kod uçları 401 verir. Geçerli token ile bütün derslere erişilir. Kategori ilişkisi olmayan eski dersler kendi gruplarında sıralanır. Bu kural `/api/egitimler/{id}` ve mobil API için ortaktır; mevcut Razor sayfalarının erişim politikasını değiştirmez.
 
