@@ -73,7 +73,8 @@ public sealed class MobilEgitimController(UygulamaDbContext db, IMobilKodServisi
             if (!test) return Ok(sonuc);
             var kullaniciId = await DersErisimi.BearerKullaniciId(HttpContext);
             var gonderimId = await gonderimler.KaydetAsync(kullaniciId, ders, null, input.Kod,
-                new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata), sure, ct);
+                new(sonuc.Basarili, sonuc.Durum, sonuc.Cikti, sonuc.Hata,
+                    AtlananTestVar: sonuc.Gorevler.Any(g => g.Durum == "atlanmis")), sure, ct);
             return Ok(sonuc with { GonderimId = gonderimId });
         }
         catch (DbUpdateException) { return StatusCode(503, new { mesaj = GonderimGecmisiHatasi.KayitMesaji, durum = "gonderim_kayit_hatasi" }); }

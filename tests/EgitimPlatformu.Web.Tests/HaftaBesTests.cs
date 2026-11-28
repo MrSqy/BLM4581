@@ -40,7 +40,7 @@ public class HaftaBesTests
         var id = await Hesap(app, c, "bir@example.test");
         var html = WebUtility.HtmlDecode(await c.GetStringAsync("/Pano"));
         Assert.Contains("Henüz gönderimin yok", html);
-        Assert.Contains("İlerleme verisi henüz kullanıma açılmadı", html);
+        Assert.Contains("İlk dersini tamamladığında ilerlemen burada görünecek", html);
         using var other = await app.IstemciAsync(); var otherId = await Hesap(app, other, "iki@example.test");
         using (var scope = app.Services.CreateScope())
         {
@@ -53,7 +53,7 @@ public class HaftaBesTests
         Assert.Contains("Toplam 7", html); Assert.Contains("Kendi dersim 7", html); Assert.Contains("Kendi dersim 3", html);
         Assert.DoesNotContain("Kendi dersim 2", html); Assert.DoesNotContain("GİZLİ", html);
         Assert.True(html.IndexOf("Kendi dersim 7", StringComparison.Ordinal) < html.IndexOf("Kendi dersim 3", StringComparison.Ordinal));
-        Assert.DoesNotContain("role=\"progressbar\"", html); // 5.1 yokken sahte yüzde üretilmez.
+        Assert.DoesNotContain("role=\"progressbar\"", html); // Gönderim sayısı ilerleme sayılmaz.
     }
 
     private sealed class YanlisGecmis : IGonderimGecmisi

@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EgitimPlatformu.Web.Services;
 
-public sealed record GonderimDegerlendirmesi(bool Basarili, string Durum, string Cikti, string Hata, int? CikisKodu = null);
+public sealed record GonderimDegerlendirmesi(bool Basarili, string Durum, string Cikti, string Hata,
+    int? CikisKodu = null, bool AtlananTestVar = false);
 
-public sealed class GonderimServisi(UygulamaDbContext db) : IGonderimGecmisi
+public sealed class GonderimServisi(UygulamaDbContext db, IlerlemeServisi ilerleme) : IGonderimGecmisi
 {
     public bool Kullanilabilir => true;
 
@@ -32,8 +33,27 @@ public sealed class GonderimServisi(UygulamaDbContext db) : IGonderimGecmisi
             SureMs = (long)sure.TotalMilliseconds,
             TarihUtc = DateTime.UtcNow
         };
-        db.Gonderimler.Add(kayit);
-        await db.SaveChangesAsync(ct);
+        if (IlerlemeServisi.IlerlemeyeUygun(ders, gorev, sonuc))
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(ct);
+            try
+            {
+                await ilerleme.KilitleAsync(kullaniciId, ders.Id, ct);
+                db.Gonderimler.Add(kayit);
+                await db.SaveChangesAsync(ct);
+                await ilerleme.TesttenTamamlaAsync(kayit, ct);
+                await transaction.CommitAsync(ct);
+            }
+            catch (Exception ex) when (GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
+            {
+                throw new DbUpdateException(GonderimGecmisiHatasi.KayitMesaji, ex);
+            }
+        }
+        else
+        {
+            db.Gonderimler.Add(kayit);
+            await db.SaveChangesAsync(ct);
+        }
         return kayit.Id;
     }
 

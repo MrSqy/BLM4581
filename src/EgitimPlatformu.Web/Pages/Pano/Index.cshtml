@@ -5,8 +5,41 @@
 <div class="row g-4">
     <div class="col-lg-4"><section class="content-panel h-100" aria-labelledby="ilerleme-baslik">
         <h2 id="ilerleme-baslik">Eğitim ilerlemen</h2>
-        @* 5.1 sözleşmesi henüz yok: gönderim sayısı tamamlanma yüzdesi olarak kullanılmaz. *@
-        <p role="status">İlerleme verisi henüz kullanıma açılmadı. Ders tamamlama bilgileri, ilerleme servisi bağlandığında burada gösterilecek.</p>
+        @if (!Model.IlerlemeHazir)
+        {
+            <p class="alert alert-warning" role="status">İlerleme bilgisine şu anda ulaşılamıyor.</p>
+        }
+        else if (Model.Dersler.Count == 0)
+        {
+            <p>Henüz eğitim eklenmemiş.</p>
+        }
+        else
+        {
+            var tamamlanan = Model.Dersler.Count(ders => ders.Tamamlandi);
+            var sonDersler = Model.Dersler.Where(ders => ders.Gecilen > 0).OrderBy(ders => ders.Tamamlandi).Take(5);
+            <p><strong>@tamamlanan / @Model.Dersler.Count</strong> ders tamamlandı.</p>
+            @if (sonDersler.Any())
+            {
+                <ul class="list-unstyled">
+                @foreach (var ders in sonDersler)
+                {
+                    <li class="mb-3">
+                        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+                            <a asp-page="/Egitimler/Detay" asp-route-id="@ders.EgitimId">@ders.Kod · @ders.Baslik</a>
+                            <span class="small">@(ders.Tamamlandi ? "Tamamlandı" : $"{ders.Gecilen}/{ders.Toplam} görev")</span>
+                        </div>
+                        <div class="progress" role="progressbar" aria-label="@ders.Baslik" aria-valuenow="@ders.Yuzde" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar @(ders.Tamamlandi ? "bg-success" : null)" style="width: @(ders.Yuzde)%"></div>
+                        </div>
+                    </li>
+                }
+                </ul>
+            }
+            else
+            {
+                <p>İlk dersini tamamladığında ilerlemen burada görünecek.</p>
+            }
+        }
         <a asp-page="/Egitimler/Index" class="btn btn-primary">Eğitimleri keşfet</a>
     </section></div>
     <div class="col-lg-8"><section class="content-panel h-100" aria-labelledby="gonderim-baslik">

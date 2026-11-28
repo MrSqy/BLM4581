@@ -35,6 +35,17 @@ else
             <section id="ders-icerigi" class="content-panel" aria-labelledby="content-title"><h2 id="content-title" class="panel-title">Ders içeriği</h2>
                 @if (string.IsNullOrWhiteSpace(Model.IcerikHtml)) { <p>Bu dersin içeriği henüz eklenmemiş.</p> }
                 else { <div class="markdown-content">@Html.Raw(Model.IcerikHtml)</div> }
+                @if (Model.IlerlemeMesaji is { } mesaj) { <p role="status" class="mt-3">@mesaj</p> }
+                @if (Model.Ilerleme?.ElleTamamlanabilir == true)
+                {
+                    <form class="mt-3" method="post" asp-page-handler="Tamamla" asp-route-id="@Model.Egitim.Id">
+                        <button type="submit" class="btn btn-outline-primary">Tamamlandı olarak işaretle</button>
+                    </form>
+                }
+                else if (Model.Ilerleme?.Tamamlandi == true && Model.IlerlemeMesaji is null)
+                {
+                    <span class="badge text-bg-success mt-3">Ders tamamlandı</span>
+                }
             </section>
             @if (!string.IsNullOrWhiteSpace(Model.Egitim.BaslangicKodu))
             {

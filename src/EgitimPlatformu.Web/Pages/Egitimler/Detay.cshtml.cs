@@ -15,13 +15,16 @@ namespace EgitimPlatformu.Web.Pages.Egitimler;
 [RequestSizeLimit(256 * 1024)]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<DetayModel> logger,
-    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner, GonderimServisi gonderimler, IConfiguration configuration) : PageModel
+    DersErisimi erisim, IGorevKodServisi gorevRunner, IMobilKodServisi dersRunner, GonderimServisi gonderimler,
+    IlerlemeServisi ilerleme, IConfiguration configuration) : PageModel
 {
     public Egitim? Egitim { get; private set; }
     public string IcerikHtml { get; private set; } = "";
     public List<GorevIcerigi> Gorevler { get; private set; } = [];
     public string? Hata { get; private set; }
     public bool CalistirmayaIzinVar { get; private set; }
+    public DersIlerlemesi? Ilerleme { get; private set; }
+    [TempData] public string? IlerlemeMesaji { get; set; }
     // Kuyruk ve çalıştırıcı üst sınırından sonra yanıt/kayıt için 15 saniye ayır.
     public int IstekZamanAsimiMs => (int)Math.Clamp(
         1000L * (15L + configuration.GetValue("Sandbox:BeklemeSaniye", 15)
@@ -54,6 +57,14 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
                 .Select(g => new GorevIcerigi(g.Id, g.No, g.Baslik, markdown.Html(g.Aciklama),
                     g.Tur, g.BaslangicKodu, g.Tur == "kod" && g.KontrolJson != null)).ToList();
             CalistirmayaIzinVar = User.Identity?.IsAuthenticated == true || await erisim.IlkDers(Egitim, cancellationToken);
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is { } kullaniciId)
+            {
+                try { Ilerleme = (await ilerleme.ListeAsync(kullaniciId, cancellationToken, Egitim.Id)).SingleOrDefault(); }
+                catch (Exception ex) when (GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
+                {
+                    logger.LogWarning(ex, "Ders ilerlemesi okunamadı: {EgitimId}", id);
+                }
+            }
         }
         catch (Exception ex) when (ex is DbException || ex is InvalidOperationException { InnerException: DbException })
         {
@@ -62,6 +73,26 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
             Hata = "Ders içeriğine şu anda ulaşılamıyor. Lütfen daha sonra yeniden deneyin.";
         }
         return Page();
+    }
+
+    public async Task<IActionResult> OnPostTamamlaAsync(int id, CancellationToken ct)
+    {
+        var kullaniciId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(kullaniciId)) return Challenge();
+        try
+        {
+            var sonuc = await ilerleme.ElleTamamlaAsync(kullaniciId, id, ct);
+            if (sonuc == TamamlamaSonucu.Bulunamadi) return NotFound();
+            IlerlemeMesaji = sonuc == TamamlamaSonucu.TestGerekli
+                ? "Bu dersi tamamlamak için otomatik testleri geç."
+                : "Ders tamamlandı.";
+        }
+        catch (Exception ex) when (ex is DbUpdateException || GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
+        {
+            logger.LogWarning(ex, "Ders tamamlanamadı: {EgitimId}", id);
+            IlerlemeMesaji = "İlerleme kaydedilemedi. Tekrar dene.";
+        }
+        return RedirectToPage(new { id });
     }
 
     private IActionResult Bulunamadi()
@@ -116,7 +147,8 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
             var dersSuresi = System.Diagnostics.Stopwatch.GetElapsedTime(dersBaslangic);
             if (!test) return new JsonResult(dersSonucu);
             var dersGonderimId = await gonderimler.KaydetAsync(User.FindFirstValue(ClaimTypes.NameIdentifier),
-                ders, null, input.Kod, new(dersSonucu.Basarili, dersSonucu.Durum, dersSonucu.Cikti, dersSonucu.Hata), dersSuresi, ct);
+                ders, null, input.Kod, new(dersSonucu.Basarili, dersSonucu.Durum, dersSonucu.Cikti, dersSonucu.Hata,
+                    AtlananTestVar: dersSonucu.Gorevler.Any(g => g.Durum == "atlanmis")), dersSuresi, ct);
             return new JsonResult(dersSonucu with { GonderimId = dersGonderimId });
         }
         catch (DbUpdateException ex)

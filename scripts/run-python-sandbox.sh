@@ -4,6 +4,8 @@ set -euo pipefail
 
 image="egitim-python-sandbox:hafta-01"
 sure=5
+bellek=128m
+gecici_alan=16m
 ek_docker_argumanlari=()
 komut=()
 
@@ -14,6 +16,7 @@ Kullanim:
 
 Secenekler:
   --image IMaj       Kullanilacak sandbox imaji
+  --jupyter         Jupyter imajini ve kaynak profilini kullanir
   --timeout SANIYE   Calisma suresi siniri (varsayilan: 5)
   --env AD=DEGER     Konteynere ortam degiskeni aktarir; tekrarlanabilir
   --volume BAGLANTI  Konteynere birim baglar; tekrarlanabilir
@@ -27,6 +30,12 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || { kullanim; exit 2; }
       image="$2"
       shift 2
+      ;;
+    --jupyter)
+      image="egitim-jupyter:hafta-05"
+      bellek=384m
+      gecici_alan=64m
+      shift
       ;;
     --timeout)
       [[ $# -ge 2 ]] || { kullanim; exit 2; }
@@ -66,11 +75,11 @@ done
 sandbox_argumanlari=(
   --network none
   --cpus 0.5
-  --memory 128m
-  --memory-swap 128m
+  --memory "$bellek"
+  --memory-swap "$bellek"
   --pids-limit 64
   --read-only
-  --tmpfs /tmp:rw,noexec,nosuid,size=16m
+  --tmpfs /tmp:rw,noexec,nosuid,size="$gecici_alan"
   --cap-drop ALL
   --security-opt no-new-privileges
   --user 10001:10001

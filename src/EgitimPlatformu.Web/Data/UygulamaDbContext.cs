@@ -15,6 +15,7 @@ public class UygulamaDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Egitim> Egitimler { get; set; } = default!;
     public DbSet<Gorev> Gorevler { get; set; } = default!;
     public DbSet<Gonderim> Gonderimler { get; set; } = default!;
+    public DbSet<Ilerleme> Ilerlemeler { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,10 +46,18 @@ public class UygulamaDbContext : IdentityDbContext<IdentityUser>
         gonderim.HasOne<Gorev>().WithMany().HasForeignKey(g => g.GorevId)
             .OnDelete(DeleteBehavior.SetNull);
         gonderim.HasIndex(g => new { g.KullaniciId, g.TarihUtc, g.Id });
+        gonderim.HasIndex(g => new { g.KullaniciId, g.EgitimId, g.GorevId });
         gonderim.Property(g => g.Ders).HasMaxLength(150);
         gonderim.Property(g => g.GorevBasligi).HasMaxLength(200);
         gonderim.Property(g => g.Durum).HasMaxLength(32);
         gonderim.Property(g => g.Kod).HasMaxLength(32000);
+
+        var ilerleme = modelBuilder.Entity<Ilerleme>();
+        ilerleme.HasKey(i => new { i.KullaniciId, i.EgitimId });
+        ilerleme.HasOne<IdentityUser>().WithMany().HasForeignKey(i => i.KullaniciId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ilerleme.HasOne<Egitim>().WithMany().HasForeignKey(i => i.EgitimId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         OrnekVeri.Ekle(modelBuilder);
     }

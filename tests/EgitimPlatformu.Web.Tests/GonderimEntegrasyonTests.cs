@@ -45,6 +45,72 @@ public sealed class GonderimEntegrasyonTests
         c.DefaultRequestHeaders.Authorization = new("Bearer", yanit.GetProperty("accessToken").GetString());
     }
 
+    [Fact]
+    public async Task IlerlemeBasariliBenzersizGorevleriSayarVeTamamlanmayiKorur()
+    {
+        using var app = new IdentityApplication(gorevRunner: new Runner());
+        using var a = await app.IstemciAsync();
+        using var b = await app.IstemciAsync();
+        await JwtAl(a, "ilerleyen@example.test");
+        await JwtAl(b, "baska@example.test");
+
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
+        var gorevler = await db.Gorevler.Where(g => g.EgitimId == 1 && g.Aktif && g.Tur == "kod")
+            .OrderBy(g => g.No).ToListAsync();
+        Assert.True(gorevler.Count >= 2);
+        const string ilerleme = "/api/mobil/ilerlemeler/1";
+        string TestYolu(Gorev g) => $"/api/mobil/egitimler/1/gorevler/{g.No}/test";
+        Assert.Equal(HttpStatusCode.Conflict, (await a.PostAsJsonAsync(ilerleme + "/tamamla", new { })).StatusCode);
+        (await a.PostAsJsonAsync(TestYolu(gorevler[0]), new { kod = "yanlış" })).EnsureSuccessStatusCode();
+        Assert.Equal(0, (await a.GetFromJsonAsync<DersIlerlemesi>(ilerleme))!.Gecilen);
+        for (var i = 0; i < 2; i++)
+            (await a.PostAsJsonAsync(TestYolu(gorevler[0]), new { kod = "print('doğru')" })).EnsureSuccessStatusCode();
+        var kismi = (await a.GetFromJsonAsync<DersIlerlemesi>(ilerleme))!;
+        Assert.Equal(1, kismi.Gecilen);
+        Assert.Equal(gorevler.Count, kismi.Toplam);
+        Assert.False(kismi.Tamamlandi);
+
+        foreach (var gorev in gorevler.Skip(1))
+            (await a.PostAsJsonAsync(TestYolu(gorev), new { kod = "print('doğru')" })).EnsureSuccessStatusCode();
+        var tamam = (await a.GetFromJsonAsync<DersIlerlemesi>(ilerleme))!;
+        Assert.True(tamam.Tamamlandi);
+        Assert.Equal(100, tamam.Yuzde);
+        db.Gorevler.Add(new Gorev
+        {
+            EgitimId = 1, No = 99, Baslik = "Yeni görev", Tur = "kod", KontrolJson = gorevler[0].KontrolJson
+        });
+        await db.SaveChangesAsync();
+        Assert.Equal(tamam.TamamlanmaUtc,
+            (await a.GetFromJsonAsync<DersIlerlemesi>(ilerleme))!.TamamlanmaUtc);
+        Assert.Equal(0, (await b.GetFromJsonAsync<DersIlerlemesi>(ilerleme))!.Gecilen);
+    }
+
+    [Fact]
+    public async Task OkumaDersiElleBirKezTamamlanirVePanoIleAyniIlerlemeyiGosterir()
+    {
+        using var app = new IdentityApplication();
+        using var c = await app.IstemciAsync();
+        const string yol = "/api/mobil/ilerlemeler/2";
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.GetAsync(yol)).StatusCode);
+        await JwtAl(c, "okur@example.test");
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<UygulamaDbContext>();
+        var ders = await db.Egitimler.SingleAsync(e => e.Id == 2);
+        ders.TestKodu = "";
+        await db.SaveChangesAsync();
+        Assert.True((await c.GetFromJsonAsync<DersIlerlemesi>(yol))!.ElleTamamlanabilir);
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync(yol + "/tamamla", new { })).StatusCode);
+        var zaman = (await c.GetFromJsonAsync<DersIlerlemesi>(yol))!.TamamlanmaUtc;
+        Assert.NotNull(zaman);
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync(yol + "/tamamla", new { })).StatusCode);
+        Assert.Equal(zaman, (await c.GetFromJsonAsync<DersIlerlemesi>(yol))!.TamamlanmaUtc);
+        await IdentityApplication.GirisAsync(c, "okur@example.test");
+        var html = WebUtility.HtmlDecode(await c.GetStringAsync("/Pano"));
+        Assert.Contains("aria-valuenow=\"100\"", html);
+        Assert.Contains("PY-02", html);
+    }
+
     [Theory]
     [InlineData("print('yanlış')", false, "basarisiz", "  yanlış\n", "hata\n")]
     [InlineData("print('doğru')", true, "basarili", "doğru\n", "")]
