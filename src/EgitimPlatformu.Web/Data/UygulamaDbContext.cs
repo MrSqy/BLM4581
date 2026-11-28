@@ -16,6 +16,7 @@ public class UygulamaDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Gorev> Gorevler { get; set; } = default!;
     public DbSet<Gonderim> Gonderimler { get; set; } = default!;
     public DbSet<Ilerleme> Ilerlemeler { get; set; } = default!;
+    public DbSet<Notebook> Notebooklar { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +59,16 @@ public class UygulamaDbContext : IdentityDbContext<IdentityUser>
             .OnDelete(DeleteBehavior.Cascade);
         ilerleme.HasOne<Egitim>().WithMany().HasForeignKey(i => i.EgitimId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        var notebook = modelBuilder.Entity<Notebook>();
+        notebook.Property(n => n.Baslik).HasMaxLength(150);
+        notebook.HasOne<IdentityUser>().WithMany().HasForeignKey(n => n.KullaniciId)
+            .OnDelete(DeleteBehavior.Cascade);
+        // Ders silindiğinde belge sahibine ait kişisel bir notebook olarak kalır.
+        notebook.HasOne<Egitim>().WithMany().HasForeignKey(n => n.EgitimId)
+            .OnDelete(DeleteBehavior.SetNull);
+        notebook.HasIndex(n => new { n.KullaniciId, n.GuncellendiUtc, n.Id });
+        notebook.HasIndex(n => new { n.EgitimId, n.GuncellendiUtc, n.Id });
 
         OrnekVeri.Ekle(modelBuilder);
     }

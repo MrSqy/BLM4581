@@ -568,6 +568,45 @@ namespace EgitimPlatformu.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Notebook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Baslik")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int?>("EgitimId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("GuncellendiUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IcerikJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("KullaniciId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Surum")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EgitimId", "GuncellendiUtc", "Id");
+
+                    b.HasIndex("KullaniciId", "GuncellendiUtc", "Id");
+
+                    b.ToTable("Notebooklar");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -807,6 +846,20 @@ namespace EgitimPlatformu.Web.Migrations
                         .HasForeignKey("EgitimId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("KullaniciId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EgitimPlatformu.Web.Models.Notebook", b =>
+                {
+                    b.HasOne("EgitimPlatformu.Web.Models.Egitim", null)
+                        .WithMany()
+                        .HasForeignKey("EgitimId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
