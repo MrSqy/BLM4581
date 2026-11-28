@@ -1,0 +1,36 @@
+@page
+@model EgitimPlatformu.Web.Pages.Yonetim.NotebooklarModel
+@{ ViewData["Title"] = "Notebook yönetimi"; }
+<partial name="_Menu" />
+<h1>Ders notebook’ları</h1>
+<div asp-validation-summary="All" class="text-danger"></div>
+<partial name="_SilmeOnayi" model="Model" />
+<form method="post" enctype="multipart/form-data" class="content-panel mb-4">
+    <h2>Derse notebook ekle</h2>
+    <div class="mb-3">
+        <label asp-for="Baslik">Başlık</label>
+        <input asp-for="Baslik" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label asp-for="EgitimId">Ders</label>
+        <select asp-for="EgitimId" class="form-select" required>
+            <option value="">Ders seçin</option>
+            @foreach (var e in Model.Egitimler) { <option value="@e.Id">@e.Kod · @e.Baslik</option> }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Belge">Notebook dosyası (isteğe bağlı)</label>
+        <input asp-for="Belge" type="file" accept=".ipynb,application/json" class="form-control" />
+    </div>
+    <button class="btn btn-primary">Notebook ekle</button>
+</form>
+@if (Model.Kayitlar.Count == 0) { <p>Henüz derse bağlı notebook yok.</p> }
+<ul class="list-group">
+@foreach (var n in Model.Kayitlar)
+{
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <a asp-page="/Notebooklar/Detay" asp-route-id="@n.Id">@n.Baslik</a>
+        <a asp-page="./Notebooklar" asp-route-silId="@n.Id">Sil</a>
+    </li>
+}
+</ul>

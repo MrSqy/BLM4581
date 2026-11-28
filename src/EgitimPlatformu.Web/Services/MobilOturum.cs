@@ -10,9 +10,10 @@ public sealed class MobilOturum(JwtServisi jwt, UserManager<IdentityUser> users)
     public bool Kullanilabilir => jwt.Anahtar() is not null;
     public async Task<object> Olustur(IdentityUser user, string adSoyad)
     {
-        var token = jwt.Uret(user, await users.GetRolesAsync(user));
+        var roller = await users.GetRolesAsync(user);
+        var token = jwt.Uret(user, roller);
         return new { token = token.AccessToken, bitis = token.ExpiresAt,
-            kullanici = new { id = user.Id, eposta = user.Email, adSoyad } };
+            kullanici = new { id = user.Id, eposta = user.Email, adSoyad, yonetici = roller.Contains(Roller.Yonetici) } };
     }
 }
 

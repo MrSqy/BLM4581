@@ -24,6 +24,7 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
     public string? Hata { get; private set; }
     public bool CalistirmayaIzinVar { get; private set; }
     public DersIlerlemesi? Ilerleme { get; private set; }
+    public List<NotebookBaglantisi> Notebooklar { get; private set; } = [];
     [TempData] public string? IlerlemeMesaji { get; set; }
     // Kuyruk ve çalıştırıcı üst sınırından sonra yanıt/kayıt için 15 saniye ayır.
     public int IstekZamanAsimiMs => (int)Math.Clamp(
@@ -59,6 +60,9 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
             CalistirmayaIzinVar = User.Identity?.IsAuthenticated == true || await erisim.IlkDers(Egitim, cancellationToken);
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) is { } kullaniciId)
             {
+                Notebooklar = await db.Notebooklar.AsNoTracking().Where(n => n.EgitimId == Egitim.Id)
+                    .OrderBy(n => n.Baslik).ThenBy(n => n.Id)
+                    .Select(n => new NotebookBaglantisi(n.Id, n.Baslik)).ToListAsync(cancellationToken);
                 try { Ilerleme = (await ilerleme.ListeAsync(kullaniciId, cancellationToken, Egitim.Id)).SingleOrDefault(); }
                 catch (Exception ex) when (GonderimGecmisiHatasi.VeritabaniHatasiMi(ex))
                 {
@@ -171,4 +175,5 @@ public class DetayModel(UygulamaDbContext db, MarkdownServisi markdown, ILogger<
     public sealed record GorevIcerigi(int Id, int? No, string Baslik, string AciklamaHtml,
         string Tur, string BaslangicKodu, bool OtomatikKontrolVar);
     public sealed record DersBaglantisi(int Id, string Kod, string Baslik);
+    public sealed record NotebookBaglantisi(int Id, string Baslik);
 }

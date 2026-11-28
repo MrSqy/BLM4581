@@ -14,6 +14,7 @@ public class YonetimGezinmeTests
     [InlineData("/Yonetim/Kategoriler", "/Yonetim/Kategoriler")]
     [InlineData("/Yonetim/Egitimler", "/Yonetim/Egitimler")]
     [InlineData("/Yonetim/Gorevler", "/Yonetim/Gorevler")]
+    [InlineData("/Yonetim/Notebooklar", "/Yonetim/Notebooklar")]
     [InlineData("/Yonetim/Kullanicilar", "/Yonetim/Kullanicilar")]
     [InlineData("/Yonetim/Istatistikler", "/Yonetim/Istatistikler")]
     [InlineData("/Yonetim/Kategoriler?DuzenleId=1", "/Yonetim/Kategoriler")]
@@ -35,7 +36,7 @@ public class YonetimGezinmeTests
         Assert.Contains("href=\"/Yonetim\"", heading);
         var menu = Regex.Match(main, "<nav\\b[^>]*class=\"management-nav\"[^>]*>.*?</nav>", RegexOptions.Singleline).Value;
         var labels = Regex.Matches(menu, "<a[^>]*>([^<]+)</a>").Select(m => WebUtility.HtmlDecode(m.Groups[1].Value)).ToArray();
-        Assert.Equal(new[] { "Kategoriler", "Eğitimler", "Görevler", "Kullanıcılar", "İstatistikler" }, labels);
+        Assert.Equal(new[] { "Kategoriler", "Eğitimler", "Görevler", "Notebook’lar", "Kullanıcılar", "İstatistikler" }, labels);
         Assert.DoesNotContain(">Panel</a>", main);
         var active = Assert.Single(Regex.Matches(heading + menu, "<a\\b[^>]*aria-current=\"page\"[^>]*>"));
         Assert.Contains($"href=\"{aktifUrl}\"", active.Value);

@@ -47,6 +47,18 @@ else
                     <span class="badge text-bg-success mt-3">Ders tamamlandı</span>
                 }
             </section>
+            @if (Model.Notebooklar.Count > 0)
+            {
+                <section class="content-panel mt-4" aria-labelledby="notebook-title">
+                    <h2 id="notebook-title" class="panel-title">Notebook’lar</h2>
+                    <ul>
+                    @foreach (var notebook in Model.Notebooklar)
+                    {
+                        <li><a asp-page="/Notebooklar/Detay" asp-route-id="@notebook.Id">@notebook.Baslik</a></li>
+                    }
+                    </ul>
+                </section>
+            }
             @if (!string.IsNullOrWhiteSpace(Model.Egitim.BaslangicKodu))
             {
                 <section id="baslangic-kodu" class="content-panel mt-4" aria-labelledby="starter-title"><h2 id="starter-title" class="panel-title">Başlangıç kodu</h2><p class="section-note">Bu şablonu aşağıdaki kod alanında düzenleyebilirsin.</p><pre class="starter-code"><code>@Model.Egitim.BaslangicKodu</code></pre></section>

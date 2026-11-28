@@ -115,6 +115,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+app.UseWebSockets();
 
 app.MapControllers();
 app.MapStaticAssets();

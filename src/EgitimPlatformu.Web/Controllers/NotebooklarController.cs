@@ -22,6 +22,7 @@ public sealed class NotebooklarController(UygulamaDbContext db) : ControllerBase
     private bool Yonetici => User.IsInRole(Roller.Yonetici);
 
     [HttpGet]
+    [HttpGet("~/api/mobil/notebooklar")]
     public async Task<ActionResult<List<NotebookOzeti>>> Liste(CancellationToken ct,
         [FromQuery, Range(1, int.MaxValue)] int? egitimId = null,
         [FromQuery, Range(1, 1000000)] int sayfa = 1,
@@ -48,7 +49,7 @@ public sealed class NotebooklarController(UygulamaDbContext db) : ControllerBase
     public async Task<ActionResult<NotebookDetayi>> Olustur(NotebookOlusturIstegi istek, CancellationToken ct)
     {
         if (istek.EgitimId.HasValue && !Yonetici) return Forbid(JwtBearerDefaults.AuthenticationScheme);
-        if (!Gecerli(istek.Icerik)) return GecersizBelge();
+        if (!NotebookBelgesi.Gecerli(istek.Icerik)) return GecersizBelge();
         if (istek.EgitimId is { } ders && !await db.Egitimler.AnyAsync(e => e.Id == ders, ct))
             return NotFound(new { mesaj = "Ders bulunamadı." });
 
@@ -66,7 +67,7 @@ public sealed class NotebooklarController(UygulamaDbContext db) : ControllerBase
     public async Task<IActionResult> Guncelle(int id, NotebookGuncelleIstegi istek, CancellationToken ct)
     {
         var sorgu = Duzenlenebilir(id);
-        if (!Gecerli(istek.Icerik)) return GecersizBelge();
+        if (!NotebookBelgesi.Gecerli(istek.Icerik)) return GecersizBelge();
         var baslik = istek.Baslik.Trim();
         var icerik = istek.Icerik.GetRawText();
         var zaman = DateTime.UtcNow;
@@ -83,28 +84,12 @@ public sealed class NotebooklarController(UygulamaDbContext db) : ControllerBase
     public async Task<IActionResult> Sil(int id, CancellationToken ct) =>
         await Duzenlenebilir(id).ExecuteDeleteAsync(ct) > 0 ? NoContent() : NotFound();
 
-    private IQueryable<Notebook> Okunabilir()
-    {
-        var kullanici = KullaniciId;
-        return db.Notebooklar.AsNoTracking().Where(n => n.EgitimId.HasValue || n.KullaniciId == kullanici);
-    }
+    private IQueryable<Notebook> Okunabilir() => db.Notebooklar.AsNoTracking().Okunabilir(KullaniciId);
 
     private IQueryable<Notebook> Duzenlenebilir(int id)
     {
-        var kullanici = KullaniciId;
-        return db.Notebooklar.Where(n => n.Id == id &&
-            (n.EgitimId.HasValue ? Yonetici : n.KullaniciId == kullanici));
+        return db.Notebooklar.Duzenlenebilir(KullaniciId, Yonetici).Where(n => n.Id == id);
     }
-
-    private static bool Gecerli(JsonElement belge) =>
-        belge.ValueKind == JsonValueKind.Object &&
-        belge.TryGetProperty("nbformat", out var bicim) && bicim.ValueKind == JsonValueKind.Number &&
-        bicim.TryGetInt32(out var ana) && ana == 4 &&
-        belge.TryGetProperty("nbformat_minor", out var altBicim) && altBicim.ValueKind == JsonValueKind.Number &&
-        altBicim.TryGetInt32(out var alt) && alt >= 0 &&
-        belge.TryGetProperty("metadata", out var metadata) && metadata.ValueKind == JsonValueKind.Object &&
-        belge.TryGetProperty("cells", out var hucreler) && hucreler.ValueKind == JsonValueKind.Array &&
-        hucreler.EnumerateArray().All(hucre => hucre.ValueKind == JsonValueKind.Object);
 
     private BadRequestObjectResult GecersizBelge() =>
         BadRequest(new { mesaj = "Geçerli bir nbformat 4 notebook belgesi gönderin." });

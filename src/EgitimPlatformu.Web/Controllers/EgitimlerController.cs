@@ -36,6 +36,7 @@ public sealed class EgitimlerController(UygulamaDbContext db, DersErisimi erisim
         if (!await erisim.Izinli(HttpContext, ders, ct)) return Unauthorized();
         return DetayDto(ders);
     }
+    [HttpPost("~/api/mobil/yonetim/egitimler")]
     [HttpPost, Authorize(Policy = "ApiYonetici"), RequestSizeLimit(1024 * 1024)]
     [ProducesResponseType<EgitimDetay>(201), ProducesResponseType(400), ProducesResponseType(409)]
     public async Task<IActionResult> Ekle(EgitimYazma veri, CancellationToken ct)
@@ -46,6 +47,7 @@ public sealed class EgitimlerController(UygulamaDbContext db, DersErisimi erisim
         try { await db.SaveChangesAsync(ct); } catch (DbUpdateException) { return Cakisma(); }
         return CreatedAtAction(nameof(Detay), new { id = ders.Id }, DetayDto(ders));
     }
+    [HttpPut("~/api/mobil/yonetim/egitimler/{id:int:min(1)}")]
     [HttpPut("{id:int}"), Authorize(Policy = "ApiYonetici"), RequestSizeLimit(1024 * 1024)]
     [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(409)]
     public async Task<IActionResult> Guncelle(int id, EgitimYazma veri, CancellationToken ct)
@@ -58,6 +60,7 @@ public sealed class EgitimlerController(UygulamaDbContext db, DersErisimi erisim
         try { await db.SaveChangesAsync(ct); } catch (DbUpdateException) { return Cakisma(); }
         return NoContent();
     }
+    [HttpDelete("~/api/mobil/yonetim/egitimler/{id:int:min(1)}")]
     [HttpDelete("{id:int}"), Authorize(Policy = "ApiYonetici")]
     [ProducesResponseType(204), ProducesResponseType(404), ProducesResponseType(409)]
     public async Task<IActionResult> Sil(int id, CancellationToken ct)

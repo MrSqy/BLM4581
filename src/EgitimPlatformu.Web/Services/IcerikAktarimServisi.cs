@@ -43,6 +43,55 @@ public sealed class IcerikAktarimServisi(UygulamaDbContext db)
         return null;
     }
 
+    public async Task<IReadOnlyList<string>> DegisenDerslerAsync(IcerikPaketi paket, CancellationToken ct)
+    {
+        var kodlar = paket.Kategoriler.SelectMany(k => k.Egitimler).Select(e => e.Kod).ToArray();
+        var mevcut = await db.Egitimler.AsNoTracking().Include(e => e.Kategori).Include(e => e.Gorevler)
+            .Where(e => kodlar.Contains(e.Kod)).ToDictionaryAsync(e => e.Kod, ct);
+
+        var degisen = new List<string>();
+        foreach (var kategori in paket.Kategoriler)
+        foreach (var ders in kategori.Egitimler)
+        {
+            if (!mevcut.TryGetValue(ders.Kod, out var kayit) ||
+                kayit.Kategori?.Kisaltma != kategori.Kisaltma || kayit.Kategori.Ad != kategori.Ad ||
+                kayit.Kategori.Aciklama != kategori.Aciklama || kayit.Kategori.Sira != kategori.Sira ||
+                kayit.Baslik != ders.Baslik || kayit.Sira != ders.Sira ||
+                kayit.IcerikMarkdown != ders.IcerikMarkdown || kayit.BaslangicKodu != ders.BaslangicKodu ||
+                kayit.TestKodu != ders.TestKodu || !GorevlerAyni(kayit, ders, paket.Surum))
+                degisen.Add(ders.Kod);
+        }
+        return degisen;
+    }
+
+    private static bool GorevlerAyni(Egitim kayit, EgitimAktarimi ders, int surum)
+    {
+        var aktif = kayit.Gorevler.Where(g => g.Aktif).ToList();
+        if (surum == 2 && aktif.Count != ders.Gorevler.Count) return false;
+        if (surum == 1 && kayit.Gorevler.Any(g => g.Tur != "eski-pytest")) return false;
+        foreach (var kaynak in ders.Gorevler)
+        {
+            var gorev = aktif.Find(g => g.No == kaynak.No);
+            if (gorev is null || gorev.Baslik != kaynak.Baslik || gorev.Aciklama != kaynak.Aciklama)
+                return false;
+            if (surum == 2 && (gorev.Tur != kaynak.Tur || gorev.BaslangicDosyasi != kaynak.BaslangicDosyasi ||
+                gorev.BaslangicKodu != kaynak.BaslangicKodu || !KontrolAyni(gorev.KontrolJson, kaynak.Kontrol)))
+                return false;
+        }
+        return true;
+    }
+
+    private static bool KontrolAyni(string? mevcut, GorevKontrolu? kaynak)
+    {
+        if (mevcut is null || kaynak is null) return mevcut is null && kaynak is null;
+        try
+        {
+            using var belge = JsonDocument.Parse(mevcut);
+            return JsonElement.DeepEquals(belge.RootElement, JsonSerializer.SerializeToElement(kaynak));
+        }
+        catch (JsonException) { return false; }
+    }
+
     public async Task<AktarimSonucu> AktarAsync(IcerikPaketi paket, CancellationToken cancellationToken)
     {
         var hata = TutarlilikHatasi(paket);

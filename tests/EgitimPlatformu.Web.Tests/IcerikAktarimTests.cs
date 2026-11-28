@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using EgitimPlatformu.Web.Contracts;
 using EgitimPlatformu.Web.Data;
 using EgitimPlatformu.Web.Services;
@@ -86,6 +87,45 @@ public sealed class IcerikAktarimTests
         Assert.Equal("Güncellenen görev", saved.Gorevler.Single().Baslik);
         Assert.Equal(4, await context.Egitimler.CountAsync());
         Assert.Equal(25, await context.Gorevler.CountAsync());
+    }
+
+    [Fact]
+    public async Task ArtimliFarkYalnizDegisenDersiVeKontrolleriBulur()
+    {
+        using var app = new IdentityApplication();
+        using var client = await YoneticiAsync(app);
+        using var anonim = await app.IstemciAsync();
+        var paket = Paket();
+        paket.Surum = 2;
+        var kategori = paket.Kategoriler[0];
+        var birinci = kategori.Egitimler[0];
+        birinci.Gorevler[0].Tur = "aciklama";
+        birinci.Gorevler[0].BaslangicKodu = "";
+        var ikinci = new EgitimAktarimi
+        {
+            Kod = "DEN-02", Baslik = "İkinci ders",
+            Gorevler = [new() { No = 1, Baslik = "Kod", Tur = "kod", BaslangicDosyasi = "gorevler/ad.py",
+                BaslangicKodu = "print(42)", Kontrol = new() { Tur = "standart-cikti", BeklenenCikti = "42" } }]
+        };
+        kategori.Egitimler.Add(ikinci);
+
+        async Task<string[]> Fark()
+        {
+            using var yanit = await client.PostAsJsonAsync("/api/icerik/fark", paket);
+            yanit.EnsureSuccessStatusCode();
+            var json = await yanit.Content.ReadFromJsonAsync<JsonElement>();
+            return json.GetProperty("degisenDersler").Deserialize<string[]>()!;
+        }
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonim.PostAsJsonAsync("/api/icerik/fark", paket)).StatusCode);
+        Assert.Equal(new[] { "DEN-01", "DEN-02" }, await Fark());
+        Assert.Empty((await client.GetFromJsonAsync<EgitimSayfasi>("/api/egitimler?q=DEN"))!.Egitimler);
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/icerik/aktar", paket)).StatusCode);
+        Assert.Empty(await Fark());
+        ikinci.Gorevler[0].Kontrol!.BeklenenCikti = "43";
+        Assert.Equal(new[] { "DEN-02" }, await Fark());
+        ikinci.Gorevler.Clear();
+        Assert.Equal(new[] { "DEN-02" }, await Fark());
     }
 
     [Theory]

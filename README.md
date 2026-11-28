@@ -192,3 +192,5 @@ NOTEBOOK_DOCKER_TEST=1 dotnet test EgitimPlatformu.slnx --filter FullyQualifiedN
 `INotebookCalistirmaServisi` uygulama içinden çağrılır. Hücre çıktıları Jupyter
 `output_type` biçiminde döner. Çalıştırma sonucu tamamlanma, süre aşımı, çıktı
 sınırı veya altyapı hatasını bildirir.
+
+Notebook yönetimi, mobil yönetici API’si ve artımlı aktarım sözleşmesi için [API_HAFTA_06](docs/API_HAFTA_06.md).

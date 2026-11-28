@@ -17,6 +17,20 @@ public sealed class IcerikController(IcerikAktarimServisi aktarim) : ControllerB
     public IActionResult Token([FromServices] IAntiforgery antiforgery)
         => Ok(new { token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken });
 
+    [HttpPost("fark")]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(5 * 1024 * 1024)]
+    public async Task<IActionResult> Fark(IcerikPaketi paket, CancellationToken ct)
+    {
+        var hata = IcerikAktarimServisi.TutarlilikHatasi(paket);
+        if (hata is not null)
+        {
+            ModelState.AddModelError(nameof(paket.Kategoriler), hata);
+            return ValidationProblem(ModelState);
+        }
+        return Ok(new { degisenDersler = await aktarim.DegisenDerslerAsync(paket, ct) });
+    }
+
     [HttpPost("aktar")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(5 * 1024 * 1024)]

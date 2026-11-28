@@ -1,0 +1,52 @@
+@page "{id:int:min(1)}"
+@model EgitimPlatformu.Web.Pages.Notebooklar.DetayModel
+@{ ViewData["Title"] = Model.Kayit.Baslik; }
+<header class="page-heading">
+    <h1>@Model.Kayit.Baslik</h1>
+    @if (Model.Kayit.EgitimId is int ders)
+    {
+        <a asp-page="/Egitimler/Detay" asp-route-id="@ders">Derse dön</a>
+    }
+</header>
+@if (Model.Bildirim is { } bildirim) { <p role="status" class="alert alert-warning">@bildirim</p> }
+@if (Model.Hucreler.Count == 0) { <p>Notebook’ta henüz hücre yok.</p> }
+@foreach (var hucre in Model.Hucreler)
+{
+    <section class="content-panel mb-3">
+        <h2>@(hucre.Sira + 1). @(hucre.Tur == "code" ? "Kod" : hucre.Tur == "markdown" ? "Markdown" : "Ham hücre")</h2>
+        @if (hucre.Tur == "markdown")
+        {
+            <div class="markdown-content">@Html.Raw(Model.MarkdownHtml(hucre.Kaynak))</div>
+        }
+        else
+        {
+            <pre><code>@hucre.Kaynak</code></pre>
+        }
+        @if (hucre.Ciktilar is { } ciktilar && ciktilar != "[]")
+        {
+            <details><summary>Kayıtlı çıktılar</summary><pre><code>@ciktilar</code></pre></details>
+        }
+        @if (Model.Duzenlenebilir)
+        {
+            <form method="post" asp-page-handler="Hucre" asp-route-id="@Model.Kayit.Id" class="mt-3">
+                <input type="hidden" name="surum" value="@Model.Kayit.Surum" />
+                <input type="hidden" name="sira" value="@hucre.Sira" />
+                <label for="kaynak-@hucre.Sira">Hücre kaynağı</label>
+                <textarea id="kaynak-@hucre.Sira" name="kaynak" rows="5" class="form-control mb-2">
+@hucre.Kaynak</textarea>
+                <button class="btn btn-primary" name="islem" value="kaydet">Kaydet</button>
+                <button class="btn btn-outline-secondary" name="islem" value="yukari" disabled="@(hucre.Sira == 0)">Yukarı taşı</button>
+                <button class="btn btn-outline-secondary" name="islem" value="asagi" disabled="@(hucre.Sira + 1 == Model.Hucreler.Count)">Aşağı taşı</button>
+                <button class="btn btn-outline-danger" name="islem" value="sil">Hücreyi sil</button>
+            </form>
+        }
+    </section>
+}
+@if (Model.Duzenlenebilir)
+{
+    <form method="post" asp-page-handler="Hucre" asp-route-id="@Model.Kayit.Id">
+        <input type="hidden" name="surum" value="@Model.Kayit.Surum" />
+        <button class="btn btn-outline-primary" name="islem" value="kod">Kod hücresi ekle</button>
+        <button class="btn btn-outline-primary" name="islem" value="markdown">Markdown hücresi ekle</button>
+    </form>
+}
